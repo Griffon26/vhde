@@ -1,0 +1,31 @@
+
+
+
+
+things to consider:
+
+- diagram elements are group actor containing other actors
+- actors have property that points to diagram element
+- diagram element registers for actors' signals
+
+- selection is a hierarchical diagram element
+
+- each diagram element determines its own movement based on provided mouse
+  motion events
+
+- transitory elements (ghost while dragging multiple selection)
+
+
+
+------
+- how to implement tolerance when picking up the edge of an object for
+  resizing
+- how to implement changing mouse cursor when hovering over an edge
+answer to both:
+- override and change pick when necessary, otherwise just use existing area of
+  an actor
+
+
+- how to implement lower/raise? How does one actor know where it is in the
+  sort order?
+
