@@ -1,6 +1,13 @@
 .PHONY: clean
 
-SOURCES= layout_block.cpp \
+CPPFLAGS=`pkg-config cluttermm-0.9 --cflags` \
+	 `pkg-config libglademm-2.4 --cflags`
+LDFLAGS=`pkg-config cluttermm-0.9 --libs` \
+	`pkg-config libglademm-2.4 --libs`
+
+SOURCES= main.cpp \
+	 triangle_actor.cc \
+	 layout_block.cpp \
 	 layout_port.cpp \
 	 layout_signal.cpp \
 	 vhdl_architecture.cpp \
@@ -11,23 +18,11 @@ SOURCES= layout_block.cpp \
 	 vhdl_signal.cpp \
 	 vhdl_type.cpp
 
-ALL_EXE= \
-	01_moving_rectangles_by_dragging \
-	02_dragging_port_on_component \
-	main
+OBJECTS=$(patsubst %.cpp,%.o,$(filter %.cpp,$(SOURCES))) \
+	$(patsubst %.cc,%.o,$(filter %.cc,$(SOURCES)))
 
-all: $(ALL_EXE)
-
-%: %.cpp
-	 g++ -g $^ -o $@ \
-						`pkg-config cluttermm-0.9 --cflags --libs` \
-						`pkg-config libglademm-2.4 --cflags --libs`
-
-main: main.cpp triangle_actor.cc $(SOURCES)
-	 g++ -g $^ -o $@ \
-						`pkg-config cluttermm-0.9 --cflags --libs` \
-						`pkg-config libglademm-2.4 --cflags --libs`
+main: $(OBJECTS)
 
 clean:
-	rm -f $(ALL_EXE)
+	rm -f main $(OBJECTS)
 
