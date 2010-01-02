@@ -19,26 +19,26 @@
  *
  */
 
-#ifndef _VHDL_INTERFACE_H
-#define _VHDL_INTERFACE_H
+#ifndef _VHDL_PORT_H
+#define _VHDL_PORT_H
 
 #include <glibmm.h>
+#include <stdio.h>
 
-#include "vhdl_generic.h"
-#include "vhdl_port.h"
+#include "vhdl_type.h"
 
-class VHDLInterface
+class VHDLPort
 {
 public:
   typedef enum {
-    TYPE_ENTITY,
-    TYPE_COMPONENT
-  } Type;
+    DIR_IN,
+    DIR_OUT,
+    DIR_INOUT
+  } Direction;
 private:
-  Type                    m_type;
   Glib::ustring           m_name;
-  std::list<VHDLGeneric>  m_generics;
-  std::list<VHDLPort>     m_ports;
+  Direction               m_direction;
+  VHDLType                m_type;
 
 public:
   bool write(FILE *pFile, int indent);
@@ -46,4 +46,4 @@ public:
   const Glib::ustring getName() { return m_name; }
 };
 
-#endif /* _VHDL_INTERFACE_H */
+#endif /* _VHDL_WIRE_H */

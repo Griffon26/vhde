@@ -19,5 +19,24 @@
  *
  */
 
-#include "vhdl_wire.h"
+#ifndef _VHDL_SIGNAL_H
+#define _VHDL_SIGNAL_H
 
+#include <glibmm.h>
+#include <stdio.h>
+
+#include "vhdl_type.h"
+
+class VHDLSignal
+{
+private:
+  Glib::ustring           m_name;
+  VHDLType                m_type;
+
+public:
+  bool write(FILE *pFile, int indent);
+
+  const Glib::ustring getName() { return m_name; }
+};
+
+#endif /* _VHDL_SIGNAL_H */

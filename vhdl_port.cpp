@@ -19,27 +19,13 @@
  *
  */
 
-#ifndef _VHDL_WIRE_H
-#define _VHDL_WIRE_H
+#include "vhdl_port.h"
 
-#include <glibmm.h>
-#include <stdio.h>
-
-#include "vhdl_type.h"
-
-class VHDLWire
+bool VHDLPort::write(FILE *pFile, int indent)
 {
-public:
-  enum {
-    TYPE_SIGNAL,
-    TYPE_PORT
-  };
-private:
-  Glib::ustring           m_name;
-  VHDLType                m_type;
-
-public:
-  bool write(FILE *pFile, int indent);
-};
-
-#endif /* _VHDL_WIRE_H */
+  fprintf(pFile, "%*s%s: %s %s;\n", indent, "", m_name.c_str(), 
+                                    (m_direction == DIR_IN) ? "in" : 
+                                    (m_direction == DIR_OUT) ? "out" :
+                                                               "inout", "sometype");
+  return true;
+}

@@ -7,8 +7,9 @@ SOURCES= layout_block.cpp \
 	 vhdl_generic.cpp \
 	 vhdl_instance.cpp \
 	 vhdl_interface.cpp \
-	 vhdl_type.cpp \
-	 vhdl_wire.cpp
+	 vhdl_port.cpp \
+	 vhdl_signal.cpp \
+	 vhdl_type.cpp
 
 ALL_EXE= \
 	01_moving_rectangles_by_dragging \

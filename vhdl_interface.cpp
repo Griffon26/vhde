@@ -38,24 +38,27 @@
 bool VHDLInterface::write(FILE *pFile, int indent)
 {
   std::list<VHDLGeneric>::iterator git;
-  std::list<VHDLWire>::iterator wit;
+  std::list<VHDLPort>::iterator pit;
 
   if(m_type == TYPE_ENTITY)
   {
-    fprintf(pFile, "%*sentity %s is\n", indent, "", m_name);
+    fprintf(pFile, "%*sentity %s is\n", indent, "", m_name.c_str());
   }
   else
   {
-    fprintf(pFile, "%*scomponent %s\n", indent, "", m_name);
+    fprintf(pFile, "%*scomponent %s\n", indent, "", m_name.c_str());
   }
 
-
-  
-
+  fprintf(pFile, "%*sport (\n", indent, "");
+  for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
+  {
+    pit->write(pFile, indent + 2);
+  }
+  fprintf(pFile, "%*s)\n", indent, "");
 
   if(m_type == TYPE_ENTITY)
   {
-    fprintf(pFile, "%*send %s\n", indent, "", m_name);
+    fprintf(pFile, "%*send %s\n", indent, "", m_name.c_str());
   }
   else
   {

@@ -81,5 +81,19 @@ instance
   list of connections { name, type }
 
 
+portmap:
+begin
+  G1: INV port map (SEL, SELB);
+  G2: AOI port map (SEL, A, SELB, B, F);
+end; 
+
+signals:
+signal SELB: STD_LOGIC;
+
+ports:
+port (SEL, A, B: in STD_LOGIC;
+      F : out STD_LOGIC);
+
+
 
 

@@ -25,7 +25,7 @@
 #include <glibmm.h>
 
 #include "vhdl_interface.h"
-#include "vhdl_wire.h"
+#include "vhdl_signal.h"
 
 class VHDLInstance
 {
@@ -33,10 +33,12 @@ private:
   Glib::ustring             m_name;
   VHDLInterface            *m_pComponent;
   std::list<Glib::ustring>  m_genericMap;
-  std::list<VHDLWire *>     m_portMap;
+  std::list<VHDLSignal *>   m_portMap;
 
 public:
   bool write(FILE *pFile, int indent);
+
+  VHDLInterface *getComponent() { return m_pComponent; }
 };
 
 #endif /* _VHDL_INSTANCE_H */

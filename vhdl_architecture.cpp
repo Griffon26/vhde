@@ -10,12 +10,12 @@
  * (at your option) any later version.
  * 
  * Foobar is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but sitHOUT ANY WARRANTY; sithout even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along sith Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -23,21 +23,21 @@
 
 bool VHDLArchitecture::write(FILE *pFile, int indent)
 {
-  std::list<VHDLWire>::iterator wit;
+  std::list<VHDLSignal>::iterator sit;
   std::list<VHDLInstance>::iterator iit;
 
   m_pEntity->write(pFile, indent);
 
-  fprintf(pFile, "%*sarchitecture %s of %s is\n\n", indent, "", m_name, m_pEntity->getName());
+  fprintf(pFile, "%*sarchitecture %s of %s is\n\n", indent, "", m_name.c_str(), m_pEntity->getName().c_str());
 
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
     iit->getComponent()->write(pFile, indent);
   }
 
-  for(wit = m_signals.begin(); wit != m_signals.end(); wit++)
+  for(sit = m_signals.begin(); sit != m_signals.end(); sit++)
   {
-    wit->write(pFile, indent);
+    sit->write(pFile, indent);
   }
 
   fprintf(pFile, "%*sbegin\n", indent, "");

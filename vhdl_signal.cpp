@@ -19,31 +19,10 @@
  *
  */
 
-#ifndef _VHDL_INTERFACE_H
-#define _VHDL_INTERFACE_H
+#include "vhdl_signal.h"
 
-#include <glibmm.h>
-
-#include "vhdl_generic.h"
-#include "vhdl_port.h"
-
-class VHDLInterface
+bool VHDLSignal::write(FILE *pFile, int indent)
 {
-public:
-  typedef enum {
-    TYPE_ENTITY,
-    TYPE_COMPONENT
-  } Type;
-private:
-  Type                    m_type;
-  Glib::ustring           m_name;
-  std::list<VHDLGeneric>  m_generics;
-  std::list<VHDLPort>     m_ports;
-
-public:
-  bool write(FILE *pFile, int indent);
-
-  const Glib::ustring getName() { return m_name; }
-};
-
-#endif /* _VHDL_INTERFACE_H */
+  fprintf(pFile, "%*ssignal %s: %s;\n", indent, "", m_name.c_str(), "sometype");
+  return true;
+}

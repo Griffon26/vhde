@@ -27,14 +27,14 @@
 
 #include "vhdl_instance.h"
 #include "vhdl_interface.h"
-#include "vhdl_wire.h"
+#include "vhdl_signal.h"
 
 class VHDLArchitecture
 {
 private:
   Glib::ustring           m_name;
   VHDLInterface          *m_pEntity;
-  std::list<VHDLWire>     m_signals;
+  std::list<VHDLSignal>   m_signals;
   std::list<VHDLInstance> m_instances;
 
 public:

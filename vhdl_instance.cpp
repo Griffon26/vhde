@@ -21,3 +21,20 @@
 
 #include "vhdl_instance.h"
 
+bool VHDLInstance::write(FILE *pFile, int indent)
+{
+  std::list<VHDLSignal *>::iterator it;
+
+  fprintf(pFile, "%*s%s: %s port map (", indent, "", m_name.c_str(), m_pComponent->getName().c_str());
+
+  for(it = m_portMap.begin(); it != m_portMap.end(); it++)
+  {
+    fprintf(pFile, "%s%s", (it == m_portMap.begin()) ? ", " : "", (*it)->getName().c_str());
+  }
+
+  fprintf(pFile, ");\n"
+                 "%*send;\n", indent, "");
+
+  return true;
+}
+
