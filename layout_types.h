@@ -22,16 +22,16 @@
 #ifndef _LAYOUT_TYPES_H
 #define _LAYOUT_TYPES_H
 
-class LayoutPosition
+typedef struct
 {
   int x;
   int y;
-};
+} LayoutPosition;
 
-class LayoutSize
+typedef struct
 {
   int width;
   int height;
-};
+} LayoutSize;
 
 #endif /* _LAYOUT_TYPES_H */

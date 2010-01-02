@@ -24,6 +24,7 @@
 #include <cluttermm.h>
 #include <iostream>
 
+#include "layout_block.h"
 #include "triangle_actor.h"
 #include "vhdl_architecture.h"
 
@@ -516,9 +517,36 @@ int main(int argc, char** argv)
   VHDLInterface entity(VHDLInterface::TYPE_ENTITY, "myentity");
   arch.setEntity(&entity);
 
+  VHDLInterface *pComponent = new VHDLInterface(VHDLInterface::TYPE_COMPONENT, "mycomponent1");
+  arch.addComponent(pComponent);
 
+  VHDLPort *pPort = new VHDLPort("myport1");
+  pPort->setDirection(VHDLPort::DIR_IN);
+  pComponent->addPort(pPort);
 
+  pPort = new VHDLPort("myport2");
+  pPort->setDirection(VHDLPort::DIR_OUT);
+  pComponent->addPort(pPort);
 
+  VHDLSignal *pSignal = new VHDLSignal("mysignal1");
+  arch.addSignal(pSignal);
+  pSignal = new VHDLSignal("mysignal2");
+  arch.addSignal(pSignal);
+
+  VHDLInstance *pInstance = new VHDLInstance("myinstance1", arch.findComponentByName("mycomponent1"));
+  arch.addInstance(pInstance);
+
+  pInstance->addPortMapSignal(arch.findSignalByName("mysignal2"));
+  pInstance->addPortMapSignal(arch.findSignalByName("mysignal1"));
+
+  LayoutBlock block;
+  block.associateInstance(arch.findInstanceByName("myinstance1"));
+
+  FILE *pFile = fopen("dinges.vhd", "w+b");
+  arch.write(pFile, 0);
+  fclose(pFile);
+
+  exit(0);
 
 
 

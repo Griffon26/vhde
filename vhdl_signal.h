@@ -34,6 +34,10 @@ private:
   VHDLType                m_type;
 
 public:
+  VHDLSignal(Glib::ustring name);
+
+  void setType(VHDLType type);
+
   bool write(FILE *pFile, int indent);
 
   const Glib::ustring getName() { return m_name; }

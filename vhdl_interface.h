@@ -35,13 +35,16 @@ public:
     TYPE_COMPONENT
   } Type;
 private:
-  Type                    m_type;
-  Glib::ustring           m_name;
-  std::list<VHDLGeneric>  m_generics;
-  std::list<VHDLPort>     m_ports;
+  Type                      m_type;
+  Glib::ustring             m_name;
+  std::list<VHDLGeneric *>  m_generics;
+  std::list<VHDLPort *>     m_ports;
 
 public:
   VHDLInterface(Type type, Glib::ustring name);
+
+  /* This method assumes ownership of the port */
+  void addPort(VHDLPort *pPort);
 
   bool write(FILE *pFile, int indent);
 

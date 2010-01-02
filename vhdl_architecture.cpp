@@ -33,6 +33,25 @@ void VHDLArchitecture::setEntity(VHDLInterface *pEntity)
   m_pEntity = pEntity;
 }
 
+void VHDLArchitecture::addComponent(VHDLInterface *pComponent)
+{
+  m_components.push_back(pComponent);
+}
+
+VHDLInterface *VHDLArchitecture::findComponentByName(Glib::ustring name)
+{
+  std::list<VHDLInterface *>::iterator it;
+
+  for(it = m_components.begin(); it != m_components.end(); it++)
+  {
+    if((*it)->getName() == name)
+    {
+      return *it;
+    }
+  }
+  return NULL;
+}
+
 void VHDLArchitecture::addSignal(VHDLSignal *pSignal)
 {
   m_signals.push_back(pSignal);
@@ -89,13 +108,14 @@ bool VHDLArchitecture::write(FILE *pFile, int indent)
   {
     (*sit)->write(pFile, indent);
   }
+  fprintf(pFile, "\n");
 
   fprintf(pFile, "%*sbegin\n", indent, "");
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
     (*iit)->write(pFile, indent + 2);
   }
-  fprintf(pFile, "%*send;\n", indent, "");
+  fprintf(pFile, "%*send;\n\n", indent, "");
 
   return true;
 }

@@ -42,10 +42,15 @@ VHDLInterface::VHDLInterface(Type type, Glib::ustring name):
 
 }
 
+void VHDLInterface::addPort(VHDLPort *pPort)
+{
+  m_ports.push_back(pPort);
+}
+
 bool VHDLInterface::write(FILE *pFile, int indent)
 {
-  std::list<VHDLGeneric>::iterator git;
-  std::list<VHDLPort>::iterator pit;
+  std::list<VHDLGeneric *>::iterator git;
+  std::list<VHDLPort *>::iterator pit;
 
   if(m_type == TYPE_ENTITY)
   {
@@ -56,20 +61,20 @@ bool VHDLInterface::write(FILE *pFile, int indent)
     fprintf(pFile, "%*scomponent %s\n", indent, "", m_name.c_str());
   }
 
-  fprintf(pFile, "%*sport (\n", indent, "");
+  fprintf(pFile, "%*sport (\n", indent + 2, "");
   for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
   {
-    pit->write(pFile, indent + 2);
+    (*pit)->write(pFile, indent + 4);
   }
-  fprintf(pFile, "%*s)\n", indent, "");
+  fprintf(pFile, "%*s)\n", indent + 2, "");
 
   if(m_type == TYPE_ENTITY)
   {
-    fprintf(pFile, "%*send %s\n", indent, "", m_name.c_str());
+    fprintf(pFile, "%*send %s\n\n", indent, "", m_name.c_str());
   }
   else
   {
-    fprintf(pFile, "%*send component\n", indent, "");
+    fprintf(pFile, "%*send component\n\n", indent, "");
   }
 
   return true;

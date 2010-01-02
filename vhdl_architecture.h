@@ -34,6 +34,7 @@ class VHDLArchitecture
 private:
   Glib::ustring               m_name;
   VHDLInterface              *m_pEntity;
+  std::list<VHDLInterface *>  m_components;
   std::list<VHDLSignal *>     m_signals;
   std::list<VHDLInstance *>   m_instances;
 
@@ -41,6 +42,11 @@ public:
   VHDLArchitecture(Glib::ustring name);
 
   void setEntity(VHDLInterface *pEntity);
+
+  /* This method assumes ownership of the component */
+  void addComponent(VHDLInterface *pComponent);
+
+  VHDLInterface *findComponentByName(Glib::ustring name);
 
   /* This method assumes ownership of the signal */
   void addSignal(VHDLSignal *pSignal);

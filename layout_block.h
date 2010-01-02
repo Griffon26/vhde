@@ -52,6 +52,8 @@ private:
   std::list<Port>         m_ports[NR_OF_EDGES];
 
 public:
+  LayoutBlock();
+
   void associateInstance(VHDLInstance *pInstance);
 
   void addPort(Edge edge, int position, Glib::ustring name);

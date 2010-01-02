@@ -36,6 +36,10 @@ private:
   std::list<VHDLSignal *>   m_portMap;
 
 public:
+  VHDLInstance(Glib::ustring name, VHDLInterface *pComponent);
+
+  void addPortMapSignal(VHDLSignal *pSignal);
+
   bool write(FILE *pFile, int indent);
 
   const Glib::ustring getName() { return m_name; }

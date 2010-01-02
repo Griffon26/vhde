@@ -33,7 +33,8 @@ public:
   typedef enum {
     DIR_IN,
     DIR_OUT,
-    DIR_INOUT
+    DIR_INOUT,
+    DIR_INVALID
   } Direction;
 private:
   Glib::ustring           m_name;
@@ -41,6 +42,11 @@ private:
   VHDLType                m_type;
 
 public:
+  VHDLPort(Glib::ustring name);
+
+  void setDirection(Direction dir);
+  void setType(VHDLType type);
+
   bool write(FILE *pFile, int indent);
 
   const Glib::ustring getName() { return m_name; }

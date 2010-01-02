@@ -21,6 +21,23 @@
 
 #include "vhdl_port.h"
 
+VHDLPort::VHDLPort(Glib::ustring name):
+  m_name(name),
+  m_direction(DIR_INVALID)
+{
+}
+
+void VHDLPort::setDirection(Direction dir)
+{
+  g_assert(m_direction == DIR_INVALID);
+  m_direction = dir;
+}
+
+void VHDLPort::setType(VHDLType type)
+{
+  m_type = type;
+}
+
 bool VHDLPort::write(FILE *pFile, int indent)
 {
   fprintf(pFile, "%*s%s: %s %s;\n", indent, "", m_name.c_str(), 

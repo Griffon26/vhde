@@ -21,9 +21,15 @@
 
 #include "layout_block.h"
 
+LayoutBlock::LayoutBlock():
+  m_pInstance(NULL)
+{
+}
+
 void LayoutBlock::associateInstance(VHDLInstance *pInstance)
 {
   g_assert(m_pInstance == NULL);
+  g_assert(pInstance != NULL);
   m_pInstance = pInstance;
 }
 

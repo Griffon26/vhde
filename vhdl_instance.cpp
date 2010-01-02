@@ -21,6 +21,17 @@
 
 #include "vhdl_instance.h"
 
+VHDLInstance::VHDLInstance(Glib::ustring name, VHDLInterface *pComponent):
+  m_name(name),
+  m_pComponent(pComponent)
+{
+}
+
+void VHDLInstance::addPortMapSignal(VHDLSignal *pSignal)
+{
+  m_portMap.push_back(pSignal);
+}
+
 bool VHDLInstance::write(FILE *pFile, int indent)
 {
   std::list<VHDLSignal *>::iterator it;
@@ -29,11 +40,10 @@ bool VHDLInstance::write(FILE *pFile, int indent)
 
   for(it = m_portMap.begin(); it != m_portMap.end(); it++)
   {
-    fprintf(pFile, "%s%s", (it == m_portMap.begin()) ? ", " : "", (*it)->getName().c_str());
+    fprintf(pFile, "%s%s", (it == m_portMap.begin()) ? "" : ", ", (*it)->getName().c_str());
   }
 
-  fprintf(pFile, ");\n"
-                 "%*send;\n", indent, "");
+  fprintf(pFile, ");\n");
 
   return true;
 }
