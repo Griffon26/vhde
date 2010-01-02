@@ -24,16 +24,37 @@
 
 #include <glibmm.h>
 
-#include "layout_port.h"
 #include "layout_types.h"
+#include "vhdl_instance.h"
 
 class LayoutBlock
 {
+public:
+  typedef enum {
+    EDGE_LEFT,
+    EDGE_TOP,
+    EDGE_RIGHT,
+    EDGE_BOTTOM,
+    NR_OF_EDGES
+  } Edge;
+
+  typedef struct
+  {
+    Glib::ustring       name;
+    int                 position;
+  } Port;
+
 private:
-  Glib::ustring           m_instanceName;
+  VHDLInstance           *m_pInstance;
+
   LayoutPosition          m_position;
   LayoutSize              m_size;
-  std::vector<LayoutPort> m_ports;
+  std::list<Port>         m_ports[NR_OF_EDGES];
+
+public:
+  void associateInstance(VHDLInstance *pInstance);
+
+  void addPort(Edge edge, int position, Glib::ustring name);
 };
 
 #endif /* _LAYOUT_BLOCK_H */

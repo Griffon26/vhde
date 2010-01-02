@@ -32,12 +32,26 @@
 class VHDLArchitecture
 {
 private:
-  Glib::ustring           m_name;
-  VHDLInterface          *m_pEntity;
-  std::list<VHDLSignal>   m_signals;
-  std::list<VHDLInstance> m_instances;
+  Glib::ustring               m_name;
+  VHDLInterface              *m_pEntity;
+  std::list<VHDLSignal *>     m_signals;
+  std::list<VHDLInstance *>   m_instances;
 
 public:
+  VHDLArchitecture(Glib::ustring name);
+
+  void setEntity(VHDLInterface *pEntity);
+
+  /* This method assumes ownership of the signal */
+  void addSignal(VHDLSignal *pSignal);
+
+  VHDLSignal *findSignalByName(Glib::ustring name);
+
+  /* This method assumes ownership of the instance */
+  void addInstance(VHDLInstance *pInstance);
+
+  VHDLInstance *findInstanceByName(Glib::ustring name);
+
   bool write(FILE *pFile, int indent);
 };
 

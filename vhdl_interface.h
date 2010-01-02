@@ -41,6 +41,8 @@ private:
   std::list<VHDLPort>     m_ports;
 
 public:
+  VHDLInterface(Type type, Glib::ustring name);
+
   bool write(FILE *pFile, int indent);
 
   const Glib::ustring getName() { return m_name; }

@@ -21,10 +21,60 @@
 
 #include "vhdl_architecture.h"
 
+VHDLArchitecture::VHDLArchitecture(Glib::ustring name):
+  m_name(name),
+  m_pEntity(NULL)
+{
+}
+
+void VHDLArchitecture::setEntity(VHDLInterface *pEntity)
+{
+  g_assert(m_pEntity == NULL);
+  m_pEntity = pEntity;
+}
+
+void VHDLArchitecture::addSignal(VHDLSignal *pSignal)
+{
+  m_signals.push_back(pSignal);
+}
+
+VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)
+{
+  std::list<VHDLSignal *>::iterator it;
+
+  for(it = m_signals.begin(); it != m_signals.end(); it++)
+  {
+    if((*it)->getName() == name)
+    {
+      return *it;
+    }
+  }
+  return NULL;
+}
+
+void VHDLArchitecture::addInstance(VHDLInstance *pInstance)
+{
+  m_instances.push_back(pInstance);
+}
+
+VHDLInstance *VHDLArchitecture::findInstanceByName(Glib::ustring name)
+{
+  std::list<VHDLInstance *>::iterator it;
+
+  for(it = m_instances.begin(); it != m_instances.end(); it++)
+  {
+    if((*it)->getName() == name)
+    {
+      return *it;
+    }
+  }
+  return NULL;
+}
+
 bool VHDLArchitecture::write(FILE *pFile, int indent)
 {
-  std::list<VHDLSignal>::iterator sit;
-  std::list<VHDLInstance>::iterator iit;
+  std::list<VHDLSignal *>::iterator sit;
+  std::list<VHDLInstance *>::iterator iit;
 
   m_pEntity->write(pFile, indent);
 
@@ -32,18 +82,18 @@ bool VHDLArchitecture::write(FILE *pFile, int indent)
 
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
-    iit->getComponent()->write(pFile, indent);
+    (*iit)->getComponent()->write(pFile, indent);
   }
 
   for(sit = m_signals.begin(); sit != m_signals.end(); sit++)
   {
-    sit->write(pFile, indent);
+    (*sit)->write(pFile, indent);
   }
 
   fprintf(pFile, "%*sbegin\n", indent, "");
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
-    iit->write(pFile, indent + 2);
+    (*iit)->write(pFile, indent + 2);
   }
   fprintf(pFile, "%*send;\n", indent, "");
 

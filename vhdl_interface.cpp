@@ -35,6 +35,13 @@
 
 */
 
+VHDLInterface::VHDLInterface(Type type, Glib::ustring name):
+  m_type(type),
+  m_name(name)
+{
+
+}
+
 bool VHDLInterface::write(FILE *pFile, int indent)
 {
   std::list<VHDLGeneric>::iterator git;

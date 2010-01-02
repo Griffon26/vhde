@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include "triangle_actor.h"
+#include "vhdl_architecture.h"
 
 #define UNHANDLED false
 #define HANDLED false
@@ -510,6 +511,17 @@ static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::S
 
 int main(int argc, char** argv)
 {
+  /* Try out the model classes */
+  VHDLArchitecture arch("myarch");
+  VHDLInterface entity(VHDLInterface::TYPE_ENTITY, "myentity");
+  arch.setEntity(&entity);
+
+
+
+
+
+
+
   Clutter::init(&argc, &argv);
   Clutter::set_motion_events_enabled(false);
 

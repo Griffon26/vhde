@@ -21,3 +21,18 @@
 
 #include "layout_block.h"
 
+void LayoutBlock::associateInstance(VHDLInstance *pInstance)
+{
+  g_assert(m_pInstance == NULL);
+  m_pInstance = pInstance;
+}
+
+void LayoutBlock::addPort(Edge edge, int position, Glib::ustring name)
+{
+  Port port;
+
+  port.name = name;
+  port.position = position;
+
+  m_ports[edge].push_back(port);
+}

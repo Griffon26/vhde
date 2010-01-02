@@ -38,6 +38,7 @@ private:
 public:
   bool write(FILE *pFile, int indent);
 
+  const Glib::ustring getName() { return m_name; }
   VHDLInterface *getComponent() { return m_pComponent; }
 };
 

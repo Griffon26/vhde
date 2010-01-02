@@ -57,7 +57,7 @@ void Triangle::do_triangle_paint(const CoglColor* color)
   coords[0] = (0);
   coords[1] = (0);
 
-  coords[2] = geom.get_width(); 
+  coords[2] = geom.get_width();
   coords[3] = geom.get_height() / 2.0;
 
   coords[4] = 0;
@@ -88,7 +88,7 @@ void Triangle::on_paint()
 void Triangle::pick_vfunc(const Clutter::Color& color)
 {
   // Paint the triangle with the pick color, offscreen.
-  // This is used by Clutter to detect the actor under the cursor 
+  // This is used by Clutter to detect the actor under the cursor
   // by identifying the unique color under the cursor.
   CoglColor coglcolor;
   cogl_color_set_from_4ub(&coglcolor,
