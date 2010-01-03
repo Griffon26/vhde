@@ -536,15 +536,20 @@ int main(int argc, char** argv)
   VHDLInstance *pInstance = new VHDLInstance("myinstance1", arch.findComponentByName("mycomponent1"));
   arch.addInstance(pInstance);
 
-  pInstance->addPortMapSignal(arch.findSignalByName("mysignal2"));
-  pInstance->addPortMapSignal(arch.findSignalByName("mysignal1"));
+  pPort = pInstance->getComponent()->findPortByName("myport1");
+  pInstance->associateSignalWithPort(arch.findSignalByName("mysignal2"), pPort);
+
 
   LayoutBlock block;
   block.associateInstance(arch.findInstanceByName("myinstance1"));
 
+  arch.removeSignal(pSignal);
+
   FILE *pFile = fopen("dinges.vhd", "w+b");
   arch.write(pFile, 0);
   fclose(pFile);
+
+  pComponent->removePort(pPort);
 
   exit(0);
 
@@ -568,4 +573,3 @@ int main(int argc, char** argv)
 
   return 0;
 }
-

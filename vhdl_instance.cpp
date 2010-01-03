@@ -21,30 +21,81 @@
 
 #include "vhdl_instance.h"
 
+/*
+ * Public methods
+ */
+
 VHDLInstance::VHDLInstance(Glib::ustring name, VHDLInterface *pComponent):
   m_name(name),
   m_pComponent(pComponent)
 {
+  m_onPortRemovedConnection = m_pComponent->port_removed.connect(sigc::mem_fun(this, &VHDLInstance::onPortRemoved));
 }
 
-void VHDLInstance::addPortMapSignal(VHDLSignal *pSignal)
+VHDLInstance::~VHDLInstance()
 {
-  m_portMap.push_back(pSignal);
+  m_onPortRemovedConnection.disconnect();
+}
+
+void VHDLInstance::associateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort)
+{
+  m_portMap[pPort] = pSignal;
+}
+
+void VHDLInstance::disassociateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort)
+{
+  std::map<VHDLPort *, VHDLSignal *>::iterator it;
+  it = m_portMap.find(pPort);
+
+  g_assert(it != m_portMap.end());
+  g_assert(it->second == pSignal);
+  m_portMap.erase(it);
+}
+
+void VHDLInstance::disassociateSignal(VHDLSignal *pSignal)
+{
+  std::map<VHDLPort *, VHDLSignal *>::iterator it;
+
+  /* Remove any port associations with this signal */
+  for(it = m_portMap.begin(); it != m_portMap.end(); it++)
+  {
+    if(it->second == pSignal)
+    {
+      m_portMap.erase(it);
+    }
+  }
 }
 
 bool VHDLInstance::write(FILE *pFile, int indent)
 {
-  std::list<VHDLSignal *>::iterator it;
+  std::list<VHDLPort *>::const_iterator pit;
+  const std::list<VHDLPort *> &ports = m_pComponent->getPorts();
+  std::map<VHDLPort *, VHDLSignal *>::const_iterator mit;
+  VHDLSignal *pSignal;
 
-  fprintf(pFile, "%*s%s: %s port map (", indent, "", m_name.c_str(), m_pComponent->getName().c_str());
+  fprintf(pFile, "%*s%s: %s\n"
+                 "%*sport map (\n", indent, "", m_name.c_str(), m_pComponent->getName().c_str(),
+                                    indent, "");
 
-  for(it = m_portMap.begin(); it != m_portMap.end(); it++)
+  for(pit = ports.begin(); pit != ports.end(); pit++)
   {
-    fprintf(pFile, "%s%s", (it == m_portMap.begin()) ? "" : ", ", (*it)->getName().c_str());
+    mit = m_portMap.find(*pit);
+    fprintf(pFile, "%s%*s%s => %s", (pit == ports.begin()) ? "" : ",\n", indent + 2, "",
+                                    (*pit)->getName().c_str(),
+                                    (mit == m_portMap.end()) ? "open" : mit->second->getName().c_str());
   }
 
-  fprintf(pFile, ");\n");
+  fprintf(pFile, "\n%*s);\n", indent, "");
 
   return true;
 }
 
+/*
+ * Private methods
+ */
+
+void VHDLInstance::onPortRemoved(VHDLPort *pPort)
+{
+  printf("port removed from instance\n");
+  m_portMap.erase(pPort);
+}

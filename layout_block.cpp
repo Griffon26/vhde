@@ -33,6 +33,11 @@ void LayoutBlock::associateInstance(VHDLInstance *pInstance)
   m_pInstance = pInstance;
 }
 
+VHDLInstance *LayoutBlock::getAssociatedInstance()
+{
+  return m_pInstance;
+}
+
 void LayoutBlock::addPort(Edge edge, int position, Glib::ustring name)
 {
   Port port;

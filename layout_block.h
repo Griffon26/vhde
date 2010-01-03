@@ -55,6 +55,7 @@ public:
   LayoutBlock();
 
   void associateInstance(VHDLInstance *pInstance);
+  VHDLInstance *getAssociatedInstance();
 
   void addPort(Edge edge, int position, Glib::ustring name);
 };

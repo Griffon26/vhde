@@ -57,6 +57,18 @@ void VHDLArchitecture::addSignal(VHDLSignal *pSignal)
   m_signals.push_back(pSignal);
 }
 
+void VHDLArchitecture::removeSignal(VHDLSignal *pSignal)
+{
+  std::list<VHDLInstance *>::iterator it;
+
+  m_signals.remove(pSignal);
+
+  for(it = m_instances.begin(); it != m_instances.end(); it++)
+  {
+    (*it)->disassociateSignal(pSignal);
+  }
+}
+
 VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)
 {
   std::list<VHDLSignal *>::iterator it;

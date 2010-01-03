@@ -1,6 +1,7 @@
 .PHONY: clean
 
-CPPFLAGS=`pkg-config cluttermm-0.9 --cflags` \
+CPPFLAGS=-g -O0 \
+	 `pkg-config cluttermm-0.9 --cflags` \
 	 `pkg-config libglademm-2.4 --cflags`
 LDFLAGS=`pkg-config cluttermm-0.9 --libs` \
 	`pkg-config libglademm-2.4 --libs`

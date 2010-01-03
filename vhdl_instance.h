@@ -23,6 +23,7 @@
 #define _VHDL_INSTANCE_H
 
 #include <glibmm.h>
+#include <map>
 
 #include "vhdl_interface.h"
 #include "vhdl_signal.h"
@@ -30,20 +31,28 @@
 class VHDLInstance
 {
 private:
-  Glib::ustring             m_name;
-  VHDLInterface            *m_pComponent;
-  std::list<Glib::ustring>  m_genericMap;
-  std::list<VHDLSignal *>   m_portMap;
+  Glib::ustring                             m_name;
+  VHDLInterface                            *m_pComponent;
+  std::list<Glib::ustring>                  m_genericMap;
+  std::map<VHDLPort *, VHDLSignal *>        m_portMap;
+
+  sigc::connection                          m_onPortRemovedConnection;
 
 public:
   VHDLInstance(Glib::ustring name, VHDLInterface *pComponent);
+  virtual ~VHDLInstance();
 
-  void addPortMapSignal(VHDLSignal *pSignal);
+  void associateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort);
+  void disassociateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort);
+  void disassociateSignal(VHDLSignal *pSignal);
 
   bool write(FILE *pFile, int indent);
 
   const Glib::ustring getName() { return m_name; }
   VHDLInterface *getComponent() { return m_pComponent; }
+
+private:
+  void onPortRemoved(VHDLPort *pPort);
 };
 
 #endif /* _VHDL_INSTANCE_H */

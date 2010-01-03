@@ -50,6 +50,7 @@ public:
 
   /* This method assumes ownership of the signal */
   void addSignal(VHDLSignal *pSignal);
+  void removeSignal(VHDLSignal *pSignal);
 
   VHDLSignal *findSignalByName(Glib::ustring name);
 

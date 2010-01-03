@@ -12,7 +12,7 @@ Ideas:
 
 Question: should an instance always have the exact same layout as its component or
           should an instance be allowed to have instance-specific layout?
-Answer  : Yes.
+Answer  : instance-specific layout
 
 Use cases:
 - port deleted on component

@@ -19,6 +19,8 @@
  *
  */
 
+#include <algorithm>
+
 #include "vhdl_interface.h"
 
 /*
@@ -44,7 +46,30 @@ VHDLInterface::VHDLInterface(Type type, Glib::ustring name):
 
 void VHDLInterface::addPort(VHDLPort *pPort)
 {
+  g_assert(find(m_ports.begin(), m_ports.end(), pPort) == m_ports.end());
   m_ports.push_back(pPort);
+}
+
+void VHDLInterface::removePort(VHDLPort *pPort)
+{
+  printf("port removed from component\n");
+  g_assert(find(m_ports.begin(), m_ports.end(), pPort) != m_ports.end());
+  m_ports.remove(pPort);
+  port_removed.emit(pPort);
+}
+
+VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
+{
+  std::list<VHDLPort *>::iterator it;
+
+  for(it = m_ports.begin(); it != m_ports.end(); it++)
+  {
+    if((*it)->getName() == name)
+    {
+      return *it;
+    }
+  }
+  return NULL;
 }
 
 bool VHDLInterface::write(FILE *pFile, int indent)

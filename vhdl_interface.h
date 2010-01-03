@@ -41,14 +41,22 @@ private:
   std::list<VHDLPort *>     m_ports;
 
 public:
+  /* signals */
+  sigc::signal<void, VHDLPort *> port_removed;
+
   VHDLInterface(Type type, Glib::ustring name);
 
   /* This method assumes ownership of the port */
   void addPort(VHDLPort *pPort);
 
+  void removePort(VHDLPort *pPort);
+
+  VHDLPort *findPortByName(Glib::ustring name);
+
   bool write(FILE *pFile, int indent);
 
-  const Glib::ustring getName() { return m_name; }
+  const Glib::ustring                 getName()   { return m_name; }
+  const std::list<VHDLPort *>        &getPorts()  { return m_ports; }
 };
 
 #endif /* _VHDL_INTERFACE_H */
