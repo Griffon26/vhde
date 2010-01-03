@@ -25,28 +25,29 @@
 #include <glibmm.h>
 #include <stdio.h>
 
+#include "vhdl_component.h"
+#include "vhdl_entity.h"
 #include "vhdl_instance.h"
-#include "vhdl_interface.h"
 #include "vhdl_signal.h"
 
 class VHDLArchitecture
 {
 private:
   Glib::ustring               m_name;
-  VHDLInterface              *m_pEntity;
-  std::list<VHDLInterface *>  m_components;
+  VHDLEntity                 *m_pEntity;
+  std::list<VHDLComponent *>  m_components;
   std::list<VHDLSignal *>     m_signals;
   std::list<VHDLInstance *>   m_instances;
 
 public:
   VHDLArchitecture(Glib::ustring name);
 
-  void setEntity(VHDLInterface *pEntity);
+  void setEntity(VHDLEntity *pEntity);
 
   /* This method assumes ownership of the component */
-  void addComponent(VHDLInterface *pComponent);
+  void addComponent(VHDLComponent *pComponent);
 
-  VHDLInterface *findComponentByName(Glib::ustring name);
+  VHDLComponent *findComponentByName(Glib::ustring name);
 
   /* This method assumes ownership of the signal */
   void addSignal(VHDLSignal *pSignal);

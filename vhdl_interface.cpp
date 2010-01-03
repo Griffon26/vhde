@@ -23,36 +23,29 @@
 
 #include "vhdl_interface.h"
 
-/*
-
-  entity INV is
-    port (A: in STD_LOGIC;
-    F: out STD_LOGIC);
-  end INV;
-
-  component INV
-    port (A: in STD_LOGIC;
-    F: out STD_LOGIC);
-  end component;
-
-*/
-
-VHDLInterface::VHDLInterface(Type type, Glib::ustring name):
-  m_type(type),
+VHDLInterface::VHDLInterface(Glib::ustring name):
   m_name(name)
 {
 
 }
 
+void VHDLInterface::setName(Glib::ustring name)
+{
+  m_name = name;
+  name_changed.emit(name);
+}
+
 void VHDLInterface::addPort(VHDLPort *pPort)
 {
+  printf("port added to interface %s %p\n", m_name.c_str(), this);
   g_assert(find(m_ports.begin(), m_ports.end(), pPort) == m_ports.end());
   m_ports.push_back(pPort);
+  port_added.emit(pPort);
 }
 
 void VHDLInterface::removePort(VHDLPort *pPort)
 {
-  printf("port removed from component\n");
+  printf("port removed from interface %s %p\n", m_name.c_str(), this);
   g_assert(find(m_ports.begin(), m_ports.end(), pPort) != m_ports.end());
   m_ports.remove(pPort);
   port_removed.emit(pPort);
@@ -70,38 +63,5 @@ VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
     }
   }
   return NULL;
-}
-
-bool VHDLInterface::write(FILE *pFile, int indent)
-{
-  std::list<VHDLGeneric *>::iterator git;
-  std::list<VHDLPort *>::iterator pit;
-
-  if(m_type == TYPE_ENTITY)
-  {
-    fprintf(pFile, "%*sentity %s is\n", indent, "", m_name.c_str());
-  }
-  else
-  {
-    fprintf(pFile, "%*scomponent %s\n", indent, "", m_name.c_str());
-  }
-
-  fprintf(pFile, "%*sport (\n", indent + 2, "");
-  for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
-  {
-    (*pit)->write(pFile, indent + 4);
-  }
-  fprintf(pFile, "%*s)\n", indent + 2, "");
-
-  if(m_type == TYPE_ENTITY)
-  {
-    fprintf(pFile, "%*send %s\n\n", indent, "", m_name.c_str());
-  }
-  else
-  {
-    fprintf(pFile, "%*send component\n\n", indent, "");
-  }
-
-  return true;
 }
 

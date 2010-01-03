@@ -14,6 +14,8 @@ SOURCES= main.cpp \
 	 layout_block.cpp \
 	 layout_signal.cpp \
 	 vhdl_architecture.cpp \
+	 vhdl_component.cpp \
+	 vhdl_entity.cpp \
 	 vhdl_generic.cpp \
 	 vhdl_instance.cpp \
 	 vhdl_interface.cpp \

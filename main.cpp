@@ -514,10 +514,10 @@ int main(int argc, char** argv)
 {
   /* Try out the model classes */
   VHDLArchitecture arch("myarch");
-  VHDLInterface entity(VHDLInterface::TYPE_ENTITY, "myentity");
+  VHDLEntity entity("myentity");
   arch.setEntity(&entity);
 
-  VHDLInterface *pComponent = new VHDLInterface(VHDLInterface::TYPE_COMPONENT, "mycomponent1");
+  VHDLComponent *pComponent = new VHDLComponent("mycomponent1");
   arch.addComponent(pComponent);
 
   VHDLPort *pPort = new VHDLPort("myport1");
@@ -540,16 +540,31 @@ int main(int argc, char** argv)
   pInstance->associateSignalWithPort(arch.findSignalByName("mysignal2"), pPort);
 
 
+
+  VHDLEntity externalEntity("entity2");
+  pPort = new VHDLPort("myport1");
+  pPort->setDirection(VHDLPort::DIR_IN);
+  externalEntity.addPort(pPort);
+
+  pPort = new VHDLPort("myport2");
+  pPort->setDirection(VHDLPort::DIR_OUT);
+  externalEntity.addPort(pPort);
+
+  pComponent->associateEntity(&externalEntity);
+
   LayoutBlock block;
   block.associateInstance(arch.findInstanceByName("myinstance1"));
 
-  arch.removeSignal(pSignal);
+
+  externalEntity.setName("blaat");
+  externalEntity.removePort(externalEntity.findPortByName("myport2"));
+
 
   FILE *pFile = fopen("dinges.vhd", "w+b");
   arch.write(pFile, 0);
   fclose(pFile);
 
-  pComponent->removePort(pPort);
+  arch.removeSignal(pSignal);
 
   exit(0);
 

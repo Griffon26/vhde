@@ -29,22 +29,20 @@
 
 class VHDLInterface
 {
-public:
-  typedef enum {
-    TYPE_ENTITY,
-    TYPE_COMPONENT
-  } Type;
-private:
-  Type                      m_type;
+protected:
   Glib::ustring             m_name;
   std::list<VHDLGeneric *>  m_generics;
   std::list<VHDLPort *>     m_ports;
 
 public:
   /* signals */
+  sigc::signal<void, Glib::ustring> name_changed;
+  sigc::signal<void, VHDLPort *> port_added;
   sigc::signal<void, VHDLPort *> port_removed;
 
-  VHDLInterface(Type type, Glib::ustring name);
+  VHDLInterface(Glib::ustring name);
+
+  void setName(Glib::ustring name);
 
   /* This method assumes ownership of the port */
   void addPort(VHDLPort *pPort);
@@ -53,7 +51,7 @@ public:
 
   VHDLPort *findPortByName(Glib::ustring name);
 
-  bool write(FILE *pFile, int indent);
+  virtual bool write(FILE *pFile, int indent) = 0;
 
   const Glib::ustring                 getName()   { return m_name; }
   const std::list<VHDLPort *>        &getPorts()  { return m_ports; }

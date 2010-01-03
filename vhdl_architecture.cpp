@@ -27,20 +27,20 @@ VHDLArchitecture::VHDLArchitecture(Glib::ustring name):
 {
 }
 
-void VHDLArchitecture::setEntity(VHDLInterface *pEntity)
+void VHDLArchitecture::setEntity(VHDLEntity *pEntity)
 {
   g_assert(m_pEntity == NULL);
   m_pEntity = pEntity;
 }
 
-void VHDLArchitecture::addComponent(VHDLInterface *pComponent)
+void VHDLArchitecture::addComponent(VHDLComponent *pComponent)
 {
   m_components.push_back(pComponent);
 }
 
-VHDLInterface *VHDLArchitecture::findComponentByName(Glib::ustring name)
+VHDLComponent *VHDLArchitecture::findComponentByName(Glib::ustring name)
 {
-  std::list<VHDLInterface *>::iterator it;
+  std::list<VHDLComponent *>::iterator it;
 
   for(it = m_components.begin(); it != m_components.end(); it++)
   {
