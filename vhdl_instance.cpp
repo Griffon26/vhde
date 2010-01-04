@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Foobar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -50,18 +50,25 @@ void VHDLInstance::disassociateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPo
   g_assert(it != m_portMap.end());
   g_assert(it->second == pSignal);
   m_portMap.erase(it);
+
+  signal_disassociated.emit(pSignal, pPort);
 }
 
 void VHDLInstance::disassociateSignal(VHDLSignal *pSignal)
 {
-  std::map<VHDLPort *, VHDLSignal *>::iterator it;
+  std::map<VHDLPort *, VHDLSignal *>::iterator it, prevIt;
+  VHDLPort *pPort;
 
   /* Remove any port associations with this signal */
-  for(it = m_portMap.begin(); it != m_portMap.end(); it++)
+  for(it = m_portMap.begin(); it != m_portMap.end();)
   {
-    if(it->second == pSignal)
+    prevIt = it++;
+
+    if(prevIt->second == pSignal)
     {
-      m_portMap.erase(it);
+      pPort = prevIt->first;
+      m_portMap.erase(prevIt);
+      signal_disassociated.emit(pSignal, pPort);
     }
   }
 }

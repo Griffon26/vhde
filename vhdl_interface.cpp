@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Foobar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -37,7 +37,7 @@ void VHDLInterface::setName(Glib::ustring name)
 
 void VHDLInterface::addPort(VHDLPort *pPort)
 {
-  printf("port added to interface %s %p\n", m_name.c_str(), this);
+  printf("port %s added to interface %s %p\n", pPort->getName().c_str(), m_name.c_str(), this);
   g_assert(find(m_ports.begin(), m_ports.end(), pPort) == m_ports.end());
   m_ports.push_back(pPort);
   port_added.emit(pPort);
@@ -45,7 +45,7 @@ void VHDLInterface::addPort(VHDLPort *pPort)
 
 void VHDLInterface::removePort(VHDLPort *pPort)
 {
-  printf("port removed from interface %s %p\n", m_name.c_str(), this);
+  printf("port %s removed from interface %s %p\n", pPort->getName().c_str(), m_name.c_str(), this);
   g_assert(find(m_ports.begin(), m_ports.end(), pPort) != m_ports.end());
   m_ports.remove(pPort);
   port_removed.emit(pPort);
@@ -55,8 +55,11 @@ VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
 {
   std::list<VHDLPort *>::iterator it;
 
+  printf("findPortByName %s\n", name.c_str());
+
   for(it = m_ports.begin(); it != m_ports.end(); it++)
   {
+    printf(".. %s\n", (*it)->getName().c_str());
     if((*it)->getName() == name)
     {
       return *it;

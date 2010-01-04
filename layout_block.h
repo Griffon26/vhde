@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Foobar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -25,39 +25,31 @@
 #include <glibmm.h>
 
 #include "layout_types.h"
-#include "vhdl_instance.h"
+#include "layout_port.h"
+#include "vhdl_port.h"
 
 class LayoutBlock
 {
-public:
-  typedef enum {
-    EDGE_LEFT,
-    EDGE_TOP,
-    EDGE_RIGHT,
-    EDGE_BOTTOM,
-    NR_OF_EDGES
-  } Edge;
+protected:
+  LayoutSize                  m_size;
+  std::map<int, LayoutPort *> m_ports[NR_OF_EDGES];
 
-  typedef struct
-  {
-    Glib::ustring       name;
-    int                 position;
-  } Port;
+public:
+  /* Signals */
+  sigc::signal<void, const LayoutSize &> resized;
+
+  void setSize(const LayoutSize &size);
+
+  /* This method assumes ownership of the port */
+  void addPort(Edge edge, int position, LayoutPort *pPort);
+
+  void movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition);
+  LayoutPort *getPort(Edge edge, int position);
+
+  void calculatePortPosition(Edge edge, int position, int *pX, int *pY);
 
 private:
-  VHDLInstance           *m_pInstance;
-
-  LayoutPosition          m_position;
-  LayoutSize              m_size;
-  std::list<Port>         m_ports[NR_OF_EDGES];
-
-public:
-  LayoutBlock();
-
-  void associateInstance(VHDLInstance *pInstance);
-  VHDLInstance *getAssociatedInstance();
-
-  void addPort(Edge edge, int position, Glib::ustring name);
+  int calculateMaxNrOfPorts(Edge edge);
 };
 
 #endif /* _LAYOUT_BLOCK_H */

@@ -82,7 +82,7 @@ public:
   }
 /*    printf("Body %s event\n", (pEvent->type == CLUTTER_MOTION) ? "motion" :
                                 (pEvent->type == CLUTTER_BUTTON_RELEASE) ? "button_release" :
-                                (pEvent->type == CLUTTER_BUTTON_PRESS) ? "button_press" : 
+                                (pEvent->type == CLUTTER_BUTTON_PRESS) ? "button_press" :
                                 (pEvent->type == CLUTTER_ENTER) ? "enter" :
                                 (pEvent->type == CLUTTER_LEAVE) ? "leave" : "other");*/
 

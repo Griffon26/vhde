@@ -12,6 +12,7 @@ LDFLAGS=`pkg-config cluttermm-0.9 --libs` \
 SOURCES= main.cpp \
 	 triangle_actor.cpp \
 	 layout_block.cpp \
+	 layout_instance.cpp \
 	 layout_signal.cpp \
 	 vhdl_architecture.cpp \
 	 vhdl_component.cpp \

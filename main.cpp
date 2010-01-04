@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Foobar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -24,7 +24,7 @@
 #include <cluttermm.h>
 #include <iostream>
 
-#include "layout_block.h"
+#include "layout_instance.h"
 #include "triangle_actor.h"
 #include "vhdl_architecture.h"
 
@@ -67,7 +67,7 @@ class PortList
 {
 public:
   /* Keep this in clock-wise order, because it is used to determine rotation of
-   * port actors 
+   * port actors
    */
   typedef enum {
     LEFT,
@@ -127,7 +127,7 @@ private:
     if(newSize > pPortRow->ports.size())
     {
       /* Extend the vector with extra portData structures with the appropriate
-       * coordinates 
+       * coordinates
        */
       for(i = pPortRow->ports.size(); i < newSize; i++)
       {
@@ -140,7 +140,7 @@ private:
       /* Shift used ports closer together if needed */
       int freeSlots = 0;
       int i, j;
-      
+
       /* First loop backwards to find enough unused places... */
       for(i = pPortRow->ports.size() - 1; i >= 0; i--)
       {
@@ -270,7 +270,7 @@ public:
     for(pr = 0; pr < NR_OF_PORTROWS; pr++)
     {
       for(i = 0; i < portRows[pr].ports.size(); i++)
-      { 
+      {
         if(!unusedOnly || !portRows[pr].ports[i].pActor)
         {
           portX = portRows[pr].ports[i].x();
@@ -368,7 +368,7 @@ public:
     pPort->signal_button_press_event().connect(sigc::mem_fun(*this, &Component::on_port_button_press_event));
     m_pGroup->add_actor(pPort);
     m_portList.addPort(PortList::BOTTOM, 0, pPort);
- 
+
     m_pText = Clutter::Text::create("normal 10", "Use ctrl-scrollwheel\nto zoom");
     m_pText->set_position(30, 100);
     m_pText->set_line_alignment(Pango::ALIGN_CENTER);
@@ -380,7 +380,7 @@ public:
   }
 /*    printf("Body %s event\n", (pEvent->type == CLUTTER_MOTION) ? "motion" :
                                 (pEvent->type == CLUTTER_BUTTON_RELEASE) ? "button_release" :
-                                (pEvent->type == CLUTTER_BUTTON_PRESS) ? "button_press" : 
+                                (pEvent->type == CLUTTER_BUTTON_PRESS) ? "button_press" :
                                 (pEvent->type == CLUTTER_ENTER) ? "enter" :
                                 (pEvent->type == CLUTTER_LEAVE) ? "leave" : "other");*/
 
@@ -552,19 +552,44 @@ int main(int argc, char** argv)
 
   pComponent->associateEntity(&externalEntity);
 
-  LayoutBlock block;
-  block.associateInstance(arch.findInstanceByName("myinstance1"));
+
+
+  /* read layout instance */
+  /* find associated vhdl instance by name */
+  /* loop through loaded ports and associate with ports in the vhdl instance by name */
+  LayoutPort *pLayoutPort;
+  LayoutInstance layoutInstance;
+  layoutInstance.setPosition(LayoutPosition(300,200));
+  layoutInstance.setSize(LayoutSize(200, 300));
+
+  pInstance = arch.findInstanceByName("myinstance1");
+
+  pPort = pInstance->getComponent()->findPortByName("myport1");
+  pLayoutPort = new LayoutPort(pPort);
+  layoutInstance.addPort(EDGE_LEFT, 1, pLayoutPort);
+
+  pPort = pInstance->getComponent()->findPortByName("myport2");
+  pLayoutPort = new LayoutPort(pPort);
+  layoutInstance.addPort(EDGE_RIGHT, 2, pLayoutPort);
+
+  layoutInstance.associateInstance(arch.findInstanceByName("myinstance1"));
 
 
   externalEntity.setName("blaat");
-  externalEntity.removePort(externalEntity.findPortByName("myport2"));
 
+  FILE *pFile = fopen("dinges.layout", "w+b");
+  layoutInstance.write(pFile);
+  fclose(pFile);
 
-  FILE *pFile = fopen("dinges.vhd", "w+b");
+  pFile = fopen("dinges.vhd", "w+b");
   arch.write(pFile, 0);
   fclose(pFile);
 
-  arch.removeSignal(pSignal);
+  printf("main: removing port myport2\n");
+  externalEntity.removePort(externalEntity.findPortByName("myport2"));
+
+  printf("main: removing signal mysignal2\n");
+  arch.removeSignal(arch.findSignalByName("mysignal2"));
 
   exit(0);
 

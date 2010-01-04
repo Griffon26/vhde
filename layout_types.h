@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Foobar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -22,16 +22,48 @@
 #ifndef _LAYOUT_TYPES_H
 #define _LAYOUT_TYPES_H
 
-typedef struct
+class LayoutPosition
 {
+public:
+  LayoutPosition() {}
+
+  LayoutPosition(int x, int y):
+    x(x),
+    y(y)
+  {
+  }
+
   int x;
   int y;
-} LayoutPosition;
+};
 
-typedef struct
+class LayoutSize
 {
+public:
+  LayoutSize() {}
+
+  LayoutSize(int width, int height):
+    width(width),
+    height(height)
+  {
+  }
+
   int width;
   int height;
-} LayoutSize;
+};
+
+typedef enum {
+  EDGE_LEFT,
+  EDGE_TOP,
+  EDGE_RIGHT,
+  EDGE_BOTTOM,
+  NR_OF_EDGES
+} Edge;
+
+#define EDGE_TO_NAME(e) ((e == EDGE_LEFT) ? "LEFT" : \
+                         (e == EDGE_TOP) ? "TOP" : \
+                         (e == EDGE_RIGHT) ? "RIGHT" : \
+                         (e == EDGE_BOTTOM) ? "BOTTOM" : "INVALID")
+
 
 #endif /* _LAYOUT_TYPES_H */

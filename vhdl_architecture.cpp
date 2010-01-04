@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Foobar is distributed in the hope that it will be useful,
  * but sitHOUT ANY WARRANTY; sithout even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along sith Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -61,12 +61,12 @@ void VHDLArchitecture::removeSignal(VHDLSignal *pSignal)
 {
   std::list<VHDLInstance *>::iterator it;
 
-  m_signals.remove(pSignal);
-
   for(it = m_instances.begin(); it != m_instances.end(); it++)
   {
     (*it)->disassociateSignal(pSignal);
   }
+
+  m_signals.remove(pSignal);
 }
 
 VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)

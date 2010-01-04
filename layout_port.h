@@ -19,19 +19,32 @@
  *
  */
 
-#include "vhdl_signal.h"
+#ifndef _LAYOUT_PORT_H
+#define _LAYOUT_PORT_H
 
-VHDLSignal::VHDLSignal(Glib::ustring name):
-  m_name(name)
-{
-}
+#include "layout_types.h"
+#include "vhdl_port.h"
 
-void setType(VHDLType type)
+class LayoutPort
 {
-}
+private:
+  VHDLPort *m_pPort;
 
-bool VHDLSignal::write(FILE *pFile, int indent)
-{
-  fprintf(pFile, "%*ssignal %s: %s;\n", indent, "", m_name.c_str(), "sometype");
-  return true;
-}
+public:
+  static const int WIDTH = 20;
+  static const int SPACING = 10;
+
+  /* Signals */
+  sigc::signal<void, Edge, int> moved;
+  sigc::signal<void> disconnected;
+  sigc::signal<void> removed;
+
+  LayoutPort(VHDLPort *pPort):
+    m_pPort(pPort)
+  {
+  }
+
+  VHDLPort *getAssociatedPort() { return m_pPort; }
+};
+
+#endif /* _LAYOUT_PORT_H */

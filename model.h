@@ -4,9 +4,9 @@
 Ideas:
 - Make sure that there's a facility to highlight components throughout the hierarchy.
   It should be possible to easily find all places where a component is used.
-  To find them in a big diagram, allow a inverted ripple effect while zoomed out 
+  To find them in a big diagram, allow a inverted ripple effect while zoomed out
   (circles centered on the components, shrinking to a point and then starting at large size again)
-- Use highlights for two purposes (use different colors): 
+- Use highlights for two purposes (use different colors):
   1 - marking items that need an update before compilation
   2 - as the results for a component search
 
@@ -33,7 +33,7 @@ Use cases:
   - see rearranging of ports
 
 
-/* 
+/*
  * GUI
  */
 
@@ -85,7 +85,7 @@ portmap:
 begin
   G1: INV port map (SEL, SELB);
   G2: AOI port map (SEL, A, SELB, B, F);
-end; 
+end;
 
 signals:
 signal SELB: STD_LOGIC;

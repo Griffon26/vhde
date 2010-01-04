@@ -8,42 +8,87 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Foobar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 #include "layout_block.h"
+#include "layout_port.h"
 
-LayoutBlock::LayoutBlock():
-  m_pInstance(NULL)
+/*
+ * Public methods
+ */
+
+void LayoutBlock::setSize(const LayoutSize &size)
 {
+  m_size = size;
+  resized.emit(size);
 }
 
-void LayoutBlock::associateInstance(VHDLInstance *pInstance)
+void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
 {
-  g_assert(m_pInstance == NULL);
-  g_assert(pInstance != NULL);
-  m_pInstance = pInstance;
+  m_ports[edge][position] = pPort;
 }
 
-VHDLInstance *LayoutBlock::getAssociatedInstance()
+void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition)
 {
-  return m_pInstance;
+  g_assert(m_ports[oldEdge].find(oldPosition) != m_ports[oldEdge].end());
+
+  m_ports[newEdge][newPosition] = m_ports[oldEdge][oldPosition];
+  m_ports[oldEdge].erase(oldPosition);
+
+  m_ports[newEdge][newPosition]->moved.emit(newEdge, newPosition);
 }
 
-void LayoutBlock::addPort(Edge edge, int position, Glib::ustring name)
+LayoutPort *LayoutBlock::getPort(Edge edge, int position)
 {
-  Port port;
+  g_assert(m_ports[edge].find(position) != m_ports[edge].end());
+  return m_ports[edge][position];
+}
 
-  port.name = name;
-  port.position = position;
+void LayoutBlock::calculatePortPosition(Edge edge, int position, int *pX, int *pY)
+{
+  switch(edge)
+  {
+  case EDGE_LEFT:
+    *pX = -LayoutPort::WIDTH / 2;
+    break;
+  case EDGE_RIGHT:
+    *pX = m_size.width + LayoutPort::WIDTH / 2;
+    break;
+  case EDGE_TOP:
+    *pY = -LayoutPort::WIDTH / 2;
+    break;
+  case EDGE_BOTTOM:
+    *pY = m_size.height + LayoutPort::WIDTH / 2;
+    break;
+  default:
+    g_assert_not_reached();
+  }
 
-  m_ports[edge].push_back(port);
+  if(edge == EDGE_LEFT || edge == EDGE_RIGHT)
+  {
+    *pY = LayoutPort::SPACING + LayoutPort::WIDTH / 2 + position * (LayoutPort::SPACING + LayoutPort::WIDTH);
+  }
+  else
+  {
+    *pX = LayoutPort::SPACING + LayoutPort::WIDTH / 2 + position * (LayoutPort::SPACING + LayoutPort::WIDTH);
+  }
+}
+
+/*
+ * Private methods
+ */
+
+int LayoutBlock::calculateMaxNrOfPorts(Edge edge)
+{
+  int edgeLength = (edge == EDGE_LEFT || edge == EDGE_RIGHT) ? m_size.height : m_size.width;
+  return (edgeLength - LayoutPort::SPACING) / (LayoutPort::SPACING + LayoutPort::WIDTH);
 }

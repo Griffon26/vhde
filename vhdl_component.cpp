@@ -26,7 +26,8 @@
  */
 
 VHDLComponent::VHDLComponent(Glib::ustring name):
-  VHDLInterface(name)
+  VHDLInterface(name),
+  m_pEntity(NULL)
 {
 }
 

@@ -19,19 +19,4 @@
  *
  */
 
-#include "vhdl_signal.h"
-
-VHDLSignal::VHDLSignal(Glib::ustring name):
-  m_name(name)
-{
-}
-
-void setType(VHDLType type)
-{
-}
-
-bool VHDLSignal::write(FILE *pFile, int indent)
-{
-  fprintf(pFile, "%*ssignal %s: %s;\n", indent, "", m_name.c_str(), "sometype");
-  return true;
-}
+#include "layout_port.h"
