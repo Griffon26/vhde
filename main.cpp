@@ -570,12 +570,18 @@ int main(int argc, char** argv)
 
   pPort = pInstance->getComponent()->findPortByName("myport2");
   pLayoutPort = new LayoutPort(pPort);
-  layoutInstance.addPort(EDGE_RIGHT, 2, pLayoutPort);
+  layoutInstance.addPort(EDGE_RIGHT, 8, pLayoutPort);
 
   layoutInstance.associateInstance(arch.findInstanceByName("myinstance1"));
 
+  layoutInstance.setSize(LayoutSize(200,200));
 
   externalEntity.setName("blaat");
+
+
+
+
+
 
   FILE *pFile = fopen("dinges.layout", "w+b");
   layoutInstance.write(pFile);

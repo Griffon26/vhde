@@ -28,18 +28,28 @@
 
 void LayoutBlock::setSize(const LayoutSize &size)
 {
+  printf("LayoutBlock::setSize, max ports in x: %d, max ports in y: %d\n", calculateMaxNrOfPorts(size.width), calculateMaxNrOfPorts(size.height));
+
+  resizeEdge(EDGE_TOP, size.width);
+  resizeEdge(EDGE_BOTTOM, size.width);
+
+  resizeEdge(EDGE_LEFT, size.height);
+  resizeEdge(EDGE_RIGHT, size.height);
+
   m_size = size;
   resized.emit(size);
 }
 
 void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
 {
+  g_assert(m_ports[edge].find(position) == m_ports[edge].end());
   m_ports[edge][position] = pPort;
 }
 
 void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition)
 {
   g_assert(m_ports[oldEdge].find(oldPosition) != m_ports[oldEdge].end());
+  g_assert(m_ports[newEdge].find(newPosition) == m_ports[newEdge].end());
 
   m_ports[newEdge][newPosition] = m_ports[oldEdge][oldPosition];
   m_ports[oldEdge].erase(oldPosition);
@@ -87,8 +97,46 @@ void LayoutBlock::calculatePortPosition(Edge edge, int position, int *pX, int *p
  * Private methods
  */
 
-int LayoutBlock::calculateMaxNrOfPorts(Edge edge)
+int LayoutBlock::calculateMaxNrOfPorts(int edgeLength)
 {
-  int edgeLength = (edge == EDGE_LEFT || edge == EDGE_RIGHT) ? m_size.height : m_size.width;
   return (edgeLength - LayoutPort::SPACING) / (LayoutPort::SPACING + LayoutPort::WIDTH);
+}
+
+void LayoutBlock::resizeEdge(Edge edge, int newSize)
+{
+  std::map<int, LayoutPort *>::iterator it;
+
+  int nrOfUnusedSpotsAllowed = calculateMaxNrOfPorts(newSize) - m_ports[edge].size();
+  g_assert(nrOfUnusedSpotsAllowed >= 0);
+
+  int previousUsedSpot = -1;
+  int nrOfSkippedSpots;
+  int currentSpot;
+  for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
+  {
+    currentSpot = it->first;
+    nrOfSkippedSpots = (currentSpot - previousUsedSpot) - 1;
+    nrOfUnusedSpotsAllowed -= nrOfSkippedSpots;
+
+    /* Break out of the loop if the current port is at or beyond the furthest
+     * position it is allowed to occupy.
+     */
+    if(nrOfUnusedSpotsAllowed <= 0)
+    {
+      break;
+    }
+    previousUsedSpot = currentSpot;
+  }
+
+  /* If nrOfUnusedSpotsAllowed is negative, we need to move the current port
+   * back by (-nrOfUnusedSpotsAllowed) places and put all following ports
+   * adjacent to this one.
+   */
+  currentSpot -= -nrOfUnusedSpotsAllowed;
+
+  for(;it != m_ports[edge].end(); it++)
+  {
+    movePort(edge, it->first, edge, currentSpot);
+    currentSpot++;
+  }
 }

@@ -49,7 +49,8 @@ public:
   void calculatePortPosition(Edge edge, int position, int *pX, int *pY);
 
 private:
-  int calculateMaxNrOfPorts(Edge edge);
+  int calculateMaxNrOfPorts(int edgeLength);
+  void resizeEdge(Edge edge, int newSize);
 };
 
 #endif /* _LAYOUT_BLOCK_H */
