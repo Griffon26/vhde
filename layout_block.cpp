@@ -60,6 +60,7 @@ void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
 
 void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition)
 {
+  printf("LayoutBlock::movePort (%s,%d) -> (%s,%d)\n", EDGE_TO_NAME(oldEdge), oldPosition, EDGE_TO_NAME(newEdge), newPosition);
   g_assert(m_ports[oldEdge].find(oldPosition) != m_ports[oldEdge].end());
   g_assert(m_ports[newEdge].find(newPosition) == m_ports[newEdge].end());
 

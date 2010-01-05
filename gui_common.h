@@ -28,5 +28,7 @@
 #define COMPONENT_COLOR   Clutter::Color(0xAE, 0xFF, 0x7F, 0xFF)
 #define PORT_COLOR        Clutter::Color(0x7F, 0xAE, 0xFF, 0xFF)
 
+#define UNHANDLED false
+#define HANDLED   true
 
 #endif /* _GUI_COMMON_H */

@@ -41,10 +41,15 @@ private:
 
   std::list<PortData *>   m_portDataList;
 
+  Edge m_dragFromEdge;
+  int  m_dragFromPosition;
+
   sigc::connection        m_onBodyButtonPressConnection;
+  sigc::connection        m_onDragConnection;
   sigc::connection        m_onPortAddedConnection;
   LayoutBlock            *m_pLayoutBlock;
 
+  Glib::RefPtr<Clutter::Stage>      m_pStage;
   Glib::RefPtr<Clutter::Group>      m_pGroup;
   Glib::RefPtr<Clutter::Rectangle>  m_pBody;
 
@@ -54,9 +59,11 @@ public:
 
 private:
   bool addPort(Edge edge, int position, LayoutPort *pLayoutPort);
-  bool getClosestPort(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition);
+  bool getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition,
+                      bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
 
   bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
+  bool onPortDragged(Clutter::Event *pEvent, PortData *pPortData);
   void onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
 
   bool onPortButtonPress(Clutter::ButtonEvent *pEvent, PortData *pPortData);

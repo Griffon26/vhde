@@ -594,6 +594,9 @@ int main(int argc, char** argv)
   int x, y;
   GuiBlock guiBlock(stage, &layoutInstance);
 
+  stage->show();
+  Clutter::main();
+
   FILE *pFile = fopen("dinges.layout", "w+b");
   layoutInstance.write(pFile);
   fclose(pFile);
@@ -602,6 +605,7 @@ int main(int argc, char** argv)
   arch.write(pFile, 0);
   fclose(pFile);
 
+#if 0
   printf("main: removing port myport2\n");
   externalEntity.removePort(externalEntity.findPortByName("myport2"));
 
@@ -619,6 +623,7 @@ int main(int argc, char** argv)
 
   // Start the main loop, so we can respond to events:
   Clutter::main();
+#endif
 
   return 0;
 }
