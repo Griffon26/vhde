@@ -23,7 +23,7 @@
 #define _GUI_BLOCK_H
 
 #include "layout_block.h"
-#include "triangle_actor.h"
+#include "clutter_port.h"
 
 class GuiBlock
 {
@@ -32,7 +32,7 @@ private:
   {
     Edge edge;
     int position;
-    Glib::RefPtr<Tutorial::Triangle> pActor;
+    Glib::RefPtr<ClutterPort> pActor;
 
     sigc::connection onPortButtonPressConnection;
     sigc::connection onPortMovedConnection;
@@ -41,8 +41,11 @@ private:
 
   std::list<PortData *>   m_portDataList;
 
-  Edge m_dragFromEdge;
-  int  m_dragFromPosition;
+  Edge  m_dragFromEdge;
+  int   m_dragFromPosition;
+
+  int   m_bodyHandleOffsetX;
+  int   m_bodyHandleOffsetY;
 
   sigc::connection        m_onBodyButtonPressConnection;
   sigc::connection        m_onDragConnection;
@@ -63,6 +66,7 @@ private:
                       bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
 
   bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
+  bool onBodyDragged(Clutter::Event *pEvent);
   bool onPortDragged(Clutter::Event *pEvent, PortData *pPortData);
   void onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
 

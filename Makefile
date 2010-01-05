@@ -10,7 +10,7 @@ LDFLAGS=`pkg-config cluttermm-0.9 --libs` \
 	$(SHELL) -ec '$(CC) -M $(CPPFLAGS) $< | sed "s/$*.o/& $@/g" > $@'
 
 SOURCES= main.cpp \
-	 triangle_actor.cpp \
+	 clutter_port.cpp \
 	 gui_block.cpp \
 	 layout_block.cpp \
 	 layout_instance.cpp \
