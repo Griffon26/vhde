@@ -30,15 +30,28 @@
 
 class LayoutBlock
 {
+public:
+  typedef struct
+  {
+    Edge edge;
+    int position;
+    LayoutPort *pLayoutPort;
+  } PortData;
+
 protected:
+  LayoutPosition              m_position;
   LayoutSize                  m_size;
   std::map<int, LayoutPort *> m_ports[NR_OF_EDGES];
 
 public:
   /* Signals */
   sigc::signal<void, const LayoutSize &> resized;
+  sigc::signal<void, Edge, int, LayoutPort *> port_added;
+
+  void getPosition(LayoutPosition *pLayoutPosition);
 
   void setSize(const LayoutSize &size);
+  void getSize(LayoutSize *pLayoutSize);
 
   /* This method assumes ownership of the port */
   void addPort(Edge edge, int position, LayoutPort *pPort);
@@ -46,10 +59,12 @@ public:
   void movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition);
   LayoutPort *getPort(Edge edge, int position);
 
-  void calculatePortPosition(Edge edge, int position, int *pX, int *pY);
+  std::list<PortData> *getPortList();
+
+  void calculatePortPosition(Edge edge, int position, int *pX, int *pY) const;
+  static int calculateMaxNrOfPorts(int edgeLength);
 
 private:
-  int calculateMaxNrOfPorts(int edgeLength);
   void resizeEdge(Edge edge, int newSize);
 };
 

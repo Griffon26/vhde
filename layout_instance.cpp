@@ -38,11 +38,6 @@ LayoutInstance::~LayoutInstance()
   }
 }
 
-const LayoutPosition &LayoutInstance::getPosition()
-{
-  return m_position;
-}
-
 void LayoutInstance::setPosition(const LayoutPosition &pos)
 {
   m_position = pos;

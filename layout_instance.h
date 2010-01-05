@@ -28,7 +28,6 @@
 class LayoutInstance: public LayoutBlock
 {
 private:
-  LayoutPosition  m_position;
   VHDLInstance   *m_pInstance;
 
   sigc::connection m_onSignalDisassociatedConnection;
@@ -41,7 +40,6 @@ public:
   LayoutInstance();
   ~LayoutInstance();
 
-  const LayoutPosition &getPosition();
   void setPosition(const LayoutPosition &pos);
 
   void associateInstance(VHDLInstance *pInstance);

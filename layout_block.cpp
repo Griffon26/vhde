@@ -26,6 +26,11 @@
  * Public methods
  */
 
+void LayoutBlock::getPosition(LayoutPosition *pLayoutPosition)
+{
+  *pLayoutPosition = m_position;
+}
+
 void LayoutBlock::setSize(const LayoutSize &size)
 {
   printf("LayoutBlock::setSize, max ports in x: %d, max ports in y: %d\n", calculateMaxNrOfPorts(size.width), calculateMaxNrOfPorts(size.height));
@@ -40,10 +45,17 @@ void LayoutBlock::setSize(const LayoutSize &size)
   resized.emit(size);
 }
 
+void LayoutBlock::getSize(LayoutSize *pLayoutSize)
+{
+  *pLayoutSize = m_size;
+}
+
 void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
 {
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
   m_ports[edge][position] = pPort;
+
+  port_added.emit(edge, position, pPort);
 }
 
 void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition)
@@ -59,11 +71,36 @@ void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newP
 
 LayoutPort *LayoutBlock::getPort(Edge edge, int position)
 {
-  g_assert(m_ports[edge].find(position) != m_ports[edge].end());
-  return m_ports[edge][position];
+  std::map<int, LayoutPort *>::iterator it;
+
+  it = m_ports[edge].find(position);
+
+  return (it == m_ports[edge].end()) ? NULL : it->second;
 }
 
-void LayoutBlock::calculatePortPosition(Edge edge, int position, int *pX, int *pY)
+std::list<LayoutBlock::PortData> *LayoutBlock::getPortList()
+{
+  PortData portData;
+  std::map<int, LayoutPort *>::iterator it;
+
+  std::list<PortData> *pPortList = new std::list<PortData>();
+
+  for(int edge = 0; edge < NR_OF_EDGES; edge++)
+  {
+    for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
+    {
+      portData.edge = (Edge)edge;
+      portData.position = it->first;
+      portData.pLayoutPort = it->second;
+
+      pPortList->push_back(portData);
+    }
+  }
+
+  return pPortList;
+}
+
+void LayoutBlock::calculatePortPosition(Edge edge, int position, int *pX, int *pY) const
 {
   switch(edge)
   {
@@ -93,18 +130,18 @@ void LayoutBlock::calculatePortPosition(Edge edge, int position, int *pX, int *p
   }
 }
 
-/*
- * Private methods
- */
-
 int LayoutBlock::calculateMaxNrOfPorts(int edgeLength)
 {
   return (edgeLength - LayoutPort::SPACING) / (LayoutPort::SPACING + LayoutPort::WIDTH);
 }
 
+/*
+ * Private methods
+ */
+
 void LayoutBlock::resizeEdge(Edge edge, int newSize)
 {
-  std::map<int, LayoutPort *>::iterator it;
+  std::map<int, LayoutPort *>::iterator it, prevIt;
 
   int nrOfUnusedSpotsAllowed = calculateMaxNrOfPorts(newSize) - m_ports[edge].size();
   g_assert(nrOfUnusedSpotsAllowed >= 0);
@@ -134,9 +171,10 @@ void LayoutBlock::resizeEdge(Edge edge, int newSize)
    */
   currentSpot -= -nrOfUnusedSpotsAllowed;
 
-  for(;it != m_ports[edge].end(); it++)
+  for(;it != m_ports[edge].end();)
   {
-    movePort(edge, it->first, edge, currentSpot);
+    prevIt = it++;
+    movePort(edge, prevIt->first, edge, currentSpot);
     currentSpot++;
   }
 }

@@ -73,8 +73,11 @@ void LayoutSignal::onInstanceMoved(LayoutInstance *pLayoutInstance, LayoutPositi
 
 void LayoutSignal::onPortMoved(Edge newEdge, int newPosition, EndPoint *pEndPoint)
 {
-  LayoutPosition *pEndPointPosition = (pEndPoint == &beginning) ? &m_corners.front() : &m_corners.back();
-  LayoutPosition instancePosition   = pEndPoint->pLayoutInstance->getPosition();
+  LayoutPosition instancePosition;
+  LayoutPosition *pEndPointPosition;
+
+  pEndPointPosition = (pEndPoint == &beginning) ? &m_corners.front() : &m_corners.back();
+  pEndPoint->pLayoutInstance->getPosition(&instancePosition);
 
   pEndPoint->pLayoutInstance->calculatePortPosition(newEdge, newPosition, &pEndPoint->offset_x, &pEndPoint->offset_y);
   pEndPointPosition->x = instancePosition.x + pEndPoint->offset_x;

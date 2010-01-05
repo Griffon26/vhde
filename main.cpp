@@ -24,6 +24,7 @@
 #include <cluttermm.h>
 #include <iostream>
 
+#include "gui_block.h"
 #include "layout_instance.h"
 #include "triangle_actor.h"
 #include "vhdl_architecture.h"
@@ -512,6 +513,14 @@ static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::S
 
 int main(int argc, char** argv)
 {
+  Clutter::init(&argc, &argv);
+  Clutter::set_motion_events_enabled(false);
+
+  // Get the stage and set its size and color:
+  const Glib::RefPtr<Clutter::Stage> stage = Clutter::Stage::get_default();
+  stage->set_size(1100, 700);
+  stage->set_color(STAGE_COLOR);
+
   /* Try out the model classes */
   VHDLArchitecture arch("myarch");
   VHDLEntity entity("myentity");
@@ -566,7 +575,7 @@ int main(int argc, char** argv)
 
   pPort = pInstance->getComponent()->findPortByName("myport1");
   pLayoutPort = new LayoutPort(pPort);
-  layoutInstance.addPort(EDGE_LEFT, 1, pLayoutPort);
+  layoutInstance.addPort(EDGE_LEFT, 0, pLayoutPort);
 
   pPort = pInstance->getComponent()->findPortByName("myport2");
   pLayoutPort = new LayoutPort(pPort);
@@ -580,8 +589,10 @@ int main(int argc, char** argv)
 
 
 
-
-
+  Edge edge;
+  int position;
+  int x, y;
+  GuiBlock guiBlock(stage, &layoutInstance);
 
   FILE *pFile = fopen("dinges.layout", "w+b");
   layoutInstance.write(pFile);
@@ -600,14 +611,6 @@ int main(int argc, char** argv)
   exit(0);
 
 
-
-  Clutter::init(&argc, &argv);
-  Clutter::set_motion_events_enabled(false);
-
-  // Get the stage and set its size and color:
-  const Glib::RefPtr<Clutter::Stage> stage = Clutter::Stage::get_default();
-  stage->set_size(1100, 700);
-  stage->set_color(STAGE_COLOR);
 
   Component *pComp = new Component(stage, 3);
 
