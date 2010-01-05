@@ -49,7 +49,6 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   m_pBody->set_position(0, 0);
   m_pBody->set_border_width(BORDER_WIDTH);
   m_pBody->set_reactive();
-  m_onBodyButtonPressConnection = m_pBody->signal_button_press_event().connect(sigc::mem_fun(*this, &GuiBlock::onBodyButtonPress));
   m_pGroup->add_actor(m_pBody);
 
   pPortList = m_pLayoutBlock->getPortList();
@@ -78,6 +77,7 @@ bool GuiBlock::addPort(Edge edge, int position, LayoutPort *pLayoutPort)
   pPortData->edge = edge;
   pPortData->position = position;
   pPortData->pActor = ClutterPort::create(PORT_COLOR);
+  pPortData->pActor->setOrientation(edgeToOrientation(edge));
 
   pPortData->pActor->set_anchor_point(LayoutPort::WIDTH / 2, LayoutPort::WIDTH / 2);
   pPortData->pActor->set_size(LayoutPort::WIDTH, LayoutPort::WIDTH);
@@ -140,38 +140,6 @@ bool GuiBlock::getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *p
   return (minDistanceSquared != -1);
 }
 
-bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
-{
-  // Remember the point within the object where it was picked up
-  float x, y;
-  m_pGroup->get_position(x, y);
-  m_bodyHandleOffsetX = pEvent->x - x;
-  m_bodyHandleOffsetY = pEvent->y - y;
-
-  // Register for motion and button release events from the stage
-  m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiBlock::onBodyDragged));
-
-  return HANDLED;
-}
-
-bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
-{
-  if(pEvent->type == CLUTTER_MOTION)
-  {
-    m_pGroup->set_position(pEvent->motion.x - m_bodyHandleOffsetX, pEvent->motion.y - m_bodyHandleOffsetY);
-    return HANDLED;
-  }
-  else if(pEvent->type == CLUTTER_BUTTON_RELEASE)
-  {
-    m_onDragConnection.disconnect();
-    return HANDLED;
-  }
-  else
-  {
-    return UNHANDLED;
-  }
-}
-
 void GuiBlock::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
 {
   addPort(edge, position, pLayoutPort);
@@ -201,7 +169,6 @@ bool GuiBlock::onPortDragged(Clutter::Event *pEvent, PortData *pPortData)
   int dragToPosition;
   float offset_x, offset_y;
 
-
   m_pGroup->get_position(offset_x, offset_y);
 
   if(pEvent->type == CLUTTER_MOTION)
@@ -212,6 +179,8 @@ bool GuiBlock::onPortDragged(Clutter::Event *pEvent, PortData *pPortData)
       int x, y;
       m_pLayoutBlock->calculatePortPosition(dragToEdge, dragToPosition, &x, &y);
       pPortData->pActor->set_position(x, y);
+
+      pPortData->pActor->setOrientation(edgeToOrientation(dragToEdge));
 
       m_dragFromEdge = dragToEdge;
       m_dragFromPosition = dragToPosition;
@@ -245,4 +214,12 @@ void GuiBlock::onPortRemoved(PortData *pPortData)
   m_pGroup->remove_actor(pPortData->pActor);
   m_portDataList.remove(pPortData);
   delete pPortData;
+}
+
+ClutterPort::Orientation GuiBlock::edgeToOrientation(Edge edge)
+{
+  return (edge == EDGE_LEFT)  ? ClutterPort::EAST :
+         (edge == EDGE_TOP)   ? ClutterPort::SOUTH :
+         (edge == EDGE_RIGHT) ? ClutterPort::WEST :
+                                ClutterPort::NORTH;
 }

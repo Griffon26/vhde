@@ -19,45 +19,21 @@
  *
  */
 
-#ifndef _CLUTTER_PORT_H
-#define _CLUTTER_PORT_H
+#include "gui_block.h"
+#include "layout_instance.h"
 
-#include <cluttermm.h>
-
-class ClutterPort: public Clutter::Actor
+class GuiInstance: public GuiBlock
 {
-public:
-  typedef enum {
-    EAST,
-    SOUTH,
-    WEST,
-    NORTH
-  } Orientation;
-
-  typedef enum {
-    TYPE_INPUT,
-    TYPE_OUTPUT,
-    TYPE_BIDIRECTIONAL
-  } Type;
-
 private:
-  Clutter::Color  m_color;
-  Orientation     m_orientation;
-  Type            m_type;
+  sigc::connection  m_onBodyButtonPressConnection;
+
+  int               m_bodyHandleOffsetX;
+  int               m_bodyHandleOffsetY;
 
 public:
-  static Glib::RefPtr<ClutterPort> create(const Clutter::Color &color);
-
-  void setOrientation(Orientation orientation);
-  void setType(Type type);
+  GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance);
 
 private:
-  explicit ClutterPort(const Clutter::Color &color);
-
-  void drawTriangle(const Clutter::Color &color, bool hasBorder);
-
-  void on_paint();
-  void pick_vfunc(const Clutter::Color &color);
+  bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
+  bool onBodyDragged(Clutter::Event *pEvent);
 };
-
-#endif /* _CLUTTER_PORT_H */

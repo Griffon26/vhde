@@ -105,4 +105,5 @@ void VHDLInstance::onPortRemoved(VHDLPort *pPort)
 {
   printf("port removed from instance\n");
   m_portMap.erase(pPort);
+  port_removed.emit(pPort);
 }

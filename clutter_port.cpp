@@ -21,13 +21,35 @@
 
 #include "clutter_port.h"
 
+/*
+ * Public methods
+ */
+
 Glib::RefPtr<ClutterPort> ClutterPort::create(const Clutter::Color &color)
 {
   return Glib::RefPtr<ClutterPort>(new ClutterPort(color));
 }
 
+void ClutterPort::setOrientation(Orientation orientation)
+{
+  m_orientation = orientation;
+  queue_redraw();
+}
+
+void ClutterPort::setType(Type type)
+{
+  m_type = type;
+  /* queue_redraw() */
+}
+
+/*
+ * Private methods
+ */
+
 ClutterPort::ClutterPort(const Clutter::Color &color):
-  m_color(color)
+  m_color(color),
+  m_orientation(NORTH),
+  m_type(TYPE_INPUT)
 {
 }
 
@@ -35,12 +57,28 @@ void ClutterPort::drawTriangle(const Clutter::Color &color, bool hasBorder)
 {
   float width, height;
 
+  int angle = 90 * m_orientation + ((m_type == TYPE_OUTPUT) ? 180 : 0);
+
   get_size(width, height);
 
-  float coords[] = {0, 0, width, height / 2, 0, height};
+  //set_rotation(Clutter::Z_AXIS, angle, 0, 0, 0);
+  cogl_translate(width / 2, height / 2, 0);
+  cogl_rotate(angle, 0, 0, 1);
+
+
+  float triangleCoords[] = {-width/2, -height/2, width/2, 0, -width/2, height/2};
+  float diamondCoords[] = {0, height / 2, width / 2, 0, width, height / 2, width / 2, height};
+
+  if(m_type == TYPE_BIDIRECTIONAL)
+  {
+    cogl_path_polygon(diamondCoords, 4);
+  }
+  else
+  {
+    cogl_path_polygon(triangleCoords, 3);
+  }
 
   cogl_set_source_color4ub(color.get_red(), color.get_green(), color.get_blue(), get_opacity());
-  cogl_path_polygon(coords, 3);
 
   if(hasBorder)
   {

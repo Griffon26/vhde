@@ -44,13 +44,13 @@ private:
   Edge  m_dragFromEdge;
   int   m_dragFromPosition;
 
-  int   m_bodyHandleOffsetX;
-  int   m_bodyHandleOffsetY;
 
-  sigc::connection        m_onBodyButtonPressConnection;
-  sigc::connection        m_onDragConnection;
   sigc::connection        m_onPortAddedConnection;
+
+protected:
   LayoutBlock            *m_pLayoutBlock;
+
+  sigc::connection        m_onDragConnection;
 
   Glib::RefPtr<Clutter::Stage>      m_pStage;
   Glib::RefPtr<Clutter::Group>      m_pGroup;
@@ -65,14 +65,14 @@ private:
   bool getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition,
                       bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
 
-  bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
-  bool onBodyDragged(Clutter::Event *pEvent);
   bool onPortDragged(Clutter::Event *pEvent, PortData *pPortData);
   void onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
 
   bool onPortButtonPress(Clutter::ButtonEvent *pEvent, PortData *pPortData);
   void onPortMoved(Edge edge, int position, PortData *pPortData);
   void onPortRemoved(PortData *pPortData);
+
+  ClutterPort::Orientation edgeToOrientation(Edge edge);
 };
 
 #endif /* _GUI_BLOCK_H */
