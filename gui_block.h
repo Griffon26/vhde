@@ -72,7 +72,8 @@ private:
   void onPortMoved(Edge edge, int position, PortData *pPortData);
   void onPortRemoved(PortData *pPortData);
 
-  ClutterPort::Orientation edgeToOrientation(Edge edge);
+  ClutterPort::Orientation  edgeToOrientation(Edge edge);
+  ClutterPort::Type         vhdlDirectionToGuiType(VHDLPort::Direction dir);
 };
 
 #endif /* _GUI_BLOCK_H */

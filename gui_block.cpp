@@ -78,6 +78,7 @@ bool GuiBlock::addPort(Edge edge, int position, LayoutPort *pLayoutPort)
   pPortData->position = position;
   pPortData->pActor = ClutterPort::create(PORT_COLOR);
   pPortData->pActor->setOrientation(edgeToOrientation(edge));
+  pPortData->pActor->setType(vhdlDirectionToGuiType(pLayoutPort->getAssociatedPort()->getDirection()));
 
   pPortData->pActor->set_anchor_point(LayoutPort::WIDTH / 2, LayoutPort::WIDTH / 2);
   pPortData->pActor->set_size(LayoutPort::WIDTH, LayoutPort::WIDTH);
@@ -222,4 +223,12 @@ ClutterPort::Orientation GuiBlock::edgeToOrientation(Edge edge)
          (edge == EDGE_TOP)   ? ClutterPort::SOUTH :
          (edge == EDGE_RIGHT) ? ClutterPort::WEST :
                                 ClutterPort::NORTH;
+}
+
+ClutterPort::Type GuiBlock::vhdlDirectionToGuiType(VHDLPort::Direction dir)
+{
+  g_assert(dir != VHDLPort::DIR_INVALID);
+  return (dir == VHDLPort::DIR_IN) ?  ClutterPort::TYPE_INPUT :
+         (dir == VHDLPort::DIR_OUT) ? ClutterPort::TYPE_OUTPUT :
+                                      ClutterPort::TYPE_BIDIRECTIONAL;
 }

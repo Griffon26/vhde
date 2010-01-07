@@ -103,7 +103,7 @@ int main(int argc, char** argv)
   pComponent->addPort(pPort);
 
   pPort = new VHDLPort("myport2");
-  pPort->setDirection(VHDLPort::DIR_OUT);
+  pPort->setDirection(VHDLPort::DIR_INOUT);
   pComponent->addPort(pPort);
 
   VHDLSignal *pSignal = new VHDLSignal("mysignal1");

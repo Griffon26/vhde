@@ -49,7 +49,8 @@ public:
 
   bool write(FILE *pFile, int indent);
 
-  const Glib::ustring getName() { return m_name; }
+  const Glib::ustring   getName()       { return m_name; }
+  const Direction       getDirection()  { return m_direction; }
 };
 
 #endif /* _VHDL_WIRE_H */

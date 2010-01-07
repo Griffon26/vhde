@@ -61,13 +61,11 @@ void ClutterPort::drawTriangle(const Clutter::Color &color, bool hasBorder)
 
   get_size(width, height);
 
-  //set_rotation(Clutter::Z_AXIS, angle, 0, 0, 0);
   cogl_translate(width / 2, height / 2, 0);
   cogl_rotate(angle, 0, 0, 1);
 
-
   float triangleCoords[] = {-width/2, -height/2, width/2, 0, -width/2, height/2};
-  float diamondCoords[] = {0, height / 2, width / 2, 0, width, height / 2, width / 2, height};
+  float diamondCoords[] = {-width/2, 0, 0, -height/2, width/2, 0, 0, height/2};
 
   if(m_type == TYPE_BIDIRECTIONAL)
   {
