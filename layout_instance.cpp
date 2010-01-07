@@ -60,15 +60,13 @@ VHDLInstance *LayoutInstance::getAssociatedInstance()
 }
 
 /*
-
-position 100 200
-size 200 300
-ports {
-  LEFT 0 "dinges"
-  LEFT 1 "blaat"
-
-  "dinges" LEFT 0
-  "something" TOP 2
+instance "blaat" {
+  position 100 200
+  size 200 300
+  ports {
+    LEFT 0 "dinges"
+    LEFT 1 "blaat"
+  }
 }
 
 */
@@ -77,19 +75,22 @@ void LayoutInstance::write(FILE *pFile)
   int edge;
   std::map<int, LayoutPort *>::iterator it;
 
-  fprintf(pFile, "position %d %d\n", m_position.x, m_position.y);
-  fprintf(pFile, "size %d %d\n", m_size.width, m_size.height);
-  fprintf(pFile, "ports {\n");
+  fprintf(pFile, "instance \"%s\" {\n", m_pInstance->getName().c_str());
+  fprintf(pFile, "  position %d %d\n", m_position.x, m_position.y);
+  fprintf(pFile, "  size %d %d\n", m_size.width, m_size.height);
+  fprintf(pFile, "  ports {\n");
 
   for(edge = 0; edge < NR_OF_EDGES; edge++)
   {
     for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
     {
-      fprintf(pFile, "  %s %d \"%s\"\n", EDGE_TO_NAME(edge), it->first, it->second->getAssociatedPort()->getName().c_str());
+      fprintf(pFile, "    %s %d \"%s\"\n", EDGE_TO_NAME(edge), it->first, it->second->getAssociatedPort()->getName().c_str());
     }
   }
 
-  fprintf(pFile, "}\n");
+  fprintf(pFile, "  }\n"
+                 "}\n"
+                 "\n");
 }
 
 /*

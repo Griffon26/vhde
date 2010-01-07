@@ -1,5 +1,26 @@
 
 
+mouse actions:
+
+L                   select (needed for keyboard actions like delete)
+double L            edit name
+R                   context menu
+R + drag            context menu
+L + drag body       move component
+L + drag text       move text (only for component text, port text is fixed)
+L + drag edge       resize component
+ctrl L + drag any   move component
+ctrl R + drag any   resize component
+
+L + drag bg         selection rectangle
+ctrl L + drag bg    scroll
+
+wheel               scroll up/down
+shift wheel         scroll left/right
+ctrl wheel          zoom in/out on cursor
+
+
+
 
 
 things to consider:
