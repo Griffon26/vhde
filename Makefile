@@ -1,9 +1,9 @@
 .PHONY: clean
 
 CPPFLAGS=-g -O0 \
-	 `pkg-config cluttermm-0.9 --cflags` \
+	 `pkg-config cluttermm-1.0 --cflags` \
 	 `pkg-config libglademm-2.4 --cflags`
-LDFLAGS=`pkg-config cluttermm-0.9 --libs` \
+LDFLAGS=`pkg-config cluttermm-1.0 --libs` \
 	`pkg-config libglademm-2.4 --libs`
 
 %.d: %.cpp
