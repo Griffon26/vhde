@@ -31,10 +31,13 @@ GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pL
 bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 {
   // Remember the point within the object where it was picked up
-  float x, y;
-  m_pGroup->get_position(x, y);
-  m_bodyHandleOffsetX = pEvent->x - x;
-  m_bodyHandleOffsetY = pEvent->y - y;
+  float actorX, actorY, handleX, handleY;
+  m_pGroup->get_position(actorX, actorY);
+
+  m_pGroup->get_stage()->transform_stage_point(pEvent->x, pEvent->y, handleX, handleY);
+
+  m_bodyHandleOffsetX = handleX - actorX;
+  m_bodyHandleOffsetY = handleY - actorY;
 
   // Register for motion and button release events from the stage
   m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiInstance::onBodyDragged));
@@ -44,9 +47,16 @@ bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 
 bool GuiInstance::onBodyDragged(Clutter::Event *pEvent)
 {
+  float handleX, handleY;
   if(pEvent->type == CLUTTER_MOTION)
   {
-    LayoutPosition pos(pEvent->motion.x - m_bodyHandleOffsetX, pEvent->motion.y - m_bodyHandleOffsetY);
+    LayoutPosition pos;
+
+    m_pGroup->get_stage()->transform_stage_point(pEvent->motion.x, pEvent->motion.y, handleX, handleY);
+
+    pos.x = handleX - m_bodyHandleOffsetX;
+    pos.y = handleY - m_bodyHandleOffsetY;
+
     m_pGroup->set_position(pos.x, pos.y);
     static_cast<LayoutInstance *>(m_pLayoutBlock)->setPosition(pos);
     return HANDLED;

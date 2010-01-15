@@ -23,6 +23,7 @@
 #define _GUI_BLOCK_H
 
 #include "layout_block.h"
+#include "clutter_block.h"
 #include "clutter_port.h"
 
 class GuiBlock
@@ -54,7 +55,7 @@ protected:
 
   Glib::RefPtr<Clutter::Stage>      m_pStage;
   Glib::RefPtr<Clutter::Group>      m_pGroup;
-  Glib::RefPtr<Clutter::Rectangle>  m_pBody;
+  Glib::RefPtr<ClutterBlock>        m_pBody;
 
 public:
   GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock);

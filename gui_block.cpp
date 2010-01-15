@@ -44,10 +44,9 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   m_pGroup->set_position(position.x, position.y);
   m_pStage->add_actor(m_pGroup);
 
-  m_pBody = Clutter::Rectangle::create(Clutter::Color(0xAE, 0xFF, 0x7F, 0xFF));
+  m_pBody = ClutterBlock::create(Clutter::Color(0xAE, 0xFF, 0x7F, 0xFF));
   m_pBody->set_size(size.width, size.height);
   m_pBody->set_position(0, 0);
-  m_pBody->set_border_width(BORDER_WIDTH);
   m_pBody->set_reactive();
   m_pGroup->add_actor(m_pBody);
 
@@ -148,13 +147,6 @@ void GuiBlock::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
 
 bool GuiBlock::onPortButtonPress(Clutter::ButtonEvent* pEvent, PortData *pPortData)
 {
-  /* TODO: implement */
-  float x, y, offsetX, offsetY;
-
-  m_pGroup->get_position(x, y);
-  offsetX = pEvent->x - x;
-  offsetY = pEvent->y - y;
-
   // Register for motion and button release events from the stage
   m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::bind<PortData *>(sigc::mem_fun(*this, &GuiBlock::onPortDragged), pPortData));
 
@@ -168,13 +160,13 @@ bool GuiBlock::onPortDragged(Clutter::Event *pEvent, PortData *pPortData)
 {
   Edge dragToEdge;
   int dragToPosition;
-  float offset_x, offset_y;
-
-  m_pGroup->get_position(offset_x, offset_y);
+  float handleX, handleY;
 
   if(pEvent->type == CLUTTER_MOTION)
   {
-    if(getClosestSlot(true, pEvent->motion.x, pEvent->motion.y, &dragToEdge, &dragToPosition, true, pPortData->edge, pPortData->position) &&
+    m_pGroup->get_stage()->transform_stage_point(pEvent->motion.x, pEvent->motion.y, handleX, handleY);
+
+    if(getClosestSlot(true, handleX, handleY, &dragToEdge, &dragToPosition, true, pPortData->edge, pPortData->position) &&
        ((m_dragFromEdge != dragToEdge) || (m_dragFromPosition != dragToPosition)) )
     {
       int x, y;

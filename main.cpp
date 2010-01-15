@@ -90,6 +90,19 @@ int main(int argc, char** argv)
   stage->set_size(1100, 700);
   stage->set_color(STAGE_COLOR);
 
+
+  const Glib::RefPtr<Clutter::Rectangle> pActor = Clutter::Rectangle::create();
+  stage->add_actor(pActor);
+
+  fprintf(stderr, "Checking reference counting on stage. If this crashes you need a fix for cluttermm.\n");
+  fprintf(stderr, "Here we go...\n");
+  fprintf(stderr, "going once... ");
+  pActor->get_stage();
+  fprintf(stderr, "going twice... ");
+  pActor->get_stage();
+  fprintf(stderr, "sold to the man in the blue hat!\n");
+  pActor->get_stage();
+
   /* Try out the model classes */
   VHDLArchitecture arch("myarch");
   VHDLEntity entity("myentity");
@@ -163,6 +176,7 @@ int main(int argc, char** argv)
   int x, y;
   GuiInstance guiInstance(stage, &layoutInstance);
 
+  stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
   stage->show();
   Clutter::main();
 
