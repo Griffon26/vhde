@@ -52,6 +52,7 @@ public:
 
   void setSize(const LayoutSize &size);
   void getSize(LayoutSize *pLayoutSize);
+  void getMinimumSize(LayoutSize *pLayoutSize);
 
   /* This method assumes ownership of the port */
   void addPort(Edge edge, int position, LayoutPort *pPort);

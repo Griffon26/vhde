@@ -85,7 +85,7 @@ int main(int argc, char** argv)
   Clutter::init(&argc, &argv);
   Clutter::set_motion_events_enabled(false);
 
-  // Get the stage and set its size and color:
+  /* Get the stage and set its size and color */
   const Glib::RefPtr<Clutter::Stage> stage = Clutter::Stage::get_default();
   stage->set_size(1100, 700);
   stage->set_color(STAGE_COLOR);
@@ -187,26 +187,6 @@ int main(int argc, char** argv)
   pFile = fopen("dinges.vhd", "w+b");
   arch.write(pFile, 0);
   fclose(pFile);
-
-#if 0
-  printf("main: removing port myport2\n");
-  externalEntity.removePort(externalEntity.findPortByName("myport2"));
-
-  printf("main: removing signal mysignal2\n");
-  arch.removeSignal(arch.findSignalByName("mysignal2"));
-
-  exit(0);
-
-
-
-  Component *pComp = new Component(stage, 3);
-
-  stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
-  stage->show();
-
-  // Start the main loop, so we can respond to events:
-  Clutter::main();
-#endif
 
   return 0;
 }

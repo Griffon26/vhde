@@ -25,22 +25,19 @@
 GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance):
   GuiBlock(pStage, pLayoutInstance)
 {
-  m_onBodyButtonPressConnection = m_pBody->signal_button_press_event().connect(sigc::mem_fun(*this, &GuiInstance::onBodyButtonPress));
 }
 
 bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 {
-  // Remember the point within the object where it was picked up
-  float actorX, actorY, handleX, handleY;
-  m_pGroup->get_position(actorX, actorY);
+  bool ret;
 
-  m_pGroup->get_stage()->transform_stage_point(pEvent->x, pEvent->y, handleX, handleY);
+  ret = GuiBlock::onBodyButtonPress(pEvent);
+  g_assert(ret == HANDLED);
 
-  m_bodyHandleOffsetX = handleX - actorX;
-  m_bodyHandleOffsetY = handleY - actorY;
-
-  // Register for motion and button release events from the stage
-  m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiInstance::onBodyDragged));
+  /* Determine if this button press is the start of a move operation */
+  //printf("instance onBodyButtonPress button = %d modstate = %d\n", pEvent->button, pEvent->modifier_state);
+  m_dragIsMove = (pEvent->button == 1) ||
+                 (pEvent->button == 1 && (pEvent->modifier_state == CLUTTER_CONTROL_MASK));
 
   return HANDLED;
 }
@@ -48,11 +45,12 @@ bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 bool GuiInstance::onBodyDragged(Clutter::Event *pEvent)
 {
   float handleX, handleY;
-  if(pEvent->type == CLUTTER_MOTION)
+
+  if((pEvent->type == CLUTTER_MOTION) && m_dragIsMove)
   {
     LayoutPosition pos;
 
-    m_pGroup->get_stage()->transform_stage_point(pEvent->motion.x, pEvent->motion.y, handleX, handleY);
+    m_pStage->transform_stage_point(pEvent->motion.x, pEvent->motion.y, handleX, handleY);
 
     pos.x = handleX - m_bodyHandleOffsetX;
     pos.y = handleY - m_bodyHandleOffsetY;
@@ -61,13 +59,8 @@ bool GuiInstance::onBodyDragged(Clutter::Event *pEvent)
     static_cast<LayoutInstance *>(m_pLayoutBlock)->setPosition(pos);
     return HANDLED;
   }
-  else if(pEvent->type == CLUTTER_BUTTON_RELEASE)
-  {
-    m_onDragConnection.disconnect();
-    return HANDLED;
-  }
   else
   {
-    return UNHANDLED;
+    return GuiBlock::onBodyDragged(pEvent);
   }
 }

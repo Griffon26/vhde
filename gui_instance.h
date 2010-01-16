@@ -22,18 +22,21 @@
 #include "gui_block.h"
 #include "layout_instance.h"
 
+/**
+ * A class that manages the GUI of a VHDL instance.
+ *
+ * GuiInstance extends GuiBlock with operations that are specific to component
+ * instances, such as changing the position on the canvas.
+ */
 class GuiInstance: public GuiBlock
 {
 private:
-  sigc::connection  m_onBodyButtonPressConnection;
-
-  int               m_bodyHandleOffsetX;
-  int               m_bodyHandleOffsetY;
+  bool              m_dragIsMove;
 
 public:
   GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance);
 
 private:
-  bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
-  bool onBodyDragged(Clutter::Event *pEvent);
+  virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
+  virtual bool onBodyDragged(Clutter::Event *pEvent);
 };

@@ -26,6 +26,14 @@
 #include "clutter_block.h"
 #include "clutter_port.h"
 
+/**
+ * A class that manages the GUI of a VHDL component interface.
+ *
+ * GuiBlock is meant to be used in a diagram of a component interface as
+ * opposed to a diagram with component instances. It is therefore not possible
+ * to change its position on the canvas.  Use GuiInstance instead if you need
+ * component instance specific operations like that.
+ */
 class GuiBlock
 {
 private:
@@ -35,7 +43,10 @@ private:
     int position;
     Glib::RefPtr<ClutterPort> pActor;
 
+    /* GUI signals */
     sigc::connection onPortButtonPressConnection;
+
+    /* Model signals */
     sigc::connection onPortMovedConnection;
     sigc::connection onPortRemovedConnection;
   } PortData;
@@ -45,17 +56,31 @@ private:
   Edge  m_dragFromEdge;
   int   m_dragFromPosition;
 
+  bool  m_dragIsResize;
 
+  /* GUI signals */
+  sigc::connection        m_onBodyButtonPressConnection;
+  sigc::connection        m_onDragConnection;
+
+  /* Model signals */
   sigc::connection        m_onPortAddedConnection;
+  sigc::connection        m_onResizedConnection;
 
 protected:
   LayoutBlock            *m_pLayoutBlock;
 
-  sigc::connection        m_onDragConnection;
-
   Glib::RefPtr<Clutter::Stage>      m_pStage;
   Glib::RefPtr<Clutter::Group>      m_pGroup;
   Glib::RefPtr<ClutterBlock>        m_pBody;
+
+  int                     m_bodyHandleOffsetX;
+  int                     m_bodyHandleOffsetY;
+
+  /* Used for dragging */
+  float                   m_initialHandleX;
+  float                   m_initialHandleY;
+  LayoutSize              m_initialSize;
+  LayoutSize              m_minimumSize;
 
 public:
   GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock);
@@ -66,10 +91,17 @@ private:
   bool getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition,
                       bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
 
-  bool onPortDragged(Clutter::Event *pEvent, PortData *pPortData);
-  void onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
+protected:
+  virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
+  virtual bool onBodyDragged(Clutter::Event *pEvent);
 
+private:
+  bool onPortDragged(Clutter::Event *pEvent, PortData *pPortData);
   bool onPortButtonPress(Clutter::ButtonEvent *pEvent, PortData *pPortData);
+
+  void onResized(LayoutSize layoutSize);
+
+  void onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
   void onPortMoved(Edge edge, int position, PortData *pPortData);
   void onPortRemoved(PortData *pPortData);
 

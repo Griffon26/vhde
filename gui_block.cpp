@@ -35,8 +35,6 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   LayoutPosition position;
   LayoutSize size;
 
-  m_onPortAddedConnection = pLayoutBlock->port_added.connect(sigc::mem_fun(this, &GuiBlock::onPortAdded));
-
   m_pLayoutBlock->getSize(&size);
   m_pLayoutBlock->getPosition(&position);
 
@@ -57,11 +55,21 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   }
 
   m_pGroup->show_all();
+
+  /* Connect GUI signal handlers */
+  m_onBodyButtonPressConnection = m_pBody->signal_button_press_event().connect(sigc::mem_fun(*this, &GuiBlock::onBodyButtonPress));
+
+  /* Connect model signal handlers */
+  m_onPortAddedConnection = pLayoutBlock->port_added.connect(sigc::mem_fun(this, &GuiBlock::onPortAdded));
+  m_onResizedConnection = pLayoutBlock->resized.connect(sigc::mem_fun(this, &GuiBlock::onResized));
 }
 
 GuiBlock::~GuiBlock()
 {
+  m_onBodyButtonPressConnection.disconnect();
+
   m_onPortAddedConnection.disconnect();
+  m_onResizedConnection.disconnect();
 }
 
 /*
@@ -92,10 +100,6 @@ bool GuiBlock::addPort(Edge edge, int position, LayoutPort *pLayoutPort)
 
   m_portDataList.push_back(pPortData);
 }
-
-/*
- * Private methods
- */
 
 bool GuiBlock::getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition, bool considerAdditionalSlot, Edge additionalSlotEdge, int additionalSlotPosition)
 {
@@ -140,14 +144,61 @@ bool GuiBlock::getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *p
   return (minDistanceSquared != -1);
 }
 
-void GuiBlock::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
+bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 {
-  addPort(edge, position, pLayoutPort);
+  /* Remember the point within the object where it was picked up */
+  float actorX, actorY;
+  m_pGroup->get_position(actorX, actorY);
+
+  m_pStage->transform_stage_point(pEvent->x, pEvent->y, m_initialHandleX, m_initialHandleY);
+
+  m_bodyHandleOffsetX = m_initialHandleX - actorX;
+  m_bodyHandleOffsetY = m_initialHandleY - actorY;
+
+  m_pLayoutBlock->getSize(&m_initialSize);
+  m_pLayoutBlock->getMinimumSize(&m_minimumSize);
+
+  /* Register for motion and button release events from the stage */
+  m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiBlock::onBodyDragged));
+
+  m_dragIsResize = (pEvent->button == 3) &&
+                   (pEvent->modifier_state == CLUTTER_CONTROL_MASK);
+
+  return HANDLED;
+}
+
+bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
+{
+  float handleX, handleY;
+
+  if(pEvent->type == CLUTTER_MOTION && m_dragIsResize)
+  {
+    LayoutSize size;
+    m_pLayoutBlock->getSize(&size);
+
+    m_pStage->transform_stage_point(pEvent->motion.x, pEvent->motion.y, handleX, handleY);
+
+    size.width  = MAX(m_minimumSize.width, m_initialSize.width  + (handleX - m_initialHandleX));
+    size.height = MAX(m_minimumSize.height, m_initialSize.height + (handleY - m_initialHandleY));
+
+    m_pLayoutBlock->setSize(size);
+
+    return HANDLED;
+  }
+  else if(pEvent->type == CLUTTER_BUTTON_RELEASE)
+  {
+    m_onDragConnection.disconnect();
+    return HANDLED;
+  }
+  else
+  {
+    return UNHANDLED;
+  }
 }
 
 bool GuiBlock::onPortButtonPress(Clutter::ButtonEvent* pEvent, PortData *pPortData)
 {
-  // Register for motion and button release events from the stage
+  /* Register for motion and button release events from the stage */
   m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::bind<PortData *>(sigc::mem_fun(*this, &GuiBlock::onPortDragged), pPortData));
 
   m_dragFromEdge = pPortData->edge;
@@ -194,10 +245,31 @@ bool GuiBlock::onPortDragged(Clutter::Event *pEvent, PortData *pPortData)
   }
 }
 
+void GuiBlock::onResized(LayoutSize layoutSize)
+{
+  std::list<PortData *>::iterator it;
+  PortData *pPortData;
+  int x, y;
+
+  m_pBody->set_size(layoutSize.width, layoutSize.height);
+
+  /* Update port positions */
+  for(it = m_portDataList.begin(); it != m_portDataList.end(); it++)
+  {
+    pPortData = *it;
+
+    m_pLayoutBlock->calculatePortPosition(pPortData->edge, pPortData->position, &x, &y);
+    pPortData->pActor->set_position(x, y);
+  }
+}
+
+void GuiBlock::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
+{
+  addPort(edge, position, pLayoutPort);
+}
 
 void GuiBlock::onPortMoved(Edge edge, int position, PortData *pPortData)
 {
-  printf("GuiBlock::onPortMoved\n");
   pPortData->edge = edge;
   pPortData->position = position;
 }

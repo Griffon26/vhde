@@ -33,7 +33,7 @@ void LayoutBlock::getPosition(LayoutPosition *pLayoutPosition)
 
 void LayoutBlock::setSize(const LayoutSize &size)
 {
-  printf("LayoutBlock::setSize, max ports in x: %d, max ports in y: %d\n", calculateMaxNrOfPorts(size.width), calculateMaxNrOfPorts(size.height));
+  //printf("LayoutBlock::setSize, max ports in x: %d, max ports in y: %d\n", calculateMaxNrOfPorts(size.width), calculateMaxNrOfPorts(size.height));
 
   resizeEdge(EDGE_TOP, size.width);
   resizeEdge(EDGE_BOTTOM, size.width);
@@ -50,6 +50,12 @@ void LayoutBlock::getSize(LayoutSize *pLayoutSize)
   *pLayoutSize = m_size;
 }
 
+void LayoutBlock::getMinimumSize(LayoutSize *pLayoutSize)
+{
+  pLayoutSize->height = MAX(m_ports[EDGE_LEFT].size(), m_ports[EDGE_RIGHT].size()) * (LayoutPort::SPACING + LayoutPort::WIDTH) + LayoutPort::SPACING;
+  pLayoutSize->width  = MAX(m_ports[EDGE_TOP].size(), m_ports[EDGE_BOTTOM].size()) * (LayoutPort::SPACING + LayoutPort::WIDTH) + LayoutPort::SPACING;
+}
+
 void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
 {
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
@@ -60,7 +66,7 @@ void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
 
 void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition)
 {
-  printf("LayoutBlock::movePort (%s,%d) -> (%s,%d)\n", EDGE_TO_NAME(oldEdge), oldPosition, EDGE_TO_NAME(newEdge), newPosition);
+  //printf("LayoutBlock::movePort (%s,%d) -> (%s,%d)\n", EDGE_TO_NAME(oldEdge), oldPosition, EDGE_TO_NAME(newEdge), newPosition);
 
   if(oldEdge != newEdge || oldPosition != newPosition)
   {
