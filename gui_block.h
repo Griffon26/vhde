@@ -77,11 +77,11 @@ protected:
   int                     m_bodyHandleOffsetY;
 
   /* Used for dragging */
-  float                   m_initialHandleX;
-  float                   m_initialHandleY;
-  LayoutSize              m_initialSize;
-  LayoutSize              m_minimumSize;
-
+  float                         m_initialHandleX;
+  float                         m_initialHandleY;
+  LayoutSize                    m_initialSize;
+  LayoutSize                    m_minimumSize;
+  LayoutBlock::PortPositionMap  m_initialPortPositionMaps[NR_OF_EDGES];
 public:
   GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock);
   virtual ~GuiBlock();
@@ -90,6 +90,7 @@ private:
   bool addPort(Edge edge, int position, LayoutPort *pLayoutPort);
   bool getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition,
                       bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
+  void resizeEdge(const LayoutBlock::PortPositionMap &oldPortPositionMap, LayoutBlock::PortPositionMap *pNewPortPositionMap, int newSize);
 
 protected:
   virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);

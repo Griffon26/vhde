@@ -38,10 +38,12 @@ public:
     LayoutPort *pLayoutPort;
   } PortData;
 
+  typedef std::map<int, LayoutPort *> PortPositionMap;
+
 protected:
   LayoutPosition              m_position;
   LayoutSize                  m_size;
-  std::map<int, LayoutPort *> m_ports[NR_OF_EDGES];
+  PortPositionMap             m_ports[NR_OF_EDGES];
 
 public:
   /* Signals */
@@ -61,6 +63,9 @@ public:
   LayoutPort *getPort(Edge edge, int position);
 
   std::list<PortData> *getPortList();
+
+  const PortPositionMap *getPortPositionMaps();
+  void setPortPositionMaps(PortPositionMap *portPositionMap);
 
   void calculatePortPosition(Edge edge, int position, int *pX, int *pY) const;
   static int calculateMaxNrOfPorts(int edgeLength);

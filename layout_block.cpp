@@ -80,6 +80,61 @@ void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newP
   }
 }
 
+const LayoutBlock::PortPositionMap *LayoutBlock::getPortPositionMaps()
+{
+  return m_ports;
+}
+
+void LayoutBlock::setPortPositionMaps(PortPositionMap *portPositionMaps)
+{
+  PortPositionMap::iterator mapIt;
+
+  std::map<LayoutPort *, std::pair<Edge, int> > portToOldPositionMap;
+  std::map<LayoutPort *, std::pair<Edge, int> >::iterator oldIt;
+
+  /* First build up a map from port pointers to their old edge and position. */
+  for(int edge = 0; edge < NR_OF_EDGES; edge++)
+  {
+    for(mapIt = m_ports[edge].begin(); mapIt != m_ports[edge].end(); mapIt++)
+    {
+      portToOldPositionMap[mapIt->second] = std::pair<Edge, int>((Edge)edge, mapIt->first);
+    }
+  }
+
+  /* then record all new positions */
+  for(int edge = 0; edge < NR_OF_EDGES; edge++)
+  {
+    m_ports[edge] = portPositionMaps[edge];
+  }
+
+  /* then look for any moved ports */
+  for(int edge = 0; edge < NR_OF_EDGES; edge++)
+  {
+    for(mapIt = portPositionMaps[edge].begin(); mapIt != portPositionMaps[edge].end(); mapIt++)
+    {
+      oldIt = portToOldPositionMap.find(mapIt->second);
+
+      /* Precondition 1: everything in the new portPositionMaps must be in the old ones as well */
+      g_assert(oldIt != portToOldPositionMap.end());
+
+      /* If the port has moved wrt its old position, emit a signal */
+      if( (oldIt->second.first != edge) ||
+          (oldIt->second.second != mapIt->first) )
+      {
+        mapIt->second->moved.emit((Edge)edge, mapIt->first);
+      }
+
+      /* Remove the port from the map of old ports so we can check at the end
+       * if we've had them all
+       */
+      portToOldPositionMap.erase(oldIt);
+    }
+  }
+
+  /* Precondition 2: everything in the old portPositionMaps must be in the new ones as well */
+  g_assert(portToOldPositionMap.size() == 0);
+}
+
 LayoutPort *LayoutBlock::getPort(Edge edge, int position)
 {
   std::map<int, LayoutPort *>::iterator it;
