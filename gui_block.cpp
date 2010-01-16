@@ -42,17 +42,28 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   m_pGroup->set_position(position.x, position.y);
   m_pStage->add_actor(m_pGroup);
 
+  /* Add the body */
   m_pBody = ClutterBlock::create(Clutter::Color(0xAE, 0xFF, 0x7F, 0xFF));
   m_pBody->set_size(size.width, size.height);
   m_pBody->set_position(0, 0);
   m_pBody->set_reactive();
   m_pGroup->add_actor(m_pBody);
 
+  /* Add the ports */
   pPortList = m_pLayoutBlock->getPortList();
   for(it = pPortList->begin(); it != pPortList->end(); it++)
   {
     addPort(it->edge, it->position, it->pLayoutPort);
   }
+
+  /* Add text */
+  m_pText = Clutter::Text::create("monospace 12px", "ctrl-scrollwheel: zoom\n"
+                                                    "left drag       : move\n"
+                                                    "ctrl-left drag  : move\n"
+                                                    "ctrl-right drag : resize\n");
+  m_pText->set_position(10, 10);
+  m_pText->set_line_alignment(Pango::ALIGN_LEFT);
+  m_pGroup->add_actor(m_pText);
 
   m_pGroup->show_all();
 

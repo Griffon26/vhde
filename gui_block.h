@@ -72,6 +72,7 @@ protected:
   Glib::RefPtr<Clutter::Stage>      m_pStage;
   Glib::RefPtr<Clutter::Group>      m_pGroup;
   Glib::RefPtr<ClutterBlock>        m_pBody;
+  Glib::RefPtr<Clutter::Text>       m_pText;
 
   int                     m_bodyHandleOffsetX;
   int                     m_bodyHandleOffsetY;

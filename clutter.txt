@@ -25,15 +25,7 @@ ctrl wheel          zoom in/out on cursor
 
 things to consider:
 
-- diagram elements are group actor containing other actors
-- actors have property that points to diagram element
-- diagram element registers for actors' signals
-
 - selection is a hierarchical diagram element
-
-- each diagram element determines its own movement based on provided mouse
-  motion events
-
 - transitory elements (ghost while dragging multiple selection)
 
 
@@ -49,4 +41,5 @@ answer to both:
 
 - how to implement lower/raise? How does one actor know where it is in the
   sort order?
-
+  Possibly by making the actor emit a signal and have the diagram object
+  handle raising/lowering.

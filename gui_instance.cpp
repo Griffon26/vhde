@@ -36,8 +36,9 @@ bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 
   /* Determine if this button press is the start of a move operation */
   //printf("instance onBodyButtonPress button = %d modstate = %d\n", pEvent->button, pEvent->modifier_state);
-  m_dragIsMove = (pEvent->button == 1) ||
-                 (pEvent->button == 1 && (pEvent->modifier_state == CLUTTER_CONTROL_MASK));
+  m_dragIsMove = (pEvent->button == 1) &&
+                 ( (pEvent->modifier_state == CLUTTER_CONTROL_MASK) ||
+                   (pEvent->modifier_state == 0) );
 
   return HANDLED;
 }
