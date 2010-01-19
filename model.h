@@ -2,6 +2,7 @@
  */
 
 Ideas:
+- Allow changing of a block's color by using a fill tool like in GIMP
 - Make sure that there's a facility to highlight components throughout the hierarchy.
   It should be possible to easily find all places where a component is used.
   To find them in a big diagram, allow a inverted ripple effect while zoomed out

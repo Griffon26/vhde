@@ -19,39 +19,15 @@
  *
  */
 
-#ifndef _VHDL_COMPONENT_H
-#define _VHDL_COMPONENT_H
+#ifndef _I_NAMED_ITEM_H
+#define _I_NAMED_ITEM_H
 
 #include <glibmm.h>
 
-#include "vhdl_interface.h"
-
-class VHDLEntity;
-
-class VHDLComponent: public VHDLInterface, public INamedItem
+class INamedItem
 {
-private:
-  VHDLEntity *m_pEntity;
-  sigc::connection m_onNameChangedConnection;
-  sigc::connection m_onPortAddedConnection;
-  sigc::connection m_onPortRemovedConnection;
-
 public:
-  VHDLComponent();
-  ~VHDLComponent();
-
-  /* Inherited methods */
-  virtual bool write(FILE *pFile, int indent);
-
-  void associateEntity(VHDLEntity *pEntity);
-  VHDLEntity *getAssociatedEntity();
-
-  const Glib::ustring &getName();
-
-private:
-  void onNameChanged(Glib::ustring newName);
-  void onPortAdded(int actionId, VHDLPort *pPort);
-  void onPortRemoved(int actionId, VHDLPort *pPort);
+  virtual const Glib::ustring &getName() = 0;
 };
 
-#endif /* _VHDL_COMPONENT_H */
+#endif /* _I_NAMED_ITEM_H */

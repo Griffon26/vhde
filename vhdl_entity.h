@@ -24,12 +24,22 @@
 
 #include <glibmm.h>
 
+#include "i_named_item.h"
 #include "vhdl_interface.h"
 
-class VHDLEntity: public VHDLInterface
+class VHDLEntity: public VHDLInterface, public INamedItem
 {
 public:
+  /* Signals */
+  sigc::signal<void, Glib::ustring> name_changed;
+
   VHDLEntity(Glib::ustring name);
+
+  void                setName(Glib::ustring name);
+  const Glib::ustring &getName();
+
+
+  VHDLPort *createPort(int actionId, Direction dir, const Glib::ustring &name);
 
   bool write(FILE *pFile, int indent);
 };

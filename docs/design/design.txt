@@ -1,0 +1,28 @@
+The following design choices were made:
+
+1a) Layout classes do not know about VHDL classes and vice versa.
+
+   Everything needed to keep them consistent is implemented in the GUI
+   classes.
+
+1b) Layout classes do use the INamedItem interface of VHDL classes
+
+  When Layout objects are read in from file they refer to VHDL objects by
+  name. This name is used to look up the corresponding VHDL object. A
+  reference to this object (in the form of a INamedItem pointer) is then
+  stored in the Layout object. The only call available on the INamedItem
+  interface is getName().
+
+  Gui classes know which VHDL classes are associated with which Layout
+  classes, so they can request the INamedItem object and cast it back to a
+  VHDL object.
+
+2) VHDL classes themselves are responsible for keeping the VHDL model
+   consistent.
+
+   This means that all changes to a VHDL object are propagated to the
+   relevant other VHDL objects by either function calls or signals.
+
+3) The same holds for Layout classes
+
+The sequence diagrams illustrate some of these design choices.

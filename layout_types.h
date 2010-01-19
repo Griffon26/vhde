@@ -33,6 +33,15 @@ public:
   {
   }
 
+  bool operator==(const LayoutPosition &other) const
+  {
+    return (other.x == x) && (other.y == y);
+  }
+  bool operator!=(const LayoutPosition &other) const
+  {
+    return !(other == *this);
+  }
+
   int x;
   int y;
 };

@@ -27,6 +27,25 @@ VHDLEntity::VHDLEntity(Glib::ustring name):
 
 }
 
+void VHDLEntity::setName(Glib::ustring name)
+{
+  m_name = name;
+  name_changed.emit(name);
+}
+
+const Glib::ustring &VHDLEntity::getName()
+{
+  return m_name;
+}
+
+
+VHDLPort *VHDLEntity::createPort(int actionId, Direction dir, const Glib::ustring &name)
+{
+  VHDLPort *pVHDLPort = new VHDLPort(name);
+  pVHDLPort->setDirection(dir);
+  addPort(actionId, pVHDLPort);
+}
+
 /*
 
   entity INV is

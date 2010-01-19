@@ -12,9 +12,13 @@ LDFLAGS=`pkg-config cluttermm-1.0 --libs` \
 SOURCES= main.cpp \
 	 clutter_block.cpp \
 	 clutter_port.cpp \
+	 clutter_wire.cpp \
 	 gui_block.cpp \
 	 gui_instance.cpp \
+	 gui_port.cpp \
+	 gui_signal.cpp \
 	 layout_block.cpp \
+	 layout_component.cpp \
 	 layout_instance.cpp \
 	 layout_signal.cpp \
 	 vhdl_architecture.cpp \

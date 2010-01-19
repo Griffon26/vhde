@@ -19,41 +19,14 @@
  *
  */
 
-#ifndef _CLUTTER_PORT_H
-#define _CLUTTER_PORT_H
+#ifndef _COMMON_H
+#define _COMMON_H
 
-#include <cluttermm.h>
+typedef enum {
+  DIR_IN,
+  DIR_OUT,
+  DIR_INOUT,
+  DIR_INVALID
+} Direction;
 
-#include "common.h"
-
-class ClutterPort: public Clutter::Actor
-{
-public:
-  typedef enum {
-    EAST,
-    SOUTH,
-    WEST,
-    NORTH
-  } Orientation;
-
-private:
-  Clutter::Color  m_color;
-  Orientation     m_orientation;
-  Direction       m_direction;
-
-public:
-  static Glib::RefPtr<ClutterPort> create(const Clutter::Color &color);
-
-  void setOrientation(Orientation orientation);
-  void setDirection(Direction direction);
-
-private:
-  explicit ClutterPort(const Clutter::Color &color);
-
-  void drawTriangle(const Clutter::Color &color, bool hasBorder);
-
-  void on_paint();
-  void pick_vfunc(const Clutter::Color &color);
-};
-
-#endif /* _CLUTTER_PORT_H */
+#endif /* _COMMON_H */

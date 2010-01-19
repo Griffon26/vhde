@@ -25,17 +25,12 @@
 #include <glibmm.h>
 #include <stdio.h>
 
+#include "common.h"
+#include "i_named_item.h"
 #include "vhdl_type.h"
 
-class VHDLPort
+class VHDLPort: public INamedItem
 {
-public:
-  typedef enum {
-    DIR_IN,
-    DIR_OUT,
-    DIR_INOUT,
-    DIR_INVALID
-  } Direction;
 private:
   Glib::ustring           m_name;
   Direction               m_direction;
@@ -49,7 +44,7 @@ public:
 
   bool write(FILE *pFile, int indent);
 
-  const Glib::ustring   getName()       { return m_name; }
+  const Glib::ustring   &getName()       { return m_name; }
   const Direction       getDirection()  { return m_direction; }
 };
 

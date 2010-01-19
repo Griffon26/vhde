@@ -24,39 +24,37 @@
 /*
  * Public methods
  */
-LayoutInstance::LayoutInstance():
-  m_pInstance(NULL)
+LayoutInstance::LayoutInstance(LayoutComponent *pComponent):
+  m_pComponent(pComponent),
+  m_pVHDLInstance(NULL)
 {
+  m_onPortAddedConnection = m_pComponent->port_added.connect(sigc::mem_fun(this, &LayoutInstance::onPortAdded));
+  m_onPortRemovedConnection = m_pComponent->port_removed.connect(sigc::mem_fun(this, &LayoutInstance::onPortRemoved));
 }
 
 LayoutInstance::~LayoutInstance()
 {
-  if(m_pInstance)
-  {
-    m_onSignalDisassociatedConnection.disconnect();
-    m_onPortRemovedConnection.disconnect();
-  }
+  m_onPortAddedConnection.disconnect();
+  m_onPortRemovedConnection.disconnect();
 }
 
 void LayoutInstance::setPosition(const LayoutPosition &pos)
 {
   m_position = pos;
-  moved.emit(this, pos);
+  moved.emit(pos);
 }
 
-void LayoutInstance::associateInstance(VHDLInstance *pInstance)
+void LayoutInstance::associateInstance(INamedItem *pVHDLInstance)
 {
-  g_assert(m_pInstance == NULL);
-  g_assert(pInstance != NULL);
-  m_pInstance = pInstance;
-
-  m_onSignalDisassociatedConnection = m_pInstance->signal_disassociated.connect(sigc::mem_fun(this, &LayoutInstance::onSignalDisassociated));
-  m_onPortRemovedConnection = m_pInstance->port_removed.connect(sigc::mem_fun(this, &LayoutInstance::onPortRemoved));
+  g_assert(!m_init);
+  g_assert(m_pVHDLInstance == NULL);
+  g_assert(pVHDLInstance != NULL);
+  m_pVHDLInstance = pVHDLInstance;
 }
 
-VHDLInstance *LayoutInstance::getAssociatedInstance()
+INamedItem *LayoutInstance::getAssociatedVHDLInstance()
 {
-  return m_pInstance;
+  return m_pVHDLInstance;
 }
 
 /*
@@ -75,7 +73,7 @@ void LayoutInstance::write(FILE *pFile)
   int edge;
   std::map<int, LayoutPort *>::iterator it;
 
-  fprintf(pFile, "instance \"%s\" {\n", m_pInstance->getName().c_str());
+  fprintf(pFile, "instance \"%s\" {\n", m_pVHDLInstance->getName().c_str());
   fprintf(pFile, "  position %d %d\n", m_position.x, m_position.y);
   fprintf(pFile, "  size %d %d\n", m_size.width, m_size.height);
   fprintf(pFile, "  ports {\n");
@@ -84,7 +82,7 @@ void LayoutInstance::write(FILE *pFile)
   {
     for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
     {
-      fprintf(pFile, "    %s %d \"%s\"\n", EDGE_TO_NAME(edge), it->first, it->second->getAssociatedPort()->getName().c_str());
+      fprintf(pFile, "    %s %d \"%s\"\n", EDGE_TO_NAME(edge), it->first, it->second->getAssociatedVHDLPort()->getName().c_str());
     }
   }
 
@@ -96,6 +94,7 @@ void LayoutInstance::write(FILE *pFile)
 /*
  * Private methods
  */
+#if 0
 bool LayoutInstance::findPort(const VHDLPort *pPort, Edge *pEdge, int *pPosition)
 {
   int edge;
@@ -132,19 +131,14 @@ void LayoutInstance::onSignalDisassociated(VHDLSignal *pSignal, VHDLPort *pPort)
 
   m_ports[edge][position]->disconnected.emit();
 }
+#endif
 
-void LayoutInstance::onPortRemoved(VHDLPort *pPort)
+void LayoutInstance::onPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort)
 {
-  Edge edge;
-  int position;
-  bool portFound;
+  addPort(actionId, edge, position, pLayoutPort);
+}
 
-  portFound = findPort(pPort, &edge, &position);
-  g_assert(portFound);
-
-  printf("LayoutInstance(%p) removing port at edge %d position %d\n", this, edge, position);
-
-  m_ports[edge][position]->disconnected.emit();
-  m_ports[edge][position]->removed.emit();
-  m_ports[edge].erase(position);
+void LayoutInstance::onPortRemoved(int actionId, Edge edge, int position)
+{
+  removePort(actionId, edge, position);
 }

@@ -22,6 +22,8 @@
 #include "gui_block.h"
 #include "layout_instance.h"
 
+class VHDLPort;
+
 /**
  * A class that manages the GUI of a VHDL instance.
  *
@@ -31,12 +33,42 @@
 class GuiInstance: public GuiBlock
 {
 private:
-  bool              m_dragIsMove;
+  typedef union {
+    struct {
+      int         actionId;
 
+      bool        layoutEventReceived;
+      bool        vhdlEventReceived;
+
+      Edge        edge;
+      int         position;
+      LayoutPort *pLayoutPort;
+      VHDLPort   *pVHDLPort;
+    };
+  } EventData;
+
+  bool                    m_dragIsMove;
+
+  EventData               m_eventData;
+
+  /* Model signals */
+  sigc::connection        m_onLayoutPortAddedConnection;
+  sigc::connection        m_onLayoutPortRemovedConnection;
+  sigc::connection        m_onVHDLPortAddedConnection;
+  sigc::connection        m_onVHDLPortRemovedConnection;
 public:
   GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance);
+  virtual ~GuiInstance();
 
 private:
   virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
   virtual bool onBodyDragged(Clutter::Event *pEvent);
+
+  void handlePortAdded();
+  void handlePortRemoved();
+
+  void onLayoutPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort);
+  void onLayoutPortRemoved(int actionId, Edge edge, int position);
+  void onVHDLPortAdded(int actionId, VHDLPort *pVHDLPort);
+  void onVHDLPortRemoved(int actionId, VHDLPort *pVHDLPort);
 };

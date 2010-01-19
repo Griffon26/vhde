@@ -25,9 +25,10 @@
 #include <glibmm.h>
 #include <stdio.h>
 
+#include "i_named_item.h"
 #include "vhdl_type.h"
 
-class VHDLSignal
+class VHDLSignal: public INamedItem
 {
 private:
   Glib::ustring           m_name;
@@ -40,7 +41,7 @@ public:
 
   bool write(FILE *pFile, int indent);
 
-  const Glib::ustring getName() { return m_name; }
+  const Glib::ustring &getName() { return m_name; }
 };
 
 #endif /* _VHDL_SIGNAL_H */

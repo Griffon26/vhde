@@ -25,14 +25,16 @@
 #include <glibmm.h>
 #include <map>
 
-#include "vhdl_interface.h"
+#include "i_named_item.h"
 #include "vhdl_signal.h"
 
-class VHDLInstance
+class VHDLComponent;
+
+class VHDLInstance: public INamedItem
 {
 private:
   Glib::ustring                             m_name;
-  VHDLInterface                            *m_pComponent;
+  VHDLComponent                            *m_pComponent;
   std::list<Glib::ustring>                  m_genericMap;
   std::map<VHDLPort *, VHDLSignal *>        m_portMap;
 
@@ -41,9 +43,9 @@ private:
 public:
   /* signals */
   sigc::signal<void, VHDLSignal *, VHDLPort *> signal_disassociated;
-  sigc::signal<void, VHDLPort *>               port_removed;
+  sigc::signal<void, int, VHDLPort *>               port_removed;
 
-  VHDLInstance(Glib::ustring name, VHDLInterface *pComponent);
+  VHDLInstance(Glib::ustring name, VHDLComponent *pComponent);
   virtual ~VHDLInstance();
 
   void associateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort);
@@ -52,11 +54,11 @@ public:
 
   bool write(FILE *pFile, int indent);
 
-  const Glib::ustring getName() { return m_name; }
-  VHDLInterface *getComponent() { return m_pComponent; }
+  const Glib::ustring &getName() { return m_name; }
+  VHDLComponent *getComponent() { return m_pComponent; }
 
 private:
-  void onPortRemoved(VHDLPort *pPort);
+  void onPortRemoved(int actionId, VHDLPort *pPort);
 };
 
 #endif /* _VHDL_INSTANCE_H */

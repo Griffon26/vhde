@@ -23,36 +23,41 @@
 #define _LAYOUT_INSTANCE_H
 
 #include "layout_block.h"
-#include "vhdl_instance.h"
+#include "layout_component.h"
 
 class LayoutInstance: public LayoutBlock
 {
 private:
-  VHDLInstance   *m_pInstance;
+  LayoutComponent  *m_pComponent;
+  INamedItem       *m_pVHDLInstance;
 
   sigc::connection m_onSignalDisassociatedConnection;
+  sigc::connection m_onPortAddedConnection;
   sigc::connection m_onPortRemovedConnection;
 
 public:
   /* Signals */
-  sigc::signal<void, LayoutInstance *, const LayoutPosition &>  moved;
+  sigc::signal<void, const LayoutPosition &>  moved;
 
-  LayoutInstance();
+  LayoutInstance(LayoutComponent *pComponent);
   ~LayoutInstance();
 
   void setPosition(const LayoutPosition &pos);
 
-  void associateInstance(VHDLInstance *pInstance);
-  VHDLInstance *getAssociatedInstance();
+  void associateInstance(INamedItem *pVHDLInstance);
+  INamedItem *getAssociatedVHDLInstance();
 
   void write(FILE *pFile);
 
 private:
+#if 0
   bool findPort(const VHDLPort *pPort, Edge *pEdge, int *pPosition);
 
   /* Signal handlers */
   void onSignalDisassociated(VHDLSignal *pSignal, VHDLPort *pPort);
-  void onPortRemoved(VHDLPort *pPort);
+#endif
+  void onPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort);
+  void onPortRemoved(int actionId, Edge edge, int position);
 };
 
 #endif /* _LAYOUT_INSTANCE_H */

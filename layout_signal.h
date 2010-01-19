@@ -24,10 +24,9 @@
 
 #include <glibmm.h>
 
+#include "i_named_item.h"
 #include "layout_instance.h"
 #include "layout_types.h"
-#include "vhdl_instance.h"
-#include "vhdl_signal.h"
 
 class LayoutSignal
 {
@@ -50,27 +49,45 @@ private:
         int             offset_x;
         int             offset_y;
       };
-      VHDLSignal *pSignal;
+      struct {
+        INamedItem     *pSignal;
+        int             x;
+        int             y;
+      };
     };
   } EndPoint;
 
-  VHDLSignal               *m_pSignal;
+  INamedItem               *m_pSignal;
 
   std::list<LayoutPosition> m_corners;
 
-  EndPoint beginning;
-  EndPoint end;
+  EndPoint m_beginning;
+  EndPoint m_end;
+
+  sigc::connection m_onInstanceMovedConnection;
+  sigc::connection m_onInstanceResizedConnection;
+  sigc::connection m_onPortMovedConnections[2];
+  sigc::connection m_onPortDisconnectedConnections[2];
 
 public:
+  sigc::signal<void, EndPointId, const LayoutPosition &>  endpoint_moved;
+  sigc::signal<void, EndPointId>                          endpoint_disconnected;
+
   LayoutSignal();
-  void associateSignal(VHDLSignal *pSignal);
+  void associateSignal(INamedItem *pSignal);
 
   void write(FILE *pFile);
 
   void connect(EndPointId endPointId, LayoutInstance *pInstance, Edge edge, int position);
 
+  const std::list<LayoutPosition> *getCorners();
+
 private:
-  void onInstanceMoved(LayoutInstance *pLayoutInstance, LayoutPosition pos, EndPoint *pEndPoint);
+  void writeEndPoint(FILE *pFile, const EndPoint &endPoint);
+  void recalcEndPoint(EndPoint *pEndPoint);
+
+  void onInstanceMoved(LayoutPosition pos, EndPoint *pEndPoint);
+  void onInstanceResized(LayoutSize size, EndPoint *pEndPoint);
   void onPortMoved(Edge newEdge, int newPosition, EndPoint *pEndPoint);
   void onPortDisconnected(EndPoint *pEndPoint);
 };

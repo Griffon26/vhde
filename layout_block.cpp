@@ -26,6 +26,13 @@
  * Public methods
  */
 
+void LayoutBlock::init_addPort(Edge edge, int position, LayoutPort *pLayoutPort)
+{
+  g_assert(m_init);
+  g_assert(m_ports[edge].find(position) == m_ports[edge].end());
+  m_ports[edge][position] = pLayoutPort;
+}
+
 void LayoutBlock::getPosition(LayoutPosition *pLayoutPosition)
 {
   *pLayoutPosition = m_position;
@@ -54,14 +61,6 @@ void LayoutBlock::getMinimumSize(LayoutSize *pLayoutSize)
 {
   pLayoutSize->height = MAX(m_ports[EDGE_LEFT].size(), m_ports[EDGE_RIGHT].size()) * (LayoutPort::SPACING + LayoutPort::WIDTH) + LayoutPort::SPACING;
   pLayoutSize->width  = MAX(m_ports[EDGE_TOP].size(), m_ports[EDGE_BOTTOM].size()) * (LayoutPort::SPACING + LayoutPort::WIDTH) + LayoutPort::SPACING;
-}
-
-void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
-{
-  g_assert(m_ports[edge].find(position) == m_ports[edge].end());
-  m_ports[edge][position] = pPort;
-
-  port_added.emit(edge, position, pPort);
 }
 
 void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition)
@@ -199,6 +198,35 @@ void LayoutBlock::calculatePortPosition(Edge edge, int position, int *pX, int *p
 int LayoutBlock::calculateMaxNrOfPorts(int edgeLength)
 {
   return (edgeLength - LayoutPort::SPACING) / (LayoutPort::SPACING + LayoutPort::WIDTH);
+}
+
+/*
+ * Protected methods
+ */
+
+LayoutBlock::LayoutBlock():
+  m_init(true)
+{
+}
+
+void LayoutBlock::addPort(int actionId, Edge edge, int position, LayoutPort *pPort)
+{
+  g_assert(m_ports[edge].find(position) == m_ports[edge].end());
+  m_ports[edge][position] = pPort;
+
+  port_added.emit(actionId, edge, position, pPort);
+}
+
+void LayoutBlock::removePort(int actionId, Edge edge, int position)
+{
+  PortPositionMap::iterator it;
+
+  it = m_ports[edge].find(position);
+  g_assert(it != m_ports[edge].end());
+  delete(it->second);
+  m_ports[edge].erase(it);
+
+  port_removed.emit(actionId, edge, position);
 }
 
 /*

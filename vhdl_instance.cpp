@@ -19,13 +19,14 @@
  *
  */
 
+#include "vhdl_component.h"
 #include "vhdl_instance.h"
 
 /*
  * Public methods
  */
 
-VHDLInstance::VHDLInstance(Glib::ustring name, VHDLInterface *pComponent):
+VHDLInstance::VHDLInstance(Glib::ustring name, VHDLComponent *pComponent):
   m_name(name),
   m_pComponent(pComponent)
 {
@@ -101,9 +102,9 @@ bool VHDLInstance::write(FILE *pFile, int indent)
  * Private methods
  */
 
-void VHDLInstance::onPortRemoved(VHDLPort *pPort)
+void VHDLInstance::onPortRemoved(int actionId, VHDLPort *pPort)
 {
   printf("port removed from instance\n");
   m_portMap.erase(pPort);
-  port_removed.emit(pPort);
+  port_removed.emit(actionId, pPort);
 }

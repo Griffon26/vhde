@@ -19,41 +19,19 @@
  *
  */
 
-#ifndef _CLUTTER_PORT_H
-#define _CLUTTER_PORT_H
+#include "gui_component.h"
 
-#include <cluttermm.h>
+/*
+ * Public methods
+ */
 
-#include "common.h"
-
-class ClutterPort: public Clutter::Actor
+void GuiComponent::createPort(int actionId, Edge edge, int position, Direction dir, const Glib::ustring &name)
 {
-public:
-  typedef enum {
-    EAST,
-    SOUTH,
-    WEST,
-    NORTH
-  } Orientation;
+  VHDLPort *pVHDLPort;
+  LayoutPort *pLayoutPort;
 
-private:
-  Clutter::Color  m_color;
-  Orientation     m_orientation;
-  Direction       m_direction;
+  pVHDLPort = m_pVHDLEntity->createPort(actionId, dir, name);
+  pLayoutPort = m_pLayoutComponent->createPort(actionId, edge, position, pVHDLPort);
 
-public:
-  static Glib::RefPtr<ClutterPort> create(const Clutter::Color &color);
-
-  void setOrientation(Orientation orientation);
-  void setDirection(Direction direction);
-
-private:
-  explicit ClutterPort(const Clutter::Color &color);
-
-  void drawTriangle(const Clutter::Color &color, bool hasBorder);
-
-  void on_paint();
-  void pick_vfunc(const Clutter::Color &color);
-};
-
-#endif /* _CLUTTER_PORT_H */
+  addPort(edge, position, pLayoutPort);
+}

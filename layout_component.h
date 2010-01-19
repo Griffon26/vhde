@@ -19,39 +19,26 @@
  *
  */
 
-#ifndef _VHDL_COMPONENT_H
-#define _VHDL_COMPONENT_H
+#ifndef _LAYOUT_COMPONENT_H
+#define _LAYOUT_COMPONENT_H
 
-#include <glibmm.h>
+#include "i_named_item.h"
+#include "layout_block.h"
+#include "layout_types.h"
 
-#include "vhdl_interface.h"
-
-class VHDLEntity;
-
-class VHDLComponent: public VHDLInterface, public INamedItem
+class LayoutComponent: public LayoutBlock
 {
 private:
-  VHDLEntity *m_pEntity;
-  sigc::connection m_onNameChangedConnection;
-  sigc::connection m_onPortAddedConnection;
-  sigc::connection m_onPortRemovedConnection;
+  INamedItem       *m_pVHDLEntity;
 
 public:
-  VHDLComponent();
-  ~VHDLComponent();
+  LayoutComponent();
 
-  /* Inherited methods */
-  virtual bool write(FILE *pFile, int indent);
+  void associateEntity(INamedItem *pVHDLEntity);
+  INamedItem *getAssociatedEntity();
 
-  void associateEntity(VHDLEntity *pEntity);
-  VHDLEntity *getAssociatedEntity();
-
-  const Glib::ustring &getName();
-
-private:
-  void onNameChanged(Glib::ustring newName);
-  void onPortAdded(int actionId, VHDLPort *pPort);
-  void onPortRemoved(int actionId, VHDLPort *pPort);
+  /* This method retains ownership of the returned LayoutPort */
+  LayoutPort *createPort(int actionId, Edge edge, int position, INamedItem *pVHDLPort);
 };
 
-#endif /* _VHDL_COMPONENT_H */
+#endif /* _LAYOUT_COMPONENT_H */

@@ -26,7 +26,6 @@
 
 #include "layout_types.h"
 #include "layout_port.h"
-#include "vhdl_port.h"
 
 class LayoutBlock
 {
@@ -41,23 +40,25 @@ public:
   typedef std::map<int, LayoutPort *> PortPositionMap;
 
 protected:
+  bool                        m_init;
   LayoutPosition              m_position;
   LayoutSize                  m_size;
   PortPositionMap             m_ports[NR_OF_EDGES];
 
 public:
   /* Signals */
-  sigc::signal<void, const LayoutSize &> resized;
-  sigc::signal<void, Edge, int, LayoutPort *> port_added;
+  sigc::signal<void, const LayoutSize &>            resized;
+  sigc::signal<void, int, Edge, int, LayoutPort *>  port_added;
+  sigc::signal<void, int, Edge, int>                port_removed;
+
+  void init_addPort(Edge edge, int position, LayoutPort *pPort);
+  void init_done() { m_init = false; }
 
   void getPosition(LayoutPosition *pLayoutPosition);
 
   void setSize(const LayoutSize &size);
   void getSize(LayoutSize *pLayoutSize);
   void getMinimumSize(LayoutSize *pLayoutSize);
-
-  /* This method assumes ownership of the port */
-  void addPort(Edge edge, int position, LayoutPort *pPort);
 
   void movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition);
   LayoutPort *getPort(Edge edge, int position);
@@ -69,6 +70,13 @@ public:
 
   void calculatePortPosition(Edge edge, int position, int *pX, int *pY) const;
   static int calculateMaxNrOfPorts(int edgeLength);
+
+protected:
+  LayoutBlock();
+
+  /* This method assumes ownership of the port */
+  void addPort(int actionId, Edge edge, int position, LayoutPort *pPort);
+  void removePort(int actionId, Edge edge, int position);
 
 private:
   void resizeEdge(Edge edge, int newSize);

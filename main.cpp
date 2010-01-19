@@ -25,11 +25,10 @@
 #include <iostream>
 
 #include "gui_instance.h"
+#include "gui_signal.h"
 #include "layout_instance.h"
+#include "layout_signal.h"
 #include "vhdl_architecture.h"
-
-#define UNHANDLED false
-#define HANDLED false
 
 #define STAGE_COLOR       Clutter::Color(0xF0, 0xF0, 0xF0, 0xFF)
 #define COMPONENT_COLOR   Clutter::Color(0xAE, 0xFF, 0x7F, 0xFF)
@@ -104,44 +103,57 @@ int main(int argc, char** argv)
   pActor->get_stage();
 
   /* Try out the model classes */
+  VHDLPort *pPort;
+
+  /* Create one entity out of a package */
+  VHDLEntity externalEntity("externalentity");
+  pPort = new VHDLPort("myport1");
+  pPort->setDirection(DIR_IN);
+  externalEntity.init_addPort(pPort);
+
+  pPort = new VHDLPort("myport2");
+  pPort->setDirection(DIR_OUT);
+  externalEntity.init_addPort(pPort);
+
+  externalEntity.init_done();
+
+
+
+
+
   VHDLArchitecture arch("myarch");
   VHDLEntity entity("myentity");
   arch.setEntity(&entity);
 
-  VHDLComponent *pComponent = new VHDLComponent("mycomponent1");
-  arch.addComponent(pComponent);
 
-  VHDLPort *pPort = new VHDLPort("myport1");
-  pPort->setDirection(VHDLPort::DIR_IN);
-  pComponent->addPort(pPort);
+  /* Create a component declaration for the external entity */
+  VHDLComponent *pComponent = new VHDLComponent();
+
+  pPort = new VHDLPort("myport1");
+  pPort->setDirection(DIR_IN);
+  pComponent->init_addPort(pPort);
 
   pPort = new VHDLPort("myport2");
-  pPort->setDirection(VHDLPort::DIR_INOUT);
-  pComponent->addPort(pPort);
+  pPort->setDirection(DIR_INOUT);
+  pComponent->init_addPort(pPort);
+
+  pComponent->init_done();
+
+  arch.addComponent(pComponent);
+  pComponent->associateEntity(&externalEntity);
 
   VHDLSignal *pSignal = new VHDLSignal("mysignal1");
   arch.addSignal(pSignal);
   pSignal = new VHDLSignal("mysignal2");
   arch.addSignal(pSignal);
 
-  VHDLInstance *pInstance = new VHDLInstance("myinstance1", arch.findComponentByName("mycomponent1"));
-  arch.addInstance(pInstance);
+  VHDLInstance *pVHDLInstance = new VHDLInstance("myinstance1", arch.findComponentByName("externalentity"));
+  arch.addInstance(pVHDLInstance);
 
-  pPort = pInstance->getComponent()->findPortByName("myport1");
-  pInstance->associateSignalWithPort(arch.findSignalByName("mysignal2"), pPort);
+  pPort = pVHDLInstance->getComponent()->findPortByName("myport1");
+  pVHDLInstance->associateSignalWithPort(arch.findSignalByName("mysignal2"), pPort);
 
 
-
-  VHDLEntity externalEntity("entity2");
-  pPort = new VHDLPort("myport1");
-  pPort->setDirection(VHDLPort::DIR_IN);
-  externalEntity.addPort(pPort);
-
-  pPort = new VHDLPort("myport2");
-  pPort->setDirection(VHDLPort::DIR_OUT);
-  externalEntity.addPort(pPort);
-
-  pComponent->associateEntity(&externalEntity);
 
 
 
@@ -149,26 +161,37 @@ int main(int argc, char** argv)
   /* find associated vhdl instance by name */
   /* loop through loaded ports and associate with ports in the vhdl instance by name */
   LayoutPort *pLayoutPort;
-  LayoutInstance layoutInstance;
+
+
+  LayoutComponent layoutComponent;
+  layoutComponent.associateEntity(&externalEntity);
+
+  LayoutInstance layoutInstance(&layoutComponent);
   layoutInstance.setPosition(LayoutPosition(300,200));
   layoutInstance.setSize(LayoutSize(200, 300));
 
-  pInstance = arch.findInstanceByName("myinstance1");
+  pVHDLInstance = arch.findInstanceByName("myinstance1");
 
-  pPort = pInstance->getComponent()->findPortByName("myport1");
+  pPort = pVHDLInstance->getComponent()->findPortByName("myport1");
   pLayoutPort = new LayoutPort(pPort);
-  layoutInstance.addPort(EDGE_LEFT, 0, pLayoutPort);
+  layoutInstance.init_addPort(EDGE_LEFT, 0, pLayoutPort);
 
-  pPort = pInstance->getComponent()->findPortByName("myport2");
+  pPort = pVHDLInstance->getComponent()->findPortByName("myport2");
   pLayoutPort = new LayoutPort(pPort);
-  layoutInstance.addPort(EDGE_RIGHT, 8, pLayoutPort);
+  layoutInstance.init_addPort(EDGE_RIGHT, 8, pLayoutPort);
+
+  layoutInstance.init_done();
 
   layoutInstance.associateInstance(arch.findInstanceByName("myinstance1"));
 
-  layoutInstance.setSize(LayoutSize(200,200));
-
   externalEntity.setName("blaat");
 
+
+  LayoutSignal layoutSignal;
+  layoutSignal.associateSignal(arch.findSignalByName("mysignal2"));
+  layoutSignal.connect(LayoutSignal::END, &layoutInstance, EDGE_LEFT, 0);
+
+  GuiSignal guiSignal(stage, &layoutSignal);
 
 
   Edge edge;
@@ -182,6 +205,7 @@ int main(int argc, char** argv)
 
   FILE *pFile = fopen("dinges.layout", "w+b");
   layoutInstance.write(pFile);
+  layoutSignal.write(pFile);
   fclose(pFile);
 
   pFile = fopen("dinges.vhd", "w+b");

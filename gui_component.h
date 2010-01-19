@@ -19,39 +19,26 @@
  *
  */
 
-#ifndef _VHDL_COMPONENT_H
-#define _VHDL_COMPONENT_H
+#ifndef _GUI_COMPONENT_H
+#define _GUI_COMPONENT_H
 
-#include <glibmm.h>
-
-#include "vhdl_interface.h"
-
-class VHDLEntity;
-
-class VHDLComponent: public VHDLInterface, public INamedItem
+/**
+ * A class that manages the GUI of a VHDL component interface.
+ *
+ * GuiComponent is meant to be used in a diagram of a component interface as
+ * opposed to a diagram with component instances. It is therefore not possible
+ * to change its position on the canvas.  Use GuiInstance instead if you need
+ * component instance specific operations like that.
+ */
+class GuiComponent: public GuiBlock
 {
 private:
-  VHDLEntity *m_pEntity;
-  sigc::connection m_onNameChangedConnection;
-  sigc::connection m_onPortAddedConnection;
-  sigc::connection m_onPortRemovedConnection;
+
+protected:
 
 public:
-  VHDLComponent();
-  ~VHDLComponent();
-
-  /* Inherited methods */
-  virtual bool write(FILE *pFile, int indent);
-
-  void associateEntity(VHDLEntity *pEntity);
-  VHDLEntity *getAssociatedEntity();
-
-  const Glib::ustring &getName();
-
-private:
-  void onNameChanged(Glib::ustring newName);
-  void onPortAdded(int actionId, VHDLPort *pPort);
-  void onPortRemoved(int actionId, VHDLPort *pPort);
+  void createPort(int actionId, Edge edge, int position, Direction dir, const Glib::ustring &name);
+  void removePort(int actionId, Edge edge, int position);
 };
 
-#endif /* _VHDL_COMPONENT_H */
+#endif /* _GUI_COMPONENT_H */

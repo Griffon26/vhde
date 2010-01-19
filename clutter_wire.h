@@ -19,39 +19,34 @@
  *
  */
 
-#ifndef _VHDL_COMPONENT_H
-#define _VHDL_COMPONENT_H
+#ifndef _CLUTTER_WIRE_H
+#define _CLUTTER_WIRE_H
 
-#include <glibmm.h>
+#include <cluttermm.h>
 
-#include "vhdl_interface.h"
-
-class VHDLEntity;
-
-class VHDLComponent: public VHDLInterface, public INamedItem
+class ClutterWire: public Clutter::Actor
 {
 private:
-  VHDLEntity *m_pEntity;
-  sigc::connection m_onNameChangedConnection;
-  sigc::connection m_onPortAddedConnection;
-  sigc::connection m_onPortRemovedConnection;
+  Clutter::Color  m_color;
+  float          *m_pCornerCoords;
+  int             m_numPoints;
 
 public:
-  VHDLComponent();
-  ~VHDLComponent();
+  static Glib::RefPtr<ClutterWire> create(const Clutter::Color &color);
 
-  /* Inherited methods */
-  virtual bool write(FILE *pFile, int indent);
-
-  void associateEntity(VHDLEntity *pEntity);
-  VHDLEntity *getAssociatedEntity();
-
-  const Glib::ustring &getName();
+  /* This method assumes ownership of the dynamically allocated pCoords.
+   * Previously passed pCoords are freed at each call.
+   */
+  void setCorners(int numPoints, float *pCoords);
 
 private:
-  void onNameChanged(Glib::ustring newName);
-  void onPortAdded(int actionId, VHDLPort *pPort);
-  void onPortRemoved(int actionId, VHDLPort *pPort);
+  explicit ClutterWire(const Clutter::Color &color);
+  ~ClutterWire();
+
+  void drawLine(const Clutter::Color &color);
+
+  void on_paint();
+  void pick_vfunc(const Clutter::Color &color);
 };
 
-#endif /* _VHDL_COMPONENT_H */
+#endif /* _CLUTTER_WIRE_H */

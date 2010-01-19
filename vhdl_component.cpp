@@ -20,13 +20,13 @@
  */
 
 #include "vhdl_component.h"
+#include "vhdl_entity.h"
 
 /*
  * Public methods
  */
 
-VHDLComponent::VHDLComponent(Glib::ustring name):
-  VHDLInterface(name),
+VHDLComponent::VHDLComponent():
   m_pEntity(NULL)
 {
 }
@@ -69,12 +69,24 @@ bool VHDLComponent::write(FILE *pFile, int indent)
 
 void VHDLComponent::associateEntity(VHDLEntity *pEntity)
 {
+  g_assert(!m_init);
   g_assert(m_pEntity == NULL);
   m_pEntity = pEntity;
 
   m_onNameChangedConnection = m_pEntity->name_changed.connect(sigc::mem_fun(this, &VHDLComponent::onNameChanged));
   m_onPortAddedConnection = m_pEntity->port_added.connect(sigc::mem_fun(this, &VHDLComponent::onPortAdded));
   m_onPortRemovedConnection = m_pEntity->port_removed.connect(sigc::mem_fun(this, &VHDLComponent::onPortRemoved));
+}
+
+VHDLEntity *VHDLComponent::getAssociatedEntity()
+{
+  return m_pEntity;
+}
+
+const Glib::ustring &VHDLComponent::getName()
+{
+  g_assert(m_pEntity);
+  return m_pEntity->getName();
 }
 
 /*
@@ -86,13 +98,13 @@ void VHDLComponent::onNameChanged(Glib::ustring newName)
   m_name = newName;
 }
 
-void VHDLComponent::onPortAdded(VHDLPort *pPort)
+void VHDLComponent::onPortAdded(int actionId, VHDLPort *pPort)
 {
   VHDLPort *pNewPort = new VHDLPort(*pPort);
-  addPort(pNewPort);
+  addPort(actionId, pNewPort);
 }
 
-void VHDLComponent::onPortRemoved(VHDLPort *pPort)
+void VHDLComponent::onPortRemoved(int actionId, VHDLPort *pPort)
 {
-  removePort(findPortByName(pPort->getName()));
+  removePort(actionId, findPortByName(pPort->getName()));
 }

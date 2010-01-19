@@ -23,32 +23,20 @@
 
 #include "vhdl_interface.h"
 
-VHDLInterface::VHDLInterface(Glib::ustring name):
-  m_name(name)
-{
+/*
+ * Public methods
+ */
 
+VHDLInterface::VHDLInterface():
+  m_init(true)
+{
 }
 
-void VHDLInterface::setName(Glib::ustring name)
+void VHDLInterface::init_addPort(VHDLPort *pPort)
 {
-  m_name = name;
-  name_changed.emit(name);
-}
+  g_assert(m_init);
 
-void VHDLInterface::addPort(VHDLPort *pPort)
-{
-  printf("port %s added to interface %s %p\n", pPort->getName().c_str(), m_name.c_str(), this);
-  g_assert(find(m_ports.begin(), m_ports.end(), pPort) == m_ports.end());
   m_ports.push_back(pPort);
-  port_added.emit(pPort);
-}
-
-void VHDLInterface::removePort(VHDLPort *pPort)
-{
-  printf("port %s removed from interface %s %p\n", pPort->getName().c_str(), m_name.c_str(), this);
-  g_assert(find(m_ports.begin(), m_ports.end(), pPort) != m_ports.end());
-  m_ports.remove(pPort);
-  port_removed.emit(pPort);
 }
 
 VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
@@ -68,3 +56,28 @@ VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
   return NULL;
 }
 
+/*
+ * Protected methods
+ */
+
+VHDLInterface::VHDLInterface(Glib::ustring name):
+  m_init(true),
+  m_name(name)
+{
+}
+
+void VHDLInterface::addPort(int actionId, VHDLPort *pPort)
+{
+  printf("port %s added to interface %s %p\n", pPort->getName().c_str(), m_name.c_str(), this);
+  g_assert(find(m_ports.begin(), m_ports.end(), pPort) == m_ports.end());
+  m_ports.push_back(pPort);
+  port_added.emit(actionId, pPort);
+}
+
+void VHDLInterface::removePort(int actionId, VHDLPort *pPort)
+{
+  printf("port %s removed from interface %s %p\n", pPort->getName().c_str(), m_name.c_str(), this);
+  g_assert(find(m_ports.begin(), m_ports.end(), pPort) != m_ports.end());
+  m_ports.remove(pPort);
+  port_removed.emit(actionId, pPort);
+}

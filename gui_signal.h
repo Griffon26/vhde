@@ -19,39 +19,32 @@
  *
  */
 
-#ifndef _VHDL_COMPONENT_H
-#define _VHDL_COMPONENT_H
+#ifndef _GUI_SIGNAL_H
+#define _GUI_SIGNAL_H
 
-#include <glibmm.h>
+#include "clutter_wire.h"
+#include "layout_signal.h"
 
-#include "vhdl_interface.h"
-
-class VHDLEntity;
-
-class VHDLComponent: public VHDLInterface, public INamedItem
+/**
+ * A class that manages the GUI of a signal wire in a diagram
+ */
+class GuiSignal
 {
 private:
-  VHDLEntity *m_pEntity;
-  sigc::connection m_onNameChangedConnection;
-  sigc::connection m_onPortAddedConnection;
-  sigc::connection m_onPortRemovedConnection;
+  LayoutSignal    *m_pLayoutSignal;
+
+  Glib::RefPtr<Clutter::Stage>      m_pStage;
+  Glib::RefPtr<Clutter::Text>       m_pText;
+  Glib::RefPtr<ClutterWire>         m_pWire;
 
 public:
-  VHDLComponent();
-  ~VHDLComponent();
-
-  /* Inherited methods */
-  virtual bool write(FILE *pFile, int indent);
-
-  void associateEntity(VHDLEntity *pEntity);
-  VHDLEntity *getAssociatedEntity();
-
-  const Glib::ustring &getName();
+  GuiSignal(Glib::RefPtr<Clutter::Stage> pStage, LayoutSignal *pLayoutSignal);
+  virtual ~GuiSignal();
 
 private:
-  void onNameChanged(Glib::ustring newName);
-  void onPortAdded(int actionId, VHDLPort *pPort);
-  void onPortRemoved(int actionId, VHDLPort *pPort);
+  void onEndPointMoved(LayoutSignal::EndPointId endPointId, const LayoutPosition &newPos);
+
+  void updateCorners(const std::list<LayoutPosition> *pCornerList);
 };
 
-#endif /* _VHDL_COMPONENT_H */
+#endif /* _GUI_SIGNAL_H */

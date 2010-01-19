@@ -22,13 +22,13 @@
 #ifndef _LAYOUT_PORT_H
 #define _LAYOUT_PORT_H
 
+#include "i_named_item.h"
 #include "layout_types.h"
-#include "vhdl_port.h"
 
 class LayoutPort
 {
 private:
-  VHDLPort *m_pPort;
+  INamedItem *m_pPort;
 
 public:
   static const int WIDTH = 20;
@@ -37,14 +37,13 @@ public:
   /* Signals */
   sigc::signal<void, Edge, int> moved;
   sigc::signal<void> disconnected;
-  sigc::signal<void> removed;
 
-  LayoutPort(VHDLPort *pPort):
+  LayoutPort(INamedItem *pPort):
     m_pPort(pPort)
   {
   }
 
-  VHDLPort *getAssociatedPort() { return m_pPort; }
+  INamedItem *getAssociatedVHDLPort() { return m_pPort; }
 };
 
 #endif /* _LAYOUT_PORT_H */

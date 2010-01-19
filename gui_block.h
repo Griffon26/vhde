@@ -22,9 +22,10 @@
 #ifndef _GUI_BLOCK_H
 #define _GUI_BLOCK_H
 
-#include "layout_block.h"
 #include "clutter_block.h"
 #include "clutter_port.h"
+#include "gui_port.h"
+#include "layout_block.h"
 
 /**
  * A class that manages the GUI of a VHDL component interface.
@@ -37,24 +38,7 @@
 class GuiBlock
 {
 private:
-  typedef struct
-  {
-    Edge edge;
-    int position;
-    Glib::RefPtr<ClutterPort> pActor;
-
-    /* GUI signals */
-    sigc::connection onPortButtonPressConnection;
-
-    /* Model signals */
-    sigc::connection onPortMovedConnection;
-    sigc::connection onPortRemovedConnection;
-  } PortData;
-
-  std::list<PortData *>   m_portDataList;
-
-  Edge  m_dragFromEdge;
-  int   m_dragFromPosition;
+  std::list<GuiPort *>   m_portList;
 
   bool  m_dragIsResize;
 
@@ -63,7 +47,6 @@ private:
   sigc::connection        m_onDragConnection;
 
   /* Model signals */
-  sigc::connection        m_onPortAddedConnection;
   sigc::connection        m_onResizedConnection;
 
 protected:
@@ -83,32 +66,29 @@ protected:
   LayoutSize                    m_initialSize;
   LayoutSize                    m_minimumSize;
   LayoutBlock::PortPositionMap  m_initialPortPositionMaps[NR_OF_EDGES];
+
+
 public:
   GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock);
   virtual ~GuiBlock();
 
 private:
-  bool addPort(Edge edge, int position, LayoutPort *pLayoutPort);
   bool getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition,
                       bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
   void resizeEdge(const LayoutBlock::PortPositionMap &oldPortPositionMap, LayoutBlock::PortPositionMap *pNewPortPositionMap, int newSize);
 
-protected:
-  virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
-  virtual bool onBodyDragged(Clutter::Event *pEvent);
-
-private:
-  bool onPortDragged(Clutter::Event *pEvent, PortData *pPortData);
-  bool onPortButtonPress(Clutter::ButtonEvent *pEvent, PortData *pPortData);
+  bool onPortDragged(Clutter::Event *pEvent, GuiPort *pGuiPort);
+  bool onPortButtonPress(Clutter::ButtonEvent *pEvent, GuiPort *pGuiPort);
 
   void onResized(LayoutSize layoutSize);
 
-  void onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
-  void onPortMoved(Edge edge, int position, PortData *pPortData);
-  void onPortRemoved(PortData *pPortData);
+protected:
+  void addPort(Edge edge, int position, LayoutPort *pLayoutPort);
+  void removePort(Edge edge, int position);
 
-  ClutterPort::Orientation  edgeToOrientation(Edge edge);
-  ClutterPort::Type         vhdlDirectionToGuiType(VHDLPort::Direction dir);
+  virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
+  virtual bool onBodyDragged(Clutter::Event *pEvent);
+
 };
 
 #endif /* _GUI_BLOCK_H */

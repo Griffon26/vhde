@@ -30,31 +30,33 @@
 class VHDLInterface
 {
 protected:
+  bool                      m_init;
   Glib::ustring             m_name;
   std::list<VHDLGeneric *>  m_generics;
   std::list<VHDLPort *>     m_ports;
 
 public:
-  /* signals */
-  sigc::signal<void, Glib::ustring> name_changed;
-  sigc::signal<void, VHDLPort *> port_added;
-  sigc::signal<void, VHDLPort *> port_removed;
+  /* Signals */
+  sigc::signal<void, int, VHDLPort *> port_added;
+  sigc::signal<void, int, VHDLPort *> port_removed;
 
-  VHDLInterface(Glib::ustring name);
+  VHDLInterface();
 
-  void setName(Glib::ustring name);
-
-  /* This method assumes ownership of the port */
-  void addPort(VHDLPort *pPort);
-
-  void removePort(VHDLPort *pPort);
+  void init_addPort(VHDLPort *pPort);
+  void init_done() { m_init = false; }
 
   VHDLPort *findPortByName(Glib::ustring name);
 
   virtual bool write(FILE *pFile, int indent) = 0;
 
-  const Glib::ustring                 getName()   { return m_name; }
   const std::list<VHDLPort *>        &getPorts()  { return m_ports; }
+
+protected:
+  VHDLInterface(Glib::ustring name);
+
+  /* This method assumes ownership of the port */
+  void addPort(int actionId, VHDLPort *pPort);
+  void removePort(int actionId, VHDLPort *pPort);
 };
 
 #endif /* _VHDL_INTERFACE_H */

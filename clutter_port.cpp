@@ -36,9 +36,9 @@ void ClutterPort::setOrientation(Orientation orientation)
   queue_redraw();
 }
 
-void ClutterPort::setType(Type type)
+void ClutterPort::setDirection(Direction direction)
 {
-  m_type = type;
+  m_direction = direction;
   /* queue_redraw() */
 }
 
@@ -49,7 +49,7 @@ void ClutterPort::setType(Type type)
 ClutterPort::ClutterPort(const Clutter::Color &color):
   m_color(color),
   m_orientation(NORTH),
-  m_type(TYPE_INPUT)
+  m_direction(DIR_IN)
 {
 }
 
@@ -57,7 +57,7 @@ void ClutterPort::drawTriangle(const Clutter::Color &color, bool hasBorder)
 {
   float width, height;
 
-  int angle = 90 * m_orientation + ((m_type == TYPE_OUTPUT) ? 180 : 0);
+  int angle = 90 * m_orientation + ((m_direction == DIR_OUT) ? 180 : 0);
 
   get_size(width, height);
 
@@ -67,7 +67,7 @@ void ClutterPort::drawTriangle(const Clutter::Color &color, bool hasBorder)
   float triangleCoords[] = {-width/2, -height/2, width/2, 0, -width/2, height/2};
   float diamondCoords[] = {-width/2, 0, 0, -height/2, width/2, 0, 0, height/2};
 
-  if(m_type == TYPE_BIDIRECTIONAL)
+  if(m_direction == DIR_INOUT)
   {
     cogl_path_polygon(diamondCoords, 4);
   }
