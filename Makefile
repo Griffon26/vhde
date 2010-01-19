@@ -1,6 +1,6 @@
 .PHONY: clean
 
-CPPFLAGS=-g -O0 \
+CPPFLAGS=-g -O0 -Wall \
 	 `pkg-config cluttermm-1.0 --cflags` \
 	 `pkg-config libglademm-2.4 --cflags`
 LDFLAGS=`pkg-config cluttermm-1.0 --libs` \
@@ -21,6 +21,7 @@ SOURCES= main.cpp \
 	 layout_block.cpp \
 	 layout_component.cpp \
 	 layout_instance.cpp \
+	 layout_port.cpp \
 	 layout_signal.cpp \
 	 vhdl_architecture.cpp \
 	 vhdl_component.cpp \

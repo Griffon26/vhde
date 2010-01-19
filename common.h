@@ -22,6 +22,11 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
+#define DIR_TO_NAME(d) ((d == DIR_IN) ? "IN" : \
+                        (d == DIR_OUT) ? "OUT" : \
+                        (d == DIR_INOUT) ? "INOUT" : \
+                                           "INVALID")
+
 typedef enum {
   DIR_IN,
   DIR_OUT,

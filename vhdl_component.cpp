@@ -95,6 +95,7 @@ const Glib::ustring &VHDLComponent::getName()
 
 void VHDLComponent::onPortAdded(int actionId, VHDLPort *pPort)
 {
+  printf("VHDLComponent::onPortAdded\n");
   VHDLPort *pNewPort = new VHDLPort(*pPort);
   addPort(actionId, pNewPort);
 }

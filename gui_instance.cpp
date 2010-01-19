@@ -29,6 +29,8 @@ GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pL
 {
   VHDLComponent *pComponent;
 
+  printf("GuiInstance (%p): constructor body\n", this);
+
   m_onLayoutPortAddedConnection = pLayoutInstance->port_added.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortAdded));
   m_onLayoutPortRemovedConnection = pLayoutInstance->port_removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
 
@@ -36,6 +38,10 @@ GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pL
 
   m_onVHDLPortAddedConnection = pComponent->port_added.connect(sigc::mem_fun(this, &GuiInstance::onVHDLPortAdded));
   m_onVHDLPortRemovedConnection = pComponent->port_removed.connect(sigc::mem_fun(this, &GuiInstance::onVHDLPortRemoved));
+
+  m_eventData.actionId = 0;
+  m_eventData.layoutEventReceived = false;
+  m_eventData.vhdlEventReceived = false;
 }
 
 GuiInstance::~GuiInstance()
@@ -87,6 +93,8 @@ void GuiInstance::handlePortAdded()
 {
   if(m_eventData.layoutEventReceived && m_eventData.vhdlEventReceived)
   {
+    m_eventData.pLayoutPort->associateVHDLPort(m_eventData.pVHDLPort);
+
     addPort(m_eventData.edge, m_eventData.position, m_eventData.pLayoutPort);
 
     m_eventData.layoutEventReceived = false;
@@ -97,6 +105,8 @@ void GuiInstance::handlePortAdded()
 void GuiInstance::onLayoutPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort)
 {
   g_assert(!m_eventData.vhdlEventReceived || m_eventData.actionId == actionId);
+
+  printf("GuiInstance::OnLayoutPortAdded\n");
 
   m_eventData.actionId = actionId;
   m_eventData.layoutEventReceived = true;
@@ -110,6 +120,8 @@ void GuiInstance::onLayoutPortAdded(int actionId, Edge edge, int position, Layou
 void GuiInstance::onVHDLPortAdded(int actionId, VHDLPort *pVHDLPort)
 {
   g_assert(!m_eventData.layoutEventReceived || m_eventData.actionId == actionId);
+
+  printf("GuiInstance::OnVHDLPortAdded\n");
 
   m_eventData.actionId = actionId;
   m_eventData.vhdlEventReceived = true;

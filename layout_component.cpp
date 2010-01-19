@@ -20,6 +20,7 @@
  */
 
 #include "layout_component.h"
+#include "layout_port.h"
 
 /*
  * Public methods
@@ -27,7 +28,7 @@
 
 LayoutComponent::LayoutComponent()
 {
-  m_position.x = 50;
+  m_position.x = 800;
   m_position.y = 50;
 }
 
@@ -43,7 +44,9 @@ INamedItem *LayoutComponent::getAssociatedVHDLEntity()
 
 LayoutPort *LayoutComponent::createPort(int actionId, Edge edge, int position, INamedItem *pVHDLPort)
 {
-  LayoutPort *pLayoutPort = new LayoutPort(pVHDLPort);
+  printf("LayoutComponent::createPort\n");
+  LayoutPort *pLayoutPort = new LayoutPort();
+  pLayoutPort->associateVHDLPort(pVHDLPort);
   addPort(actionId, edge, position, pLayoutPort);
   return pLayoutPort;
 }

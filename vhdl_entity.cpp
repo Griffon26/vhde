@@ -41,9 +41,11 @@ const Glib::ustring &VHDLEntity::getName()
 
 VHDLPort *VHDLEntity::createPort(int actionId, Direction dir, const Glib::ustring &name)
 {
+  printf("VHDLEntity::createPort(%d, %s, %s)\n", actionId, DIR_TO_NAME(dir), name.c_str());
   VHDLPort *pVHDLPort = new VHDLPort(name);
   pVHDLPort->setDirection(dir);
   addPort(actionId, pVHDLPort);
+  return pVHDLPort;
 }
 
 /*

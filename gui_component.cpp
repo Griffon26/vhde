@@ -30,6 +30,7 @@
 GuiComponent::GuiComponent(Glib::RefPtr<Clutter::Stage> pStage, LayoutComponent *pComponent):
   GuiBlock(pStage, pComponent)
 {
+  printf("GuiComponent(%p): constructor body\n", this);
 
 }
 
@@ -39,7 +40,10 @@ void GuiComponent::createPort(int actionId, Edge edge, int position, Direction d
   LayoutPort *pLayoutPort;
 
   pVHDLPort = static_cast<VHDLEntity *>(thisLayoutComponent()->getAssociatedVHDLEntity())->createPort(actionId, dir, name);
+  g_assert(pVHDLPort != NULL);
+
   pLayoutPort = thisLayoutComponent()->createPort(actionId, edge, position, pVHDLPort);
+  g_assert(pLayoutPort != NULL);
 
   addPort(edge, position, pLayoutPort);
 }

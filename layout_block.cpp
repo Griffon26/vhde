@@ -211,6 +211,7 @@ LayoutBlock::LayoutBlock():
 
 void LayoutBlock::addPort(int actionId, Edge edge, int position, LayoutPort *pPort)
 {
+  printf("LayoutBlock(%p)::addPort -> layoutPort = %p\n", this, pPort);
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
   m_ports[edge][position] = pPort;
 

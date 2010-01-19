@@ -135,7 +135,9 @@ void LayoutInstance::onSignalDisassociated(VHDLSignal *pSignal, VHDLPort *pPort)
 
 void LayoutInstance::onPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort)
 {
-  addPort(actionId, edge, position, pLayoutPort);
+  printf("LayoutInstance::onPortAdded\n");
+  LayoutPort *pNewLayoutPort = new LayoutPort();
+  addPort(actionId, edge, position, pNewLayoutPort);
 }
 
 void LayoutInstance::onPortRemoved(int actionId, Edge edge, int position)

@@ -38,12 +38,10 @@ public:
   sigc::signal<void, Edge, int> moved;
   sigc::signal<void> disconnected;
 
-  LayoutPort(INamedItem *pPort):
-    m_pPort(pPort)
-  {
-  }
+  LayoutPort();
 
-  INamedItem *getAssociatedVHDLPort() { return m_pPort; }
+  void associateVHDLPort(INamedItem *pPort);
+  INamedItem *getAssociatedVHDLPort();
 };
 
 #endif /* _LAYOUT_PORT_H */

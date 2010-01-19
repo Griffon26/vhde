@@ -78,7 +78,6 @@ bool GuiPort::onPortButtonPress(Clutter::ButtonEvent* pEvent)
 
 void GuiPort::onPortMoved(Edge edge, int position)
 {
-  int x, y;
   m_edge = edge;
   m_position = position;
 

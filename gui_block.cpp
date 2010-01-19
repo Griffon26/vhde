@@ -35,6 +35,8 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   LayoutPosition position;
   LayoutSize size;
 
+  printf("GuiBlock    (%p): constructor body\n", this);
+
   m_pLayoutBlock->getSize(&size);
   m_pLayoutBlock->getPosition(&position);
 
@@ -53,6 +55,7 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   pPortList = m_pLayoutBlock->getPortList();
   for(it = pPortList->begin(); it != pPortList->end(); it++)
   {
+    printf("GuiBlock    (%p): adding port at edge %s position %d\n", this, EDGE_TO_NAME(it->edge), it->position);
     addPort(it->edge, it->position, it->pLayoutPort);
   }
 
@@ -234,6 +237,8 @@ void GuiBlock::onResized(LayoutSize layoutSize)
 void GuiBlock::addPort(Edge edge, int position, LayoutPort *pLayoutPort)
 {
   GuiPort *pGuiPort = new GuiPort(m_pGroup, edge, position, m_pLayoutBlock, pLayoutPort);
+
+  printf("GuiBlock(%p)::addPort -> %p\n", this, pGuiPort);
 
   /* No need to remember the connections, because deleting GuiPort will make sure no more signals will be delivered */
   pGuiPort->button_pressed.connect(sigc::mem_fun(*this, &GuiBlock::onPortButtonPress));

@@ -30,6 +30,7 @@
 #include "layout_instance.h"
 #include "layout_signal.h"
 #include "vhdl_architecture.h"
+#include "vhdl_port.h"
 
 #define STAGE_COLOR       Clutter::Color(0xF0, 0xF0, 0xF0, 0xFF)
 #define COMPONENT_COLOR   Clutter::Color(0xAE, 0xFF, 0x7F, 0xFF)
@@ -107,13 +108,14 @@ int main(int argc, char** argv)
   VHDLPort *pPort;
 
   /* Create one entity out of a package */
+  /* TODO: put the entity in a store, accessible by name */
   VHDLEntity externalEntity("externalentity");
   pPort = new VHDLPort("myport1");
   pPort->setDirection(DIR_IN);
   externalEntity.init_addPort(pPort);
 
   pPort = new VHDLPort("myport2");
-  pPort->setDirection(DIR_OUT);
+  pPort->setDirection(DIR_INOUT);
   externalEntity.init_addPort(pPort);
 
   externalEntity.init_done();
@@ -143,6 +145,11 @@ int main(int argc, char** argv)
   pComponent->init_done();
 
   arch.addComponent(pComponent);
+
+  /* TODO: get the VHDLEntity to be associated from a store by name */
+  /* TODO: check consistency with entity and return failure if incorrect
+   *       The caller can then ask the user how to resolve it and try again
+   */
   pComponent->associateEntity(&externalEntity);
 
   printf("vhdlcomponent: %s\n", pComponent->getName().c_str());
@@ -168,13 +175,37 @@ int main(int argc, char** argv)
   /* loop through loaded ports and associate with ports in the vhdl instance by name */
   LayoutPort *pLayoutPort;
 
+  VHDLEntity *pVHDLEntity;
 
   LayoutComponent layoutComponent;
-  layoutComponent.associateEntity(&externalEntity);
-  layoutComponent.setSize(LayoutSize(150, 250));
+  layoutComponent.setSize(LayoutSize(150, 400));
+
+  /* TODO: Create a LayoutComponent as it is read from the layout file.
+   *       Find the corresponding VHDL entity by name from the store.
+   */
+  pVHDLEntity = &externalEntity;
+
+  layoutComponent.associateEntity(pVHDLEntity);
+
+  pPort = pVHDLEntity->findPortByName("myport1");
+  pLayoutPort = new LayoutPort();
+  pLayoutPort->associateVHDLPort(pPort);
+  layoutComponent.init_addPort(EDGE_LEFT, 0, pLayoutPort);
+
+  pPort = pVHDLEntity->findPortByName("myport2");
+  pLayoutPort = new LayoutPort();
+  pLayoutPort->associateVHDLPort(pPort);
+  layoutComponent.init_addPort(EDGE_RIGHT, 8, pLayoutPort);
+
+  layoutComponent.init_done();
 
 
 
+
+  /* TODO: Create a LayoutInstance as it is read from the layout file.
+   *       Find the corresponding VHDL instance by name from the store (or arch?)
+   *       Find the corresponding LayoutComponent by name (VHDLInstance->getComponent()->getName()) from the store
+   */
   LayoutInstance layoutInstance(&layoutComponent);
   layoutInstance.setPosition(LayoutPosition(300,200));
   layoutInstance.setSize(LayoutSize(200, 300));
@@ -182,16 +213,18 @@ int main(int argc, char** argv)
   pVHDLInstance = arch.findInstanceByName("myinstance1");
 
   pPort = pVHDLInstance->getComponent()->findPortByName("myport1");
-  pLayoutPort = new LayoutPort(pPort);
+  pLayoutPort = new LayoutPort();
+  pLayoutPort->associateVHDLPort(pPort);
   layoutInstance.init_addPort(EDGE_LEFT, 0, pLayoutPort);
 
   pPort = pVHDLInstance->getComponent()->findPortByName("myport2");
-  pLayoutPort = new LayoutPort(pPort);
+  pLayoutPort = new LayoutPort();
+  pLayoutPort->associateVHDLPort(pPort);
   layoutInstance.init_addPort(EDGE_RIGHT, 8, pLayoutPort);
 
   layoutInstance.init_done();
 
-  layoutInstance.associateInstance(arch.findInstanceByName("myinstance1"));
+  layoutInstance.associateInstance(pVHDLInstance);
 
 
   LayoutSignal layoutSignal;
@@ -201,11 +234,10 @@ int main(int argc, char** argv)
   GuiSignal guiSignal(stage, &layoutSignal);
 
 
-  Edge edge;
-  int position;
-  int x, y;
   GuiInstance guiInstance(stage, &layoutInstance);
   GuiComponent guiComponent(stage, &layoutComponent);
+
+  guiComponent.createPort(1, EDGE_BOTTOM, 2, DIR_OUT, "port3");
 
   stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
   stage->show();

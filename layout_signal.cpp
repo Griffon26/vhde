@@ -184,8 +184,6 @@ void LayoutSignal::onPortMoved(Edge newEdge, int newPosition, EndPoint *pEndPoin
 
 void LayoutSignal::onPortDisconnected(EndPoint *pEndPoint)
 {
-  LayoutPort *pLayoutPort;
-
   m_onPortDisconnectedConnections[ENDPOINT_TO_ENDPOINTID(pEndPoint)].disconnect();
 
   pEndPoint->connected = false;

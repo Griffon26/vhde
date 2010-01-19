@@ -20,3 +20,20 @@
  */
 
 #include "layout_port.h"
+
+LayoutPort::LayoutPort():
+  m_pPort(NULL)
+{
+}
+
+void LayoutPort::associateVHDLPort(INamedItem *pPort)
+{
+  g_assert(m_pPort == NULL);
+  m_pPort = pPort;
+}
+
+INamedItem *LayoutPort::getAssociatedVHDLPort()
+{
+  g_assert(m_pPort != NULL);
+  return m_pPort;
+}
