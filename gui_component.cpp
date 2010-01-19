@@ -20,18 +20,35 @@
  */
 
 #include "gui_component.h"
+#include "layout_component.h"
+#include "vhdl_entity.h"
 
 /*
  * Public methods
  */
+
+GuiComponent::GuiComponent(Glib::RefPtr<Clutter::Stage> pStage, LayoutComponent *pComponent):
+  GuiBlock(pStage, pComponent)
+{
+
+}
 
 void GuiComponent::createPort(int actionId, Edge edge, int position, Direction dir, const Glib::ustring &name)
 {
   VHDLPort *pVHDLPort;
   LayoutPort *pLayoutPort;
 
-  pVHDLPort = m_pVHDLEntity->createPort(actionId, dir, name);
-  pLayoutPort = m_pLayoutComponent->createPort(actionId, edge, position, pVHDLPort);
+  pVHDLPort = static_cast<VHDLEntity *>(thisLayoutComponent()->getAssociatedVHDLEntity())->createPort(actionId, dir, name);
+  pLayoutPort = thisLayoutComponent()->createPort(actionId, edge, position, pVHDLPort);
 
   addPort(edge, position, pLayoutPort);
+}
+
+/*
+ * Private methods
+ */
+
+LayoutComponent *GuiComponent::thisLayoutComponent()
+{
+  return static_cast<LayoutComponent *>(m_pLayoutBlock);
 }

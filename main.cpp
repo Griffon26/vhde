@@ -24,6 +24,7 @@
 #include <cluttermm.h>
 #include <iostream>
 
+#include "gui_component.h"
 #include "gui_instance.h"
 #include "gui_signal.h"
 #include "layout_instance.h"
@@ -119,6 +120,8 @@ int main(int argc, char** argv)
 
 
 
+  printf("externalEntity: %s\n", externalEntity.getName().c_str());
+
 
 
   VHDLArchitecture arch("myarch");
@@ -141,6 +144,9 @@ int main(int argc, char** argv)
 
   arch.addComponent(pComponent);
   pComponent->associateEntity(&externalEntity);
+
+  printf("vhdlcomponent: %s\n", pComponent->getName().c_str());
+
 
   VHDLSignal *pSignal = new VHDLSignal("mysignal1");
   arch.addSignal(pSignal);
@@ -165,6 +171,9 @@ int main(int argc, char** argv)
 
   LayoutComponent layoutComponent;
   layoutComponent.associateEntity(&externalEntity);
+  layoutComponent.setSize(LayoutSize(150, 250));
+
+
 
   LayoutInstance layoutInstance(&layoutComponent);
   layoutInstance.setPosition(LayoutPosition(300,200));
@@ -184,8 +193,6 @@ int main(int argc, char** argv)
 
   layoutInstance.associateInstance(arch.findInstanceByName("myinstance1"));
 
-  externalEntity.setName("blaat");
-
 
   LayoutSignal layoutSignal;
   layoutSignal.associateSignal(arch.findSignalByName("mysignal2"));
@@ -198,18 +205,24 @@ int main(int argc, char** argv)
   int position;
   int x, y;
   GuiInstance guiInstance(stage, &layoutInstance);
+  GuiComponent guiComponent(stage, &layoutComponent);
 
   stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
   stage->show();
   Clutter::main();
 
   FILE *pFile = fopen("dinges.layout", "w+b");
+  layoutComponent.write(pFile);
   layoutInstance.write(pFile);
   layoutSignal.write(pFile);
   fclose(pFile);
 
   pFile = fopen("dinges.vhd", "w+b");
   arch.write(pFile, 0);
+  fclose(pFile);
+
+  pFile = fopen("externalentity.vhd", "w+b");
+  externalEntity.write(pFile, 0);
   fclose(pFile);
 
   return 0;

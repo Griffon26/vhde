@@ -35,10 +35,12 @@ public:
   LayoutComponent();
 
   void associateEntity(INamedItem *pVHDLEntity);
-  INamedItem *getAssociatedEntity();
+  INamedItem *getAssociatedVHDLEntity();
 
   /* This method retains ownership of the returned LayoutPort */
   LayoutPort *createPort(int actionId, Edge edge, int position, INamedItem *pVHDLPort);
+
+  void write(FILE *pFile);
 };
 
 #endif /* _LAYOUT_COMPONENT_H */

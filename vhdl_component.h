@@ -32,7 +32,6 @@ class VHDLComponent: public VHDLInterface, public INamedItem
 {
 private:
   VHDLEntity *m_pEntity;
-  sigc::connection m_onNameChangedConnection;
   sigc::connection m_onPortAddedConnection;
   sigc::connection m_onPortRemovedConnection;
 
@@ -49,7 +48,6 @@ public:
   const Glib::ustring &getName();
 
 private:
-  void onNameChanged(Glib::ustring newName);
   void onPortAdded(int actionId, VHDLPort *pPort);
   void onPortRemoved(int actionId, VHDLPort *pPort);
 };

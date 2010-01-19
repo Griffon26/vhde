@@ -22,6 +22,10 @@
 #ifndef _GUI_COMPONENT_H
 #define _GUI_COMPONENT_H
 
+#include "gui_block.h"
+
+class LayoutComponent;
+
 /**
  * A class that manages the GUI of a VHDL component interface.
  *
@@ -32,13 +36,14 @@
  */
 class GuiComponent: public GuiBlock
 {
-private:
-
-protected:
-
 public:
+  GuiComponent(Glib::RefPtr<Clutter::Stage> pStage, LayoutComponent *pComponent);
+
   void createPort(int actionId, Edge edge, int position, Direction dir, const Glib::ustring &name);
   void removePort(int actionId, Edge edge, int position);
+
+private:
+  LayoutComponent *thisLayoutComponent();
 };
 
 #endif /* _GUI_COMPONENT_H */

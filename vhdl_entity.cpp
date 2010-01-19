@@ -22,7 +22,7 @@
 #include "vhdl_entity.h"
 
 VHDLEntity::VHDLEntity(Glib::ustring name):
-  VHDLInterface(name)
+  m_name(name)
 {
 
 }
@@ -68,7 +68,7 @@ bool VHDLEntity::write(FILE *pFile, int indent)
   }
   fprintf(pFile, "%*s)\n", indent + 2, "");
 
-  fprintf(pFile, "%*send %s\n\n", indent, "", m_name.c_str());
+  fprintf(pFile, "%*send %s;\n\n", indent, "", m_name.c_str());
 
   return true;
 }

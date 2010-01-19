@@ -36,7 +36,7 @@ void LayoutComponent::associateEntity(INamedItem *pVHDLEntity)
   m_pVHDLEntity = pVHDLEntity;
 }
 
-INamedItem *LayoutComponent::getAssociatedEntity()
+INamedItem *LayoutComponent::getAssociatedVHDLEntity()
 {
   return m_pVHDLEntity;
 }
@@ -46,4 +46,37 @@ LayoutPort *LayoutComponent::createPort(int actionId, Edge edge, int position, I
   LayoutPort *pLayoutPort = new LayoutPort(pVHDLPort);
   addPort(actionId, edge, position, pLayoutPort);
   return pLayoutPort;
+}
+
+/*
+instance "blaat" {
+  position 100 200
+  size 200 300
+  ports {
+    LEFT 0 "dinges"
+    LEFT 1 "blaat"
+  }
+}
+
+*/
+void LayoutComponent::write(FILE *pFile)
+{
+  int edge;
+  std::map<int, LayoutPort *>::iterator it;
+
+  fprintf(pFile, "component \"%s\" {\n", m_pVHDLEntity->getName().c_str());
+  fprintf(pFile, "  size %d %d\n", m_size.width, m_size.height);
+  fprintf(pFile, "  ports {\n");
+
+  for(edge = 0; edge < NR_OF_EDGES; edge++)
+  {
+    for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
+    {
+      fprintf(pFile, "    %s %d \"%s\"\n", EDGE_TO_NAME(edge), it->first, it->second->getAssociatedVHDLPort()->getName().c_str());
+    }
+  }
+
+  fprintf(pFile, "  }\n"
+                 "}\n"
+                 "\n");
 }

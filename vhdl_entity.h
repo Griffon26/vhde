@@ -29,6 +29,9 @@
 
 class VHDLEntity: public VHDLInterface, public INamedItem
 {
+private:
+  Glib::ustring             m_name;
+
 public:
   /* Signals */
   sigc::signal<void, Glib::ustring> name_changed;

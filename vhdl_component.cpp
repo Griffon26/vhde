@@ -35,7 +35,6 @@ VHDLComponent::~VHDLComponent()
 {
   if(m_pEntity != NULL)
   {
-    m_onNameChangedConnection.disconnect();
     m_onPortRemovedConnection.disconnect();
     m_onPortAddedConnection.disconnect();
   }
@@ -53,7 +52,9 @@ bool VHDLComponent::write(FILE *pFile, int indent)
   std::list<VHDLGeneric *>::iterator git;
   std::list<VHDLPort *>::iterator pit;
 
-  fprintf(pFile, "%*scomponent %s\n", indent, "", m_name.c_str());
+  g_assert(m_pEntity);
+
+  fprintf(pFile, "%*scomponent %s\n", indent, "", m_pEntity->getName().c_str());
 
   fprintf(pFile, "%*sport (\n", indent + 2, "");
   for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
@@ -62,7 +63,7 @@ bool VHDLComponent::write(FILE *pFile, int indent)
   }
   fprintf(pFile, "%*s)\n", indent + 2, "");
 
-  fprintf(pFile, "%*send component\n\n", indent, "");
+  fprintf(pFile, "%*send component;\n\n", indent, "");
 
   return true;
 }
@@ -73,7 +74,6 @@ void VHDLComponent::associateEntity(VHDLEntity *pEntity)
   g_assert(m_pEntity == NULL);
   m_pEntity = pEntity;
 
-  m_onNameChangedConnection = m_pEntity->name_changed.connect(sigc::mem_fun(this, &VHDLComponent::onNameChanged));
   m_onPortAddedConnection = m_pEntity->port_added.connect(sigc::mem_fun(this, &VHDLComponent::onPortAdded));
   m_onPortRemovedConnection = m_pEntity->port_removed.connect(sigc::mem_fun(this, &VHDLComponent::onPortRemoved));
 }
@@ -92,11 +92,6 @@ const Glib::ustring &VHDLComponent::getName()
 /*
  * Private methods
  */
-
-void VHDLComponent::onNameChanged(Glib::ustring newName)
-{
-  m_name = newName;
-}
 
 void VHDLComponent::onPortAdded(int actionId, VHDLPort *pPort)
 {

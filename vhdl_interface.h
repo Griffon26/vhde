@@ -31,7 +31,6 @@ class VHDLInterface
 {
 protected:
   bool                      m_init;
-  Glib::ustring             m_name;
   std::list<VHDLGeneric *>  m_generics;
   std::list<VHDLPort *>     m_ports;
 
@@ -52,8 +51,6 @@ public:
   const std::list<VHDLPort *>        &getPorts()  { return m_ports; }
 
 protected:
-  VHDLInterface(Glib::ustring name);
-
   /* This method assumes ownership of the port */
   void addPort(int actionId, VHDLPort *pPort);
   void removePort(int actionId, VHDLPort *pPort);

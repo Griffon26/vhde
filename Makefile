@@ -14,6 +14,7 @@ SOURCES= main.cpp \
 	 clutter_port.cpp \
 	 clutter_wire.cpp \
 	 gui_block.cpp \
+	 gui_component.cpp \
 	 gui_instance.cpp \
 	 gui_port.cpp \
 	 gui_signal.cpp \
