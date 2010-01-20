@@ -79,6 +79,37 @@ void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newP
   }
 }
 
+LayoutPort *LayoutBlock::getPort(Edge edge, int position)
+{
+  std::map<int, LayoutPort *>::iterator it;
+
+  it = m_ports[edge].find(position);
+
+  return (it == m_ports[edge].end()) ? NULL : it->second;
+}
+
+std::list<LayoutBlock::PortData> *LayoutBlock::getPortList()
+{
+  PortData portData;
+  std::map<int, LayoutPort *>::iterator it;
+
+  std::list<PortData> *pPortList = new std::list<PortData>();
+
+  for(int edge = 0; edge < NR_OF_EDGES; edge++)
+  {
+    for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
+    {
+      portData.edge = (Edge)edge;
+      portData.position = it->first;
+      portData.pLayoutPort = it->second;
+
+      pPortList->push_back(portData);
+    }
+  }
+
+  return pPortList;
+}
+
 const LayoutBlock::PortPositionMap *LayoutBlock::getPortPositionMaps()
 {
   return m_ports;
@@ -134,35 +165,70 @@ void LayoutBlock::setPortPositionMaps(PortPositionMap *portPositionMaps)
   g_assert(portToOldPositionMap.size() == 0);
 }
 
-LayoutPort *LayoutBlock::getPort(Edge edge, int position)
+bool LayoutBlock::findFreeSlotOnEdge(Edge edge, int preferredPosition, int *pFreePosition)
 {
-  std::map<int, LayoutPort *>::iterator it;
+  int i, bestFreePosition, bestDistance;
+  int maxNrOfPorts;
 
-  it = m_ports[edge].find(position);
+  maxNrOfPorts = calculateMaxNrOfPorts( (edge == EDGE_LEFT || edge == EDGE_RIGHT) ? m_size.height : m_size.width );
 
-  return (it == m_ports[edge].end()) ? NULL : it->second;
-}
-
-std::list<LayoutBlock::PortData> *LayoutBlock::getPortList()
-{
-  PortData portData;
-  std::map<int, LayoutPort *>::iterator it;
-
-  std::list<PortData> *pPortList = new std::list<PortData>();
-
-  for(int edge = 0; edge < NR_OF_EDGES; edge++)
+  bestDistance = -1;
+  for(i = 0; i < maxNrOfPorts; i++)
   {
-    for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
+    /* Only consider free slots */
+    if(m_ports[edge].find(i) == m_ports[edge].end())
     {
-      portData.edge = (Edge)edge;
-      portData.position = it->first;
-      portData.pLayoutPort = it->second;
-
-      pPortList->push_back(portData);
+      /* Find the closest one */
+      if( (bestDistance == -1) ||
+          (abs(i - preferredPosition) < bestDistance) )
+      {
+        bestFreePosition = i;
+        bestDistance = abs(i - preferredPosition);
+      }
     }
   }
 
-  return pPortList;
+  if(bestDistance == -1)
+  {
+    return false;
+  }
+  else
+  {
+    *pFreePosition = bestFreePosition;
+    return true;
+  }
+}
+
+bool LayoutBlock::findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition)
+{
+  bool found = false;
+  int edge;
+
+  /* Try to find something near the preferred position on the preferred edge */
+  if(findFreeSlotOnEdge(preferredEdge, preferredPosition, pFreePosition))
+  {
+    *pFreeEdge = preferredEdge;
+    found = true;
+  }
+  else
+  {
+    /* Otherwise find something near the beginning of the other edges */
+    for(edge = 0; !found && edge < NR_OF_EDGES; edge++)
+    {
+      /* Skip the preferred edge, because we already checked it */
+      if(edge == preferredEdge)
+      {
+        continue;
+      }
+      if(findFreeSlotOnEdge((Edge)edge, 0, pFreePosition))
+      {
+        *pFreeEdge = (Edge)edge;
+        found = true;
+      }
+    }
+  }
+  printf("LayoutBlock(%p)::findFreeSlot() -> %s %s %d\n", this, found ? "true" : "false", EDGE_TO_NAME(*pFreeEdge), *pFreePosition);
+  return found;
 }
 
 void LayoutBlock::calculatePortPosition(Edge edge, int position, int *pX, int *pY) const
@@ -200,6 +266,11 @@ int LayoutBlock::calculateMaxNrOfPorts(int edgeLength)
   return (edgeLength - LayoutPort::SPACING) / (LayoutPort::SPACING + LayoutPort::WIDTH);
 }
 
+int LayoutBlock::calculateMinEdgeLength(int nrOfPorts)
+{
+  return nrOfPorts * (LayoutPort::SPACING + LayoutPort::WIDTH) + LayoutPort::SPACING;
+}
+
 /*
  * Protected methods
  */
@@ -211,7 +282,7 @@ LayoutBlock::LayoutBlock():
 
 void LayoutBlock::addPort(int actionId, Edge edge, int position, LayoutPort *pPort)
 {
-  printf("LayoutBlock(%p)::addPort -> layoutPort = %p\n", this, pPort);
+  printf("LayoutBlock(%p)::addPort(%s %d) -> layoutPort = %p\n", this, EDGE_TO_NAME(edge), position, pPort);
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
   m_ports[edge][position] = pPort;
 

@@ -80,6 +80,29 @@ static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::S
   }
 }
 
+static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent)
+{
+  Edge edge;
+  int position;
+
+  if(pEvent->keyval == 'a')
+  {
+    if(pGuiComponent->findFreeSlot(EDGE_BOTTOM, 2, &edge, &position))
+    {
+      printf("Adding port at %s %d\n", EDGE_TO_NAME(edge), position);
+      pGuiComponent->createPort(1, edge, position, DIR_OUT, "port3");
+    }
+    else
+    {
+      printf("Can't add any more ports\n");
+    }
+  }
+
+  printf("\n");
+
+  return HANDLED;
+}
+
 
 int main(int argc, char** argv)
 {
@@ -237,9 +260,9 @@ int main(int argc, char** argv)
   GuiInstance guiInstance(stage, &layoutInstance);
   GuiComponent guiComponent(stage, &layoutComponent);
 
-  guiComponent.createPort(1, EDGE_BOTTOM, 2, DIR_OUT, "port3");
 
   stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
+  stage->signal_key_press_event().connect(sigc::bind(&on_key_pressed, &guiComponent));
   stage->show();
   Clutter::main();
 

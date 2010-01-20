@@ -68,8 +68,11 @@ public:
   const PortPositionMap *getPortPositionMaps();
   void setPortPositionMaps(PortPositionMap *portPositionMap);
 
+  bool findFreeSlotOnEdge(Edge edge, int preferredPosition, int *pFreePosition);
+  bool findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition);
   void calculatePortPosition(Edge edge, int position, int *pX, int *pY) const;
   static int calculateMaxNrOfPorts(int edgeLength);
+  static int calculateMinEdgeLength(int nrOfPorts);
 
 protected:
   LayoutBlock();

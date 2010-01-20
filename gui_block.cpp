@@ -91,6 +91,11 @@ GuiBlock::~GuiBlock()
   m_onResizedConnection.disconnect();
 }
 
+bool GuiBlock::findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition)
+{
+  return m_pLayoutBlock->findFreeSlot(preferredEdge, preferredPosition, pFreeEdge, pFreePosition);
+}
+
 /*
  * Private methods
  */

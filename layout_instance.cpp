@@ -135,9 +135,24 @@ void LayoutInstance::onSignalDisassociated(VHDLSignal *pSignal, VHDLPort *pPort)
 
 void LayoutInstance::onPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort)
 {
+  Edge freeEdge;
+  int freePosition;
+
   printf("LayoutInstance::onPortAdded\n");
   LayoutPort *pNewLayoutPort = new LayoutPort();
-  addPort(actionId, edge, position, pNewLayoutPort);
+  if(findFreeSlot(edge, position, &freeEdge, &freePosition))
+  {
+    addPort(actionId, freeEdge, freePosition, pNewLayoutPort);
+  }
+  else
+  {
+    /* Resize the instance in vertical direction to make room for at least one more set of ports */
+    LayoutSize layoutSize = m_size;
+
+    layoutSize.height = calculateMinEdgeLength(m_ports[EDGE_LEFT].size() + 1);
+
+    setSize(layoutSize);
+  }
 }
 
 void LayoutInstance::onPortRemoved(int actionId, Edge edge, int position)
