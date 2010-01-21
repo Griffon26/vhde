@@ -140,11 +140,7 @@ void LayoutInstance::onPortAdded(int actionId, Edge edge, int position, LayoutPo
 
   printf("LayoutInstance::onPortAdded\n");
   LayoutPort *pNewLayoutPort = new LayoutPort();
-  if(findFreeSlot(edge, position, &freeEdge, &freePosition))
-  {
-    addPort(actionId, freeEdge, freePosition, pNewLayoutPort);
-  }
-  else
+  if(!findFreeSlot(edge, position, &freeEdge, &freePosition))
   {
     /* Resize the instance in vertical direction to make room for at least one more set of ports */
     LayoutSize layoutSize = m_size;
@@ -152,6 +148,11 @@ void LayoutInstance::onPortAdded(int actionId, Edge edge, int position, LayoutPo
     layoutSize.height = calculateMinEdgeLength(m_ports[EDGE_LEFT].size() + 1);
 
     setSize(layoutSize);
+  }
+
+  if(findFreeSlot(edge, position, &freeEdge, &freePosition))
+  {
+    addPort(actionId, freeEdge, freePosition, pNewLayoutPort);
   }
 }
 
