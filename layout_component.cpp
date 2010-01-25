@@ -51,6 +51,15 @@ LayoutPort *LayoutComponent::createPort(int actionId, Edge edge, int position, I
   return pLayoutPort;
 }
 
+void LayoutComponent::destroyPort(int actionId, Edge edge, int position)
+{
+  LayoutPort *pLayoutPort = getPort(edge, position);
+  printf("LayoutComponent(%p)::destroyPort(%p)\n", this, pLayoutPort);
+  g_assert(pLayoutPort != NULL);
+  removePort(actionId, pLayoutPort);
+  delete pLayoutPort;
+}
+
 /*
 instance "blaat" {
   position 100 200

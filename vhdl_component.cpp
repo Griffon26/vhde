@@ -102,5 +102,8 @@ void VHDLComponent::onPortAdded(int actionId, VHDLPort *pPort)
 
 void VHDLComponent::onPortRemoved(int actionId, VHDLPort *pPort)
 {
-  removePort(actionId, findPortByName(pPort->getName()));
+  VHDLPort *pOurPort = findPortByName(pPort->getName());
+  printf("VHDLComponent(%p)::onPortRemoved(%s(%p))\n", this, pPort->getName().c_str(), pOurPort);
+  removePort(actionId, pOurPort);
+  delete pOurPort;
 }

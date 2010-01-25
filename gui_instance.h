@@ -68,7 +68,7 @@ private:
   void handlePortRemoved();
 
   void onLayoutPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort);
-  void onLayoutPortRemoved(int actionId, Edge edge, int position);
+  void onLayoutPortRemoved(int actionId, Edge edge, int position, LayoutPort *pLayoutPort);
   void onVHDLPortAdded(int actionId, VHDLPort *pVHDLPort);
   void onVHDLPortRemoved(int actionId, VHDLPort *pVHDLPort);
 };

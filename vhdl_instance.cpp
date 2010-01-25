@@ -79,7 +79,6 @@ bool VHDLInstance::write(FILE *pFile, int indent)
   std::list<VHDLPort *>::const_iterator pit;
   const std::list<VHDLPort *> &ports = m_pComponent->getPorts();
   std::map<VHDLPort *, VHDLSignal *>::const_iterator mit;
-  VHDLSignal *pSignal;
 
   fprintf(pFile, "%*s%s: %s\n"
                  "%*sport map (\n", indent, "", m_name.c_str(), m_pComponent->getName().c_str(),
@@ -104,7 +103,7 @@ bool VHDLInstance::write(FILE *pFile, int indent)
 
 void VHDLInstance::onPortRemoved(int actionId, VHDLPort *pPort)
 {
-  printf("port removed from instance\n");
+  printf("VHDLInstance(%p)::onPortRemoved(%s)\n", this, pPort->getName().c_str());
   m_portMap.erase(pPort);
   port_removed.emit(actionId, pPort);
 }

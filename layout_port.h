@@ -42,6 +42,8 @@ public:
 
   void associateVHDLPort(INamedItem *pPort);
   INamedItem *getAssociatedVHDLPort();
+
+  Glib::ustring getName();
 };
 
 #endif /* _LAYOUT_PORT_H */

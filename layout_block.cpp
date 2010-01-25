@@ -165,6 +165,29 @@ void LayoutBlock::setPortPositionMaps(PortPositionMap *portPositionMaps)
   g_assert(portToOldPositionMap.size() == 0);
 }
 
+LayoutPort *LayoutBlock::findPortByName(Glib::ustring name, Edge *pEdge, int *pPosition)
+{
+  int edge;
+  bool found = false;
+  PortPositionMap::iterator it;
+  LayoutPort *pLayoutPort;
+
+  for(edge = 0; !found && edge < NR_OF_EDGES; edge++)
+  {
+    for(it = m_ports[edge].begin(); !found && it != m_ports[edge].end(); it++)
+    {
+      if(it->second->getName() == name)
+      {
+        *pEdge = (Edge)edge;
+        *pPosition = it->first;
+        pLayoutPort = it->second;
+        found = true;
+      }
+    }
+  }
+  return found ? pLayoutPort : NULL;
+}
+
 bool LayoutBlock::findFreeSlotOnEdge(Edge edge, int preferredPosition, int *pFreePosition)
 {
   int i, bestFreePosition, bestDistance;
@@ -289,16 +312,28 @@ void LayoutBlock::addPort(int actionId, Edge edge, int position, LayoutPort *pPo
   port_added.emit(actionId, edge, position, pPort);
 }
 
-void LayoutBlock::removePort(int actionId, Edge edge, int position)
+void LayoutBlock::removePort(int actionId, LayoutPort *pPort)
 {
+  int edge;
+  bool found = false;
   PortPositionMap::iterator it;
 
-  it = m_ports[edge].find(position);
-  g_assert(it != m_ports[edge].end());
-  delete(it->second);
-  m_ports[edge].erase(it);
+  printf("LayoutBlock(%p)::removePort(%p)\n", this, pPort);
 
-  port_removed.emit(actionId, edge, position);
+  for(edge = 0; !found && edge < NR_OF_EDGES; edge++)
+  {
+    for(it = m_ports[edge].begin(); !found && it != m_ports[edge].end(); it++)
+    {
+      if(it->second == pPort)
+      {
+        fprintf(stderr, "found at edge %s pos %d (map = %p, it = (%d,%p))\n", EDGE_TO_NAME(edge), it->first, &m_ports[edge], it->first, it->second);
+        m_ports[edge].erase(it);
+        port_removed.emit(actionId, (Edge)edge, it->first, pPort);
+        found = true;
+      }
+    }
+  }
+  g_assert(found);
 }
 
 /*

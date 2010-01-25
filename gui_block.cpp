@@ -64,7 +64,10 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
                                                     "left drag       : move\n"
                                                     "ctrl-left drag  : move\n"
                                                     "ctrl-right drag : resize\n"
-                                                    "a               : add port\n");
+                                                    "a               : add port\n"
+                                                    "d<edge><pos>    : del port\n"
+                                                    "  edge = L|R|T|B\n"
+                                                    "  pos  = 0..9");
   m_pText->set_position(10, 10);
   m_pText->set_line_alignment(Pango::ALIGN_LEFT);
   m_pGroup->add_actor(m_pText);
@@ -263,6 +266,7 @@ void GuiBlock::removePort(Edge edge, int position)
     if( (pGuiPort->getEdge() == edge) &&
         (pGuiPort->getPosition() == position) )
     {
+      printf("GuiBlock(%p)::removePort: %p\n", this, pGuiPort);
       delete pGuiPort;
       m_portList.erase(it);
       break;

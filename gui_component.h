@@ -40,7 +40,7 @@ public:
   GuiComponent(Glib::RefPtr<Clutter::Stage> pStage, LayoutComponent *pComponent);
 
   void createPort(int actionId, Edge edge, int position, Direction dir, const Glib::ustring &name);
-  void removePort(int actionId, Edge edge, int position);
+  void destroyPort(int actionId, Edge edge, int position);
 
 private:
   LayoutComponent *thisLayoutComponent();

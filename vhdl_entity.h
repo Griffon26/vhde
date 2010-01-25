@@ -43,6 +43,7 @@ public:
 
 
   VHDLPort *createPort(int actionId, Direction dir, const Glib::ustring &name);
+  void destroyPort(int actionId, VHDLPort *pPort);
 
   bool write(FILE *pFile, int indent);
 };

@@ -156,7 +156,14 @@ void LayoutInstance::onPortAdded(int actionId, Edge edge, int position, LayoutPo
   }
 }
 
-void LayoutInstance::onPortRemoved(int actionId, Edge edge, int position)
+void LayoutInstance::onPortRemoved(int actionId, Edge edge, int position, LayoutPort *pLayoutPort)
 {
-  removePort(actionId, edge, position);
+  /* Replace the input data about the port of the component with data about our port */
+  pLayoutPort = findPortByName(pLayoutPort->getName(), &edge, &position);
+
+  printf("found port %p at edge %s pos %d\n", pLayoutPort, EDGE_TO_NAME(edge), position);
+  printf("LayoutInstance(%p)::onPortRemoved(%p)\n", this, pLayoutPort);
+  g_assert(pLayoutPort != NULL);
+  removePort(actionId, pLayoutPort);
+  delete pLayoutPort;
 }

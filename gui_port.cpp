@@ -56,6 +56,7 @@ GuiPort::~GuiPort()
   m_onBlockResizedConnection.disconnect();
 
   m_pGroup->remove_actor(m_pActor);
+  printf("GuiPort::~GuiPort()\n");
 }
 
 void GuiPort::updatePosition()

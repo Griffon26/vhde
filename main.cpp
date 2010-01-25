@@ -80,22 +80,85 @@ static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::S
   }
 }
 
+enum State
+{
+  NORMAL,
+  WAITING_FOR_EDGE,
+  WAITING_FOR_INDEX
+};
+
 static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent)
 {
-  Edge edge;
   int position;
+  static Edge edge;
+  static State state = NORMAL;
 
-  if(pEvent->keyval == 'a')
+  /* Handle escape */
+  if(pEvent->keyval == 27)
   {
-    if(pGuiComponent->findFreeSlot(EDGE_BOTTOM, 2, &edge, &position))
+    printf("Escaped\n");
+    state = NORMAL;
+    return HANDLED;
+  }
+
+  switch(state)
+  {
+  case NORMAL:
+    if(pEvent->keyval == 'a')
     {
-      printf("Adding port at %s %d\n", EDGE_TO_NAME(edge), position);
-      pGuiComponent->createPort(1, edge, position, DIR_OUT, "port3");
+      if(pGuiComponent->findFreeSlot(EDGE_BOTTOM, 2, &edge, &position))
+      {
+        printf("Adding port at %s %d\n", EDGE_TO_NAME(edge), position);
+        pGuiComponent->createPort(1, edge, position, DIR_OUT, "port3");
+      }
+      else
+      {
+        printf("Can't add any more ports\n");
+      }
     }
-    else
+    if(pEvent->keyval == 'd')
     {
-      printf("Can't add any more ports\n");
+      state = WAITING_FOR_EDGE;
+      printf("Deleting port.. enter edge (L, R, T, B)\n");
     }
+    break;
+  case WAITING_FOR_EDGE:
+    state = WAITING_FOR_INDEX;
+    switch(pEvent->keyval)
+    {
+    case 'l':
+      edge = EDGE_LEFT;
+      break;
+    case 'r':
+      edge = EDGE_RIGHT;
+      break;
+    case 't':
+      edge = EDGE_TOP;
+      break;
+    case 'b':
+      edge = EDGE_BOTTOM;
+      break;
+    default:
+      state = WAITING_FOR_EDGE;
+      break;
+    }
+    if(state == WAITING_FOR_INDEX)
+    {
+      printf("edge = %s\n", EDGE_TO_NAME(edge));
+      printf("enter position: \n");
+    }
+    break;
+  case WAITING_FOR_INDEX:
+    if(isdigit(pEvent->keyval))
+    {
+      int position = pEvent->keyval - '0';
+      printf("Destroying port at edge %s pos %d\n", EDGE_TO_NAME(edge), position);
+      pGuiComponent->destroyPort(1, edge, position);
+      state = NORMAL;
+    }
+    break;
+  default:
+    g_assert_not_reached();
   }
 
   printf("\n");

@@ -48,6 +48,13 @@ VHDLPort *VHDLEntity::createPort(int actionId, Direction dir, const Glib::ustrin
   return pVHDLPort;
 }
 
+void VHDLEntity::destroyPort(int actionId, VHDLPort *pPort)
+{
+  printf("VHDLEntity(%p)::destroyPort(%s)\n", this, pPort->getName().c_str());
+  removePort(actionId, pPort);
+  delete pPort;
+}
+
 /*
 
   entity INV is

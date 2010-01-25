@@ -57,7 +57,7 @@ private:
   void onSignalDisassociated(VHDLSignal *pSignal, VHDLPort *pPort);
 #endif
   void onPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort);
-  void onPortRemoved(int actionId, Edge edge, int position);
+  void onPortRemoved(int actionId, Edge edge, int position, LayoutPort *pLayoutPort);
 };
 
 #endif /* _LAYOUT_INSTANCE_H */

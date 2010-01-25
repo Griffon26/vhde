@@ -132,12 +132,21 @@ void GuiInstance::onVHDLPortAdded(int actionId, VHDLPort *pVHDLPort)
 
 void GuiInstance::handlePortRemoved()
 {
-  removePort(m_eventData.edge, m_eventData.position);
+  if(m_eventData.layoutEventReceived && m_eventData.vhdlEventReceived)
+  {
+    printf("GuiInstance(%p)::handlePortRemoved(%s %d)\n", this, EDGE_TO_NAME(m_eventData.edge), m_eventData.position);
+    removePort(m_eventData.edge, m_eventData.position);
+
+    m_eventData.layoutEventReceived = false;
+    m_eventData.vhdlEventReceived = false;
+  }
 }
 
-void GuiInstance::onLayoutPortRemoved(int actionId, Edge edge, int position)
+void GuiInstance::onLayoutPortRemoved(int actionId, Edge edge, int position, LayoutPort *pLayoutPort)
 {
   g_assert(!m_eventData.vhdlEventReceived || m_eventData.actionId == actionId);
+
+  printf("GuiInstance::OnLayoutPortRemoved(%s(%p))\n", pLayoutPort->getName().c_str(), pLayoutPort);
 
   m_eventData.actionId = actionId;
   m_eventData.layoutEventReceived = true;
@@ -150,6 +159,8 @@ void GuiInstance::onLayoutPortRemoved(int actionId, Edge edge, int position)
 void GuiInstance::onVHDLPortRemoved(int actionId, VHDLPort *pVHDLPort)
 {
   g_assert(!m_eventData.layoutEventReceived || m_eventData.actionId == actionId);
+
+  printf("GuiInstance::OnVHDLPortRemoved\n");
 
   m_eventData.actionId = actionId;
   m_eventData.vhdlEventReceived = true;

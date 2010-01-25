@@ -48,6 +48,20 @@ void GuiComponent::createPort(int actionId, Edge edge, int position, Direction d
   addPort(edge, position, pLayoutPort);
 }
 
+void GuiComponent::destroyPort(int actionId, Edge edge, int position)
+{
+  VHDLPort *pVHDLPort;
+  printf("GuiComponent(%p)::destroyPort(%s %d)\n", this, EDGE_TO_NAME(edge), position);
+
+  pVHDLPort = static_cast<VHDLPort *>(thisLayoutComponent()->getPort(edge, position)->getAssociatedVHDLPort());
+
+  thisLayoutComponent()->destroyPort(actionId, edge, position);
+
+  static_cast<VHDLEntity *>(thisLayoutComponent()->getAssociatedVHDLEntity())->destroyPort(actionId, pVHDLPort);
+
+  removePort(edge, position);
+}
+
 /*
  * Private methods
  */

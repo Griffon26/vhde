@@ -49,7 +49,7 @@ public:
   /* Signals */
   sigc::signal<void, const LayoutSize &>            resized;
   sigc::signal<void, int, Edge, int, LayoutPort *>  port_added;
-  sigc::signal<void, int, Edge, int>                port_removed;
+  sigc::signal<void, int, Edge, int, LayoutPort *>  port_removed;
 
   void init_addPort(Edge edge, int position, LayoutPort *pPort);
   void init_done() { m_init = false; }
@@ -68,6 +68,8 @@ public:
   const PortPositionMap *getPortPositionMaps();
   void setPortPositionMaps(PortPositionMap *portPositionMap);
 
+  LayoutPort *findPortByName(Glib::ustring name, Edge *pEdge, int *pPosition);
+
   bool findFreeSlotOnEdge(Edge edge, int preferredPosition, int *pFreePosition);
   bool findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition);
   void calculatePortPosition(Edge edge, int position, int *pX, int *pY) const;
@@ -79,7 +81,7 @@ protected:
 
   /* This method assumes ownership of the port */
   void addPort(int actionId, Edge edge, int position, LayoutPort *pPort);
-  void removePort(int actionId, Edge edge, int position);
+  void removePort(int actionId, LayoutPort *pPort);
 
 private:
   void resizeEdge(Edge edge, int newSize);
