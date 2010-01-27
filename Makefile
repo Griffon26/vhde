@@ -12,6 +12,7 @@ LDFLAGS=`pkg-config cluttermm-1.0 --libs` \
 SOURCES= main.cpp \
 	 clutter_block.cpp \
 	 clutter_port.cpp \
+	 clutter_scaling_text.cpp \
 	 clutter_wire.cpp \
 	 gui_block.cpp \
 	 gui_component.cpp \

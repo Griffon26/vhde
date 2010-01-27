@@ -59,14 +59,14 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   }
 
   /* Add text */
-  m_pText = Clutter::Text::create("monospace 12px", "ctrl-scrollwheel: zoom\n"
-                                                    "left drag       : move\n"
-                                                    "ctrl-left drag  : move\n"
-                                                    "ctrl-right drag : resize\n"
-                                                    "a               : add port\n"
-                                                    "d<edge><pos>    : del port\n"
-                                                    "  edge = L|R|T|B\n"
-                                                    "  pos  = 0..9");
+  m_pText = ClutterScalingText::create("ctrl-scrollwheel: zoom\n"
+                                       "left drag       : move\n"
+                                       "ctrl-left drag  : move\n"
+                                       "ctrl-right drag : resize\n"
+                                       "a               : add port\n"
+                                       "d<edge><pos>    : del port\n"
+                                       "  edge = L|R|T|B\n"
+                                       "  pos  = 0..9");
   m_pText->set_position(10, 10);
   m_pText->set_line_alignment(Pango::ALIGN_LEFT);
   m_pGroup->add_actor(m_pText);

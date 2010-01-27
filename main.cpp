@@ -93,7 +93,7 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
   static State state = NORMAL;
 
   /* Handle escape */
-  if(pEvent->keyval == 27)
+  if(pEvent->keyval == CLUTTER_Escape)
   {
     printf("Escaped\n");
     state = NORMAL;
@@ -118,7 +118,7 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
     if(pEvent->keyval == 'd')
     {
       state = WAITING_FOR_EDGE;
-      printf("Deleting port.. enter edge (L, R, T, B)\n");
+      printf("Enter edge of port to delete (L, R, T, B)\n");
     }
     break;
   case WAITING_FOR_EDGE:
@@ -144,7 +144,7 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
     if(state == WAITING_FOR_INDEX)
     {
       printf("edge = %s\n", EDGE_TO_NAME(edge));
-      printf("enter position: \n");
+      printf("Enter position of port to be deleted (0-9)\n");
     }
     break;
   case WAITING_FOR_INDEX:
@@ -160,8 +160,6 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
     g_assert_not_reached();
   }
 
-  printf("\n");
-
   return HANDLED;
 }
 
@@ -170,6 +168,7 @@ int main(int argc, char** argv)
 {
   Clutter::init(&argc, &argv);
   Clutter::set_motion_events_enabled(false);
+  //Clutter::set_font_flags(Clutter::get_font_flags() & ~Clutter::FONT_MIPMAPPING);
 
   /* Get the stage and set its size and color */
   const Glib::RefPtr<Clutter::Stage> stage = Clutter::Stage::get_default();

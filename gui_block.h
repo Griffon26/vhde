@@ -23,6 +23,7 @@
 
 #include "clutter_block.h"
 #include "clutter_port.h"
+#include "clutter_scaling_text.h"
 #include "gui_port.h"
 #include "layout_block.h"
 
@@ -54,7 +55,7 @@ protected:
   Glib::RefPtr<Clutter::Stage>      m_pStage;
   Glib::RefPtr<Clutter::Group>      m_pGroup;
   Glib::RefPtr<ClutterBlock>        m_pBody;
-  Glib::RefPtr<Clutter::Text>       m_pText;
+  Glib::RefPtr<ClutterScalingText>  m_pText;
 
   int                     m_bodyHandleOffsetX;
   int                     m_bodyHandleOffsetY;
