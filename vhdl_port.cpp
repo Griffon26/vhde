@@ -26,6 +26,11 @@ VHDLPort::VHDLPort(Glib::ustring name):
 {
 }
 
+VHDLPort::~VHDLPort()
+{
+  removed.emit(this);
+}
+
 void VHDLPort::setDirection(Direction dir)
 {
   g_assert(m_direction == DIR_INVALID);

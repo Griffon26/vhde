@@ -20,21 +20,39 @@
 
 #include "vhdl_architecture.h"
 
+/*
+ * Public methods
+ */
+
 VHDLArchitecture::VHDLArchitecture(Glib::ustring name):
+  m_init(true),
   m_name(name),
   m_pEntity(NULL)
 {
+}
+
+void VHDLArchitecture::init_addSignal(VHDLSignal *pSignal)
+{
+  g_assert(m_init);
+  m_signals.push_back(pSignal);
+}
+
+void VHDLArchitecture::init_addInstance(VHDLInstance *pInstance)
+{
+  g_assert(m_init);
+  m_instances.push_back(pInstance);
+}
+
+void VHDLArchitecture::init_addComponent(VHDLComponent *pComponent)
+{
+  g_assert(m_init);
+  m_components.push_back(pComponent);
 }
 
 void VHDLArchitecture::setEntity(VHDLEntity *pEntity)
 {
   g_assert(m_pEntity == NULL);
   m_pEntity = pEntity;
-}
-
-void VHDLArchitecture::addComponent(VHDLComponent *pComponent)
-{
-  m_components.push_back(pComponent);
 }
 
 VHDLComponent *VHDLArchitecture::findComponentByName(Glib::ustring name)
@@ -51,23 +69,6 @@ VHDLComponent *VHDLArchitecture::findComponentByName(Glib::ustring name)
   return NULL;
 }
 
-void VHDLArchitecture::addSignal(VHDLSignal *pSignal)
-{
-  m_signals.push_back(pSignal);
-}
-
-void VHDLArchitecture::removeSignal(VHDLSignal *pSignal)
-{
-  std::list<VHDLInstance *>::iterator it;
-
-  for(it = m_instances.begin(); it != m_instances.end(); it++)
-  {
-    (*it)->disassociateSignal(pSignal);
-  }
-
-  m_signals.remove(pSignal);
-}
-
 VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)
 {
   std::list<VHDLSignal *>::iterator it;
@@ -80,11 +81,6 @@ VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)
     }
   }
   return NULL;
-}
-
-void VHDLArchitecture::addInstance(VHDLInstance *pInstance)
-{
-  m_instances.push_back(pInstance);
 }
 
 VHDLInstance *VHDLArchitecture::findInstanceByName(Glib::ustring name)
@@ -130,4 +126,8 @@ bool VHDLArchitecture::write(FILE *pFile, int indent)
 
   return true;
 }
+
+/*
+ * Private methods
+ */
 

@@ -36,7 +36,10 @@ private:
   VHDLType                m_type;
 
 public:
+  sigc::signal<void, VHDLPort *> removed;
+
   VHDLPort(Glib::ustring name);
+  ~VHDLPort();
 
   void setDirection(Direction dir);
   void setType(VHDLType type);

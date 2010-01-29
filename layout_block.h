@@ -47,9 +47,10 @@ protected:
 public:
   /* Signals */
   sigc::signal<void, const LayoutSize &>            resized;
-  sigc::signal<void, int, Edge, int, LayoutPort *>  port_added;
-  sigc::signal<void, int, Edge, int, LayoutPort *>  port_removed;
+  sigc::signal<void, Edge, int, LayoutPort *>  port_added;
+  sigc::signal<void, Edge, int, LayoutPort *>  port_removed;
 
+  /* This method assumes ownership of the port */
   void init_addPort(Edge edge, int position, LayoutPort *pPort);
   void init_done() { m_init = false; }
 
@@ -78,9 +79,8 @@ public:
 protected:
   LayoutBlock();
 
-  /* This method assumes ownership of the port */
-  void addPort(int actionId, Edge edge, int position, LayoutPort *pPort);
-  void removePort(int actionId, LayoutPort *pPort);
+  void addPort(Edge edge, int position, LayoutPort *pPort);
+  void removePort(LayoutPort *pPort);
 
 private:
   void resizeEdge(Edge edge, int newSize);

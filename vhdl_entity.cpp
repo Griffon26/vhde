@@ -38,19 +38,19 @@ const Glib::ustring &VHDLEntity::getName()
 }
 
 
-VHDLPort *VHDLEntity::createPort(int actionId, Direction dir, const Glib::ustring &name)
+VHDLPort *VHDLEntity::createPort(Direction dir, const Glib::ustring &name)
 {
-  printf("VHDLEntity::createPort(%d, %s, %s)\n", actionId, DIR_TO_NAME(dir), name.c_str());
+  printf("VHDLEntity::createPort(%s, %s)\n", DIR_TO_NAME(dir), name.c_str());
   VHDLPort *pVHDLPort = new VHDLPort(name);
   pVHDLPort->setDirection(dir);
-  addPort(actionId, pVHDLPort);
+  addPort(pVHDLPort);
   return pVHDLPort;
 }
 
-void VHDLEntity::destroyPort(int actionId, VHDLPort *pPort)
+void VHDLEntity::destroyPort(VHDLPort *pPort)
 {
   printf("VHDLEntity(%p)::destroyPort(%s)\n", this, pPort->getName().c_str());
-  removePort(actionId, pPort);
+  removePort(pPort);
   delete pPort;
 }
 

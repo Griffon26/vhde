@@ -29,66 +29,72 @@ VHDLInstance::VHDLInstance(Glib::ustring name, VHDLComponent *pComponent):
   m_name(name),
   m_pComponent(pComponent)
 {
-  m_onPortRemovedConnection = m_pComponent->port_removed.connect(sigc::mem_fun(this, &VHDLInstance::onPortRemoved));
 }
 
 VHDLInstance::~VHDLInstance()
 {
-  m_onPortRemovedConnection.disconnect();
 }
 
-void VHDLInstance::associateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort)
+void VHDLInstance::connectSignalToPort(VHDLSignal *pSignal, VHDLPort *pPort)
 {
-  m_portMap[pPort] = pSignal;
+  MapEntry mapEntry;
+  mapEntry.onPortRemovedConnection = pPort->removed.connect(sigc::mem_fun(this, &VHDLInstance::onPortRemoved));
+  mapEntry.onSignalRemovedConnection = pSignal->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLInstance::onSignalRemoved), pPort));
+  mapEntry.pSignal = pSignal;
+
+  m_portMap[pPort] = mapEntry;
 }
 
-void VHDLInstance::disassociateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort)
+void VHDLInstance::disconnectSignalFromPort(VHDLSignal *pSignal, VHDLPort *pPort)
 {
-  std::map<VHDLPort *, VHDLSignal *>::iterator it;
+  std::map<VHDLPort *, MapEntry>::iterator it;
   it = m_portMap.find(pPort);
 
   g_assert(it != m_portMap.end());
-  g_assert(it->second == pSignal);
-  m_portMap.erase(it);
+  g_assert(it->second.pSignal == pSignal);
 
-  signal_disassociated.emit(pSignal, pPort);
+  it->second.onPortRemovedConnection.disconnect();
+  it->second.onSignalRemovedConnection.disconnect();
+
+  m_portMap.erase(it);
 }
 
-void VHDLInstance::disassociateSignal(VHDLSignal *pSignal)
+#if 0 // not needed?
+void VHDLInstance::disconnectSignal(VHDLSignal *pSignal)
 {
-  std::map<VHDLPort *, VHDLSignal *>::iterator it, prevIt;
-  VHDLPort *pPort;
+  std::map<VHDLPort *, MapEntry>::iterator it, prevIt;
 
   /* Remove any port associations with this signal */
   for(it = m_portMap.begin(); it != m_portMap.end();)
   {
     prevIt = it++;
 
-    if(prevIt->second == pSignal)
+    if(prevIt->second.pSignal == pSignal)
     {
-      pPort = prevIt->first;
+      prevIt->second.onPortRemovedConnection.disconnect();
+      prevIt->second.onSignalRemovedConnection.disconnect();
       m_portMap.erase(prevIt);
-      signal_disassociated.emit(pSignal, pPort);
     }
   }
 }
+#endif
 
 bool VHDLInstance::write(FILE *pFile, int indent)
 {
   std::list<VHDLPort *>::const_iterator pit;
-  const std::list<VHDLPort *> &ports = m_pComponent->getPorts();
-  std::map<VHDLPort *, VHDLSignal *>::const_iterator mit;
+  const std::list<VHDLPort *> *pPorts = m_pComponent->getPortList();
+  std::map<VHDLPort *, MapEntry>::const_iterator mit;
 
   fprintf(pFile, "%*s%s: %s\n"
                  "%*sport map (\n", indent, "", m_name.c_str(), m_pComponent->getName().c_str(),
                                     indent, "");
 
-  for(pit = ports.begin(); pit != ports.end(); pit++)
+  for(pit = pPorts->begin(); pit != pPorts->end(); pit++)
   {
     mit = m_portMap.find(*pit);
-    fprintf(pFile, "%s%*s%s => %s", (pit == ports.begin()) ? "" : ",\n", indent + 2, "",
+    fprintf(pFile, "%s%*s%s => %s", (pit == pPorts->begin()) ? "" : ",\n", indent + 2, "",
                                     (*pit)->getName().c_str(),
-                                    (mit == m_portMap.end()) ? "open" : mit->second->getName().c_str());
+                                    (mit == m_portMap.end()) ? "open" : mit->second.pSignal->getName().c_str());
   }
 
   fprintf(pFile, "\n%*s);\n", indent, "");
@@ -100,9 +106,19 @@ bool VHDLInstance::write(FILE *pFile, int indent)
  * Private methods
  */
 
-void VHDLInstance::onPortRemoved(int actionId, VHDLPort *pPort)
+void VHDLInstance::onPortRemoved(VHDLPort *pPort)
 {
   printf("VHDLInstance(%p)::onPortRemoved(%s)\n", this, pPort->getName().c_str());
+  m_portMap[pPort].onSignalRemovedConnection.disconnect();
+  m_portMap[pPort].onPortRemovedConnection.disconnect();  // not really needed, because the port is being destroyed
   m_portMap.erase(pPort);
-  port_removed.emit(actionId, pPort);
+}
+
+void VHDLInstance::onSignalRemoved(VHDLSignal *pSignal, VHDLPort *pPort)
+{
+  printf("VHDLInstance(%p)::onSignalRemoved(%s)\n", this, pSignal->getName().c_str());
+  g_assert(m_portMap[pPort].pSignal == pSignal);
+  m_portMap[pPort].onSignalRemovedConnection.disconnect();  // not really needed, because the signal is being destroyed
+  m_portMap[pPort].onPortRemovedConnection.disconnect();
+  m_portMap.erase(pPort);
 }

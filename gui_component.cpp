@@ -33,30 +33,33 @@ GuiComponent::GuiComponent(Glib::RefPtr<Clutter::Stage> pStage, LayoutComponent 
 
 }
 
-void GuiComponent::createPort(int actionId, Edge edge, int position, Direction dir, const Glib::ustring &name)
+void GuiComponent::createPort(Edge edge, int position, Direction dir, const Glib::ustring &name)
 {
   VHDLPort *pVHDLPort;
   LayoutPort *pLayoutPort;
 
-  pVHDLPort = static_cast<VHDLEntity *>(thisLayoutComponent()->getAssociatedVHDLEntity())->createPort(actionId, dir, name);
+  pVHDLPort = static_cast<VHDLEntity *>(thisLayoutComponent()->getAssociatedVHDLEntity())->createPort(dir, name);
   g_assert(pVHDLPort != NULL);
 
-  pLayoutPort = thisLayoutComponent()->createPort(actionId, edge, position, pVHDLPort);
+  pLayoutPort = thisLayoutComponent()->createPort(edge, position, pVHDLPort);
   g_assert(pLayoutPort != NULL);
 
   addPort(edge, position, pLayoutPort);
 }
 
-void GuiComponent::destroyPort(int actionId, Edge edge, int position)
+void GuiComponent::destroyPort(Edge edge, int position)
 {
+  LayoutPort *pLayoutPort;
   VHDLPort *pVHDLPort;
   printf("GuiComponent(%p)::destroyPort(%s %d)\n", this, EDGE_TO_NAME(edge), position);
 
-  pVHDLPort = static_cast<VHDLPort *>(thisLayoutComponent()->getPort(edge, position)->getAssociatedVHDLPort());
+  pLayoutPort = thisLayoutComponent()->getPort(edge, position);
+  g_assert(pLayoutPort != NULL);
+  pVHDLPort = static_cast<VHDLPort *>(pLayoutPort->getAssociatedVHDLPort());
 
-  thisLayoutComponent()->destroyPort(actionId, edge, position);
+  thisLayoutComponent()->destroyPort(edge, position);
 
-  static_cast<VHDLEntity *>(thisLayoutComponent()->getAssociatedVHDLEntity())->destroyPort(actionId, pVHDLPort);
+  static_cast<VHDLEntity *>(thisLayoutComponent()->getAssociatedVHDLEntity())->destroyPort(pVHDLPort);
 
   removePort(edge, position);
 }

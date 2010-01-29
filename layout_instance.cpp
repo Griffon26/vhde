@@ -132,7 +132,7 @@ void LayoutInstance::onSignalDisassociated(VHDLSignal *pSignal, VHDLPort *pPort)
 }
 #endif
 
-void LayoutInstance::onPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort)
+void LayoutInstance::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
 {
   Edge freeEdge;
   int freePosition;
@@ -151,11 +151,11 @@ void LayoutInstance::onPortAdded(int actionId, Edge edge, int position, LayoutPo
 
   if(findFreeSlot(edge, position, &freeEdge, &freePosition))
   {
-    addPort(actionId, freeEdge, freePosition, pNewLayoutPort);
+    addPort(freeEdge, freePosition, pNewLayoutPort);
   }
 }
 
-void LayoutInstance::onPortRemoved(int actionId, Edge edge, int position, LayoutPort *pLayoutPort)
+void LayoutInstance::onPortRemoved(Edge edge, int position, LayoutPort *pLayoutPort)
 {
   /* Replace the input data about the port of the component with data about our port */
   pLayoutPort = findPortByName(pLayoutPort->getName(), &edge, &position);
@@ -163,6 +163,6 @@ void LayoutInstance::onPortRemoved(int actionId, Edge edge, int position, Layout
   printf("found port %p at edge %s pos %d\n", pLayoutPort, EDGE_TO_NAME(edge), position);
   printf("LayoutInstance(%p)::onPortRemoved(%p)\n", this, pLayoutPort);
   g_assert(pLayoutPort != NULL);
-  removePort(actionId, pLayoutPort);
+  removePort(pLayoutPort);
   delete pLayoutPort;
 }

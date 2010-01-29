@@ -37,8 +37,8 @@ public:
   INamedItem *getAssociatedVHDLEntity();
 
   /* This method retains ownership of the returned LayoutPort */
-  LayoutPort *createPort(int actionId, Edge edge, int position, INamedItem *pVHDLPort);
-  void destroyPort(int actionId, Edge edge, int position);
+  LayoutPort *createPort(Edge edge, int position, INamedItem *pVHDLPort);
+  void destroyPort(Edge edge, int position);
 
   void write(FILE *pFile);
 };

@@ -34,7 +34,6 @@ VHDLComponent::~VHDLComponent()
 {
   if(m_pEntity != NULL)
   {
-    m_onPortRemovedConnection.disconnect();
     m_onPortAddedConnection.disconnect();
   }
 }
@@ -69,12 +68,31 @@ bool VHDLComponent::write(FILE *pFile, int indent)
 
 void VHDLComponent::associateEntity(VHDLEntity *pEntity)
 {
+  const std::list<VHDLPort *> *pPortList;
+  std::list<VHDLPort *>::const_iterator it;
+
   g_assert(!m_init);
   g_assert(m_pEntity == NULL);
   m_pEntity = pEntity;
 
+  pPortList = m_pEntity->getPortList();
+  g_assert(pPortList->size() == m_ports.size());
+
+  for(it = pPortList->begin(); it != pPortList->end(); it++)
+  {
+    VHDLPort *pOurPort = findPortByName((*it)->getName());
+
+    /* Surely there's a matching port in this component */
+    g_assert(pOurPort != NULL);
+
+    /* No need to remember the connection for "removed" signals, because the
+     * only reason we would no longer want to receive them is when the
+     * corresponding port is destroyed (so it won't emit any further signals).
+     */
+    (*it)->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLComponent::onPortRemoved), pOurPort));
+  }
+
   m_onPortAddedConnection = m_pEntity->port_added.connect(sigc::mem_fun(this, &VHDLComponent::onPortAdded));
-  m_onPortRemovedConnection = m_pEntity->port_removed.connect(sigc::mem_fun(this, &VHDLComponent::onPortRemoved));
 }
 
 VHDLEntity *VHDLComponent::getAssociatedEntity()
@@ -92,17 +110,18 @@ const Glib::ustring &VHDLComponent::getName()
  * Private methods
  */
 
-void VHDLComponent::onPortAdded(int actionId, VHDLPort *pPort)
+void VHDLComponent::onPortAdded(VHDLPort *pEntityPort)
 {
   printf("VHDLComponent::onPortAdded\n");
-  VHDLPort *pNewPort = new VHDLPort(*pPort);
-  addPort(actionId, pNewPort);
+  VHDLPort *pOurPort = new VHDLPort(*pEntityPort);
+
+  pEntityPort->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLComponent::onPortRemoved), pOurPort));
+  addPort(pOurPort);
 }
 
-void VHDLComponent::onPortRemoved(int actionId, VHDLPort *pPort)
+void VHDLComponent::onPortRemoved(VHDLPort *pEntityPort, VHDLPort *pOurPort)
 {
-  VHDLPort *pOurPort = findPortByName(pPort->getName());
-  printf("VHDLComponent(%p)::onPortRemoved(%s(%p))\n", this, pPort->getName().c_str(), pOurPort);
-  removePort(actionId, pOurPort);
+  printf("VHDLComponent(%p)::onPortRemoved(%s(%p))\n", this, pOurPort->getName().c_str(), pOurPort);
+  removePort(pOurPort);
   delete pOurPort;
 }

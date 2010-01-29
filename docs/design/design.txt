@@ -25,4 +25,32 @@ The following design choices were made:
 
 3) The same holds for Layout classes
 
+4) When an object (e.g. a port) is added to a container (e.g. the component),
+   the "added" signal is emitted by the container.  When an object is removed
+   the object itself emits a "removed" signal.
+
+   This is a bit asymmetrical.
+
+   It's clear that there is no other option than for the container to send the
+   "added" signal (what else is there to subscribe to before the new object
+   has been added).
+
+   The reason for making the object itself emit the "removed" signal is that
+   it is useful to be able to bind an identifier specific to the removed
+   object to speed up signal handling. For instance a VHDLInstance maintains a
+   std::map from VHDLSignal* to VHDLPort*.  By subscribing to the "removed"
+   signal on the port and binding a VHDLSignal*, the callback can quickly find
+   the entry to remove from the map.
+
+   Additionally the VHDLInstance would only receive the "removed" when
+   associated signals and ports are removed, not when other ports on the
+   component or other signals in the architecture are removed. Just like
+   VHDLInstances that do not have the removed signal/port will not be
+   called to handle the "removed" signal at all.
+
+   Storage of multiple connection objects is not a concern as long as objects
+   are required to send the "removed" signal from their destructors. Then the
+   call to the signal handler is guaranteed to be the last one for that
+   object, so there is no need to disconnect.
+
 The sequence diagrams illustrate some of these design choices.

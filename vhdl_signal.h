@@ -34,7 +34,10 @@ private:
   VHDLType                m_type;
 
 public:
+  sigc::signal<void, VHDLSignal *> removed;
+
   VHDLSignal(Glib::ustring name);
+  ~VHDLSignal();
 
   void setType(VHDLType type);
 

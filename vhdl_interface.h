@@ -35,11 +35,11 @@ protected:
 
 public:
   /* Signals */
-  sigc::signal<void, int, VHDLPort *> port_added;
-  sigc::signal<void, int, VHDLPort *> port_removed;
+  sigc::signal<void, VHDLPort *> port_added;
 
   VHDLInterface();
 
+  /* This method assumes ownership of the port */
   void init_addPort(VHDLPort *pPort);
   void init_done() { m_init = false; }
 
@@ -47,12 +47,11 @@ public:
 
   virtual bool write(FILE *pFile, int indent) = 0;
 
-  const std::list<VHDLPort *>        &getPorts()  { return m_ports; }
+  const std::list<VHDLPort *> *getPortList() { return &m_ports; }
 
 protected:
-  /* This method assumes ownership of the port */
-  void addPort(int actionId, VHDLPort *pPort);
-  void removePort(int actionId, VHDLPort *pPort);
+  void addPort(VHDLPort *pPort);
+  void removePort(VHDLPort *pPort);
 };
 
 #endif /* _VHDL_INTERFACE_H */

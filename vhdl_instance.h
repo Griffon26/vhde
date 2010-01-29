@@ -32,24 +32,28 @@ class VHDLComponent;
 class VHDLInstance: public INamedItem
 {
 private:
+  typedef struct
+  {
+    sigc::connection onPortRemovedConnection;
+    sigc::connection onSignalRemovedConnection;
+    VHDLSignal *pSignal;
+  } MapEntry;
+
   Glib::ustring                             m_name;
   VHDLComponent                            *m_pComponent;
   std::list<Glib::ustring>                  m_genericMap;
-  std::map<VHDLPort *, VHDLSignal *>        m_portMap;
-
-  sigc::connection                          m_onPortRemovedConnection;
+  std::map<VHDLPort *, MapEntry>            m_portMap;
 
 public:
   /* signals */
-  sigc::signal<void, VHDLSignal *, VHDLPort *> signal_disassociated;
-  sigc::signal<void, int, VHDLPort *>               port_removed;
+  //sigc::signal<void, VHDLSignal *, VHDLPort *> signal_disassociated;
 
   VHDLInstance(Glib::ustring name, VHDLComponent *pComponent);
   virtual ~VHDLInstance();
 
-  void associateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort);
-  void disassociateSignalWithPort(VHDLSignal *pSignal, VHDLPort *pPort);
-  void disassociateSignal(VHDLSignal *pSignal);
+  void connectSignalToPort(VHDLSignal *pSignal, VHDLPort *pPort);
+  void disconnectSignalFromPort(VHDLSignal *pSignal, VHDLPort *pPort);
+  //void disconnectSignal(VHDLSignal *pSignal);
 
   bool write(FILE *pFile, int indent);
 
@@ -57,7 +61,8 @@ public:
   VHDLComponent *getComponent() { return m_pComponent; }
 
 private:
-  void onPortRemoved(int actionId, VHDLPort *pPort);
+  void onPortRemoved(VHDLPort *pPort);
+  void onSignalRemoved(VHDLSignal *pSignal, VHDLPort *pPort);
 };
 
 #endif /* _VHDL_INSTANCE_H */

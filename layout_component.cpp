@@ -41,21 +41,21 @@ INamedItem *LayoutComponent::getAssociatedVHDLEntity()
   return m_pVHDLEntity;
 }
 
-LayoutPort *LayoutComponent::createPort(int actionId, Edge edge, int position, INamedItem *pVHDLPort)
+LayoutPort *LayoutComponent::createPort(Edge edge, int position, INamedItem *pVHDLPort)
 {
   printf("LayoutComponent::createPort\n");
   LayoutPort *pLayoutPort = new LayoutPort();
   pLayoutPort->associateVHDLPort(pVHDLPort);
-  addPort(actionId, edge, position, pLayoutPort);
+  addPort(edge, position, pLayoutPort);
   return pLayoutPort;
 }
 
-void LayoutComponent::destroyPort(int actionId, Edge edge, int position)
+void LayoutComponent::destroyPort(Edge edge, int position)
 {
   LayoutPort *pLayoutPort = getPort(edge, position);
   printf("LayoutComponent(%p)::destroyPort(%p)\n", this, pLayoutPort);
   g_assert(pLayoutPort != NULL);
-  removePort(actionId, pLayoutPort);
+  removePort(pLayoutPort);
   delete pLayoutPort;
 }
 

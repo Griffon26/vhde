@@ -108,7 +108,7 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
       if(pGuiComponent->findFreeSlot(EDGE_BOTTOM, 2, &edge, &position))
       {
         printf("Adding port at %s %d\n", EDGE_TO_NAME(edge), position);
-        pGuiComponent->createPort(1, edge, position, DIR_OUT, "port3");
+        pGuiComponent->createPort(edge, position, DIR_OUT, "port3");
       }
       else
       {
@@ -152,7 +152,7 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
     {
       int position = pEvent->keyval - '0';
       printf("Destroying port at edge %s pos %d\n", EDGE_TO_NAME(edge), position);
-      pGuiComponent->destroyPort(1, edge, position);
+      pGuiComponent->destroyPort(edge, position);
       state = NORMAL;
     }
     break;
@@ -228,7 +228,7 @@ int main(int argc, char** argv)
 
   pComponent->init_done();
 
-  arch.addComponent(pComponent);
+  arch.init_addComponent(pComponent);
 
   /* TODO: get the VHDLEntity to be associated from a store by name */
   /* TODO: check consistency with entity and return failure if incorrect
@@ -240,15 +240,17 @@ int main(int argc, char** argv)
 
 
   VHDLSignal *pSignal = new VHDLSignal("mysignal1");
-  arch.addSignal(pSignal);
+  arch.init_addSignal(pSignal);
   pSignal = new VHDLSignal("mysignal2");
-  arch.addSignal(pSignal);
+  arch.init_addSignal(pSignal);
 
   VHDLInstance *pVHDLInstance = new VHDLInstance("myinstance1", arch.findComponentByName("externalentity"));
-  arch.addInstance(pVHDLInstance);
+  arch.init_addInstance(pVHDLInstance);
 
   pPort = pVHDLInstance->getComponent()->findPortByName("myport1");
-  pVHDLInstance->associateSignalWithPort(arch.findSignalByName("mysignal2"), pPort);
+  pVHDLInstance->connectSignalToPort(arch.findSignalByName("mysignal2"), pPort);
+
+  arch.init_done();
 
 
 

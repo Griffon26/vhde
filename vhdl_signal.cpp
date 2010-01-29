@@ -25,6 +25,11 @@ VHDLSignal::VHDLSignal(Glib::ustring name):
 {
 }
 
+VHDLSignal::~VHDLSignal()
+{
+  removed.emit(this);
+}
+
 void setType(VHDLType type)
 {
 }

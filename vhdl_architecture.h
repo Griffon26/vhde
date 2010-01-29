@@ -32,6 +32,7 @@
 class VHDLArchitecture
 {
 private:
+  bool                        m_init;
   Glib::ustring               m_name;
   VHDLEntity                 *m_pEntity;
   std::list<VHDLComponent *>  m_components;
@@ -41,21 +42,19 @@ private:
 public:
   VHDLArchitecture(Glib::ustring name);
 
-  void setEntity(VHDLEntity *pEntity);
-
+  /* This method assumes ownership of the port */
+  void init_addSignal(VHDLSignal *pSignal);
   /* This method assumes ownership of the component */
-  void addComponent(VHDLComponent *pComponent);
+  void init_addComponent(VHDLComponent *pComponent);
+  /* This method assumes ownership of the instance */
+  void init_addInstance(VHDLInstance *pInstance);
+  void init_done() { m_init = false; }
+
+  void setEntity(VHDLEntity *pEntity);
 
   VHDLComponent *findComponentByName(Glib::ustring name);
 
-  /* This method assumes ownership of the signal */
-  void addSignal(VHDLSignal *pSignal);
-  void removeSignal(VHDLSignal *pSignal);
-
   VHDLSignal *findSignalByName(Glib::ustring name);
-
-  /* This method assumes ownership of the instance */
-  void addInstance(VHDLInstance *pInstance);
 
   VHDLInstance *findInstanceByName(Glib::ustring name);
 

@@ -34,8 +34,6 @@ class GuiInstance: public GuiBlock
 private:
   typedef union {
     struct {
-      int         actionId;
-
       bool        layoutEventReceived;
       bool        vhdlEventReceived;
 
@@ -54,7 +52,6 @@ private:
   sigc::connection        m_onLayoutPortAddedConnection;
   sigc::connection        m_onLayoutPortRemovedConnection;
   sigc::connection        m_onVHDLPortAddedConnection;
-  sigc::connection        m_onVHDLPortRemovedConnection;
 public:
   GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance);
   virtual ~GuiInstance();
@@ -64,10 +61,8 @@ private:
   virtual bool onBodyDragged(Clutter::Event *pEvent);
 
   void handlePortAdded();
-  void handlePortRemoved();
 
-  void onLayoutPortAdded(int actionId, Edge edge, int position, LayoutPort *pLayoutPort);
-  void onLayoutPortRemoved(int actionId, Edge edge, int position, LayoutPort *pLayoutPort);
-  void onVHDLPortAdded(int actionId, VHDLPort *pVHDLPort);
-  void onVHDLPortRemoved(int actionId, VHDLPort *pVHDLPort);
+  void onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
+  void onLayoutPortRemoved(Edge edge, int position, LayoutPort *pLayoutPort);
+  void onVHDLPortAdded(VHDLPort *pVHDLPort);
 };

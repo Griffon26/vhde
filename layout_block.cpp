@@ -302,16 +302,16 @@ LayoutBlock::LayoutBlock():
 {
 }
 
-void LayoutBlock::addPort(int actionId, Edge edge, int position, LayoutPort *pPort)
+void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
 {
   printf("LayoutBlock(%p)::addPort(%s %d) -> layoutPort = %p\n", this, EDGE_TO_NAME(edge), position, pPort);
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
   m_ports[edge][position] = pPort;
 
-  port_added.emit(actionId, edge, position, pPort);
+  port_added.emit(edge, position, pPort);
 }
 
-void LayoutBlock::removePort(int actionId, LayoutPort *pPort)
+void LayoutBlock::removePort(LayoutPort *pPort)
 {
   int edge;
   bool found = false;
@@ -327,7 +327,7 @@ void LayoutBlock::removePort(int actionId, LayoutPort *pPort)
       {
         fprintf(stderr, "found at edge %s pos %d (map = %p, it = (%d,%p))\n", EDGE_TO_NAME(edge), it->first, &m_ports[edge], it->first, it->second);
         m_ports[edge].erase(it);
-        port_removed.emit(actionId, (Edge)edge, it->first, pPort);
+        port_removed.emit((Edge)edge, it->first, pPort);
         found = true;
       }
     }
