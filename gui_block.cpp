@@ -54,7 +54,7 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   pPortList = m_pLayoutBlock->getPortList();
   for(it = pPortList->begin(); it != pPortList->end(); it++)
   {
-    printf("GuiBlock    (%p): adding port at edge %s position %d\n", this, EDGE_TO_NAME(it->edge), it->position);
+    printf("GuiBlock    (%p): adding layout port %p at edge %s position %d\n", this, it->pLayoutPort, EDGE_TO_NAME(it->edge), it->position);
     addPort(it->edge, it->position, it->pLayoutPort);
   }
 

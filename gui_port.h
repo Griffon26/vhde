@@ -50,14 +50,15 @@ public:
   GuiPort(Glib::RefPtr<Clutter::Group> pGroup, Edge edge, int position, LayoutBlock *pLayoutBlock, LayoutPort *pLayoutPort);
   virtual ~GuiPort();
 
-  Edge  getEdge()     { return m_edge; }
-  int   getPosition() { return m_position; }
+  Edge        getEdge()     { return m_edge; }
+  int         getPosition() { return m_position; }
+  LayoutPort *getAssociatedLayoutPort() { return m_pLayoutPort; }
 
   void  updatePosition();
 
 private:
   bool onPortButtonPress(Clutter::ButtonEvent* pEvent);
-  void onPortMoved(Edge edge, int position);
+  void onPortMoved(Edge edge, int position, LayoutPort *pPort);
   void onBlockResized(LayoutSize layoutSize);
 
   ClutterPort::Orientation edgeToOrientation(Edge edge);

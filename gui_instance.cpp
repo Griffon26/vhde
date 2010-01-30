@@ -26,16 +26,27 @@
 GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance):
   GuiBlock(pStage, pLayoutInstance)
 {
+  std::list<GuiPort *>::iterator it;
   VHDLComponent *pComponent;
 
   printf("GuiInstance (%p): constructor body\n", this);
 
   m_onLayoutPortAddedConnection = pLayoutInstance->port_added.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortAdded));
-  m_onLayoutPortRemovedConnection = pLayoutInstance->port_removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
 
   pComponent = static_cast<VHDLInstance *>(pLayoutInstance->getAssociatedVHDLInstance())->getComponent();
-
   m_onVHDLPortAddedConnection = pComponent->port_added.connect(sigc::mem_fun(this, &GuiInstance::onVHDLPortAdded));
+
+
+  /* Subscribe to "removed" signal of all layoutports for which there is a guiport.
+   * I would have done this in GuiBlock where the ports are first added, but GuiComponent
+   * is not interested in these signals
+   */
+  for(it = m_portList.begin(); it != m_portList.end(); it++)
+  {
+    g_assert((*it)->getAssociatedLayoutPort());
+    (*it)->getAssociatedLayoutPort()->removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
+  }
+
 
   m_eventData.layoutEventReceived = false;
   m_eventData.vhdlEventReceived = false;
@@ -44,7 +55,7 @@ GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pL
 GuiInstance::~GuiInstance()
 {
   m_onLayoutPortAddedConnection.disconnect();
-  m_onLayoutPortRemovedConnection.disconnect();
+  m_onVHDLPortAddedConnection.disconnect();
 }
 
 bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
@@ -102,6 +113,8 @@ void GuiInstance::handlePortAdded()
 void GuiInstance::onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
 {
   printf("GuiInstance::OnLayoutPortAdded\n");
+
+  pLayoutPort->removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
 
   m_eventData.layoutEventReceived = true;
   m_eventData.edge = edge;

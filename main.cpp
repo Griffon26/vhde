@@ -292,7 +292,7 @@ int main(int argc, char** argv)
    *       Find the corresponding VHDL instance by name from the store (or arch?)
    *       Find the corresponding LayoutComponent by name (VHDLInstance->getComponent()->getName()) from the store
    */
-  LayoutInstance layoutInstance(&layoutComponent);
+  LayoutInstance layoutInstance;
   layoutInstance.setPosition(LayoutPosition(300,200));
   layoutInstance.setSize(LayoutSize(200, 300));
 
@@ -310,7 +310,8 @@ int main(int argc, char** argv)
 
   layoutInstance.init_done();
 
-  layoutInstance.associateInstance(pVHDLInstance);
+  layoutInstance.associateLayoutComponent(&layoutComponent);
+  layoutInstance.associateVHDLInstance(pVHDLInstance);
 
 
   LayoutSignal layoutSignal;

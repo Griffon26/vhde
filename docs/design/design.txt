@@ -48,9 +48,20 @@ The following design choices were made:
    VHDLInstances that do not have the removed signal/port will not be
    called to handle the "removed" signal at all.
 
+   It also means the VHDLInstance doesn't have to know about VHDLArchitecture.
+
    Storage of multiple connection objects is not a concern as long as objects
    are required to send the "removed" signal from their destructors. Then the
    call to the signal handler is guaranteed to be the last one for that
    object, so there is no need to disconnect.
+
+   A difficulty introduced by having objects like ports send their own
+   "removed" signals is that they should preferably send along their location
+   within their container (edge and position in case of ports). This
+   information is stored in and managed by the container because only it
+   can see all possible positions, see what's free, etc. So I decided to
+   duplicate these values in the object itself and make the container
+   responsible for keeping them consistent.
+
 
 The sequence diagrams illustrate some of these design choices.

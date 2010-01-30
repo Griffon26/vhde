@@ -54,19 +54,19 @@ private:
         int             y;
       };
     };
+
+    sigc::connection onInstanceMovedConnection;
+    sigc::connection onInstanceResizedConnection;
+    sigc::connection onPortMovedConnection;
+    sigc::connection onPortRemovedConnection;
   } EndPoint;
 
   INamedItem               *m_pSignal;
 
   std::list<LayoutPosition> m_corners;
 
-  EndPoint m_beginning;
-  EndPoint m_end;
+  EndPoint m_endPoints[2];
 
-  sigc::connection m_onInstanceMovedConnection;
-  sigc::connection m_onInstanceResizedConnection;
-  sigc::connection m_onPortMovedConnections[2];
-  sigc::connection m_onPortDisconnectedConnections[2];
 
 public:
   sigc::signal<void, EndPointId, const LayoutPosition &>  endpoint_moved;
@@ -83,12 +83,12 @@ public:
 
 private:
   void writeEndPoint(FILE *pFile, const EndPoint &endPoint);
-  void recalcEndPoint(EndPoint *pEndPoint);
+  void recalcEndPoint(EndPointId endPointId);
 
-  void onInstanceMoved(LayoutPosition pos, EndPoint *pEndPoint);
-  void onInstanceResized(LayoutSize size, EndPoint *pEndPoint);
-  void onPortMoved(Edge newEdge, int newPosition, EndPoint *pEndPoint);
-  void onPortDisconnected(EndPoint *pEndPoint);
+  void onInstanceMoved(LayoutPosition pos, EndPointId endPointId);
+  void onInstanceResized(LayoutSize size, EndPointId endPointId);
+  void onPortMoved(Edge newEdge, int newPosition, LayoutPort *pPort, EndPointId endPointId);
+  void onPortRemoved(Edge edge, int position, LayoutPort *pPort, EndPointId endPointId);
 };
 
 #endif /* _LAYOUT_SIGNAL_H */

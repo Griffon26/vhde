@@ -38,8 +38,6 @@
 class GuiBlock
 {
 private:
-  std::list<GuiPort *>   m_portList;
-
   bool  m_dragIsResize;
 
   /* GUI signals */
@@ -50,6 +48,8 @@ private:
   sigc::connection        m_onResizedConnection;
 
 protected:
+  std::list<GuiPort *>   m_portList;
+
   LayoutBlock            *m_pLayoutBlock;
 
   Glib::RefPtr<Clutter::Stage>      m_pStage;

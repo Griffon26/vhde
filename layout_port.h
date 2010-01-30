@@ -29,20 +29,33 @@ class LayoutPort
 private:
   INamedItem *m_pPort;
 
+  /* These two variables mirror the edge and position stored in LayoutBlock and
+   * are used to easily send along edge and position for "moved" and "removed"
+   * signals
+   */
+  Edge        m_edge;
+  int         m_position;
+
 public:
   static const int WIDTH = 20;
   static const int SPACING = 10;
 
   /* Signals */
-  sigc::signal<void, Edge, int> moved;
-  sigc::signal<void> disconnected;
+  sigc::signal<void, Edge, int, LayoutPort *>  moved;
+  sigc::signal<void, Edge, int, LayoutPort *>  removed;
 
   LayoutPort();
+  ~LayoutPort();
 
   void associateVHDLPort(INamedItem *pPort);
   INamedItem *getAssociatedVHDLPort();
 
   Glib::ustring getName();
+
+protected:
+  friend class LayoutBlock;
+
+  void setLocation(Edge edge, int position);
 };
 
 #endif /* _LAYOUT_PORT_H */

@@ -50,7 +50,6 @@ private:
 
   /* Model signals */
   sigc::connection        m_onLayoutPortAddedConnection;
-  sigc::connection        m_onLayoutPortRemovedConnection;
   sigc::connection        m_onVHDLPortAddedConnection;
 public:
   GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance);

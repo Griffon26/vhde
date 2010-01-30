@@ -32,18 +32,18 @@ private:
 
   sigc::connection m_onSignalDisassociatedConnection;
   sigc::connection m_onPortAddedConnection;
-  sigc::connection m_onPortRemovedConnection;
 
 public:
   /* Signals */
   sigc::signal<void, const LayoutPosition &>  moved;
 
-  LayoutInstance(LayoutComponent *pComponent);
+  LayoutInstance();
   ~LayoutInstance();
 
   void setPosition(const LayoutPosition &pos);
 
-  void associateInstance(INamedItem *pVHDLInstance);
+  void associateLayoutComponent(LayoutComponent *pLayoutComponent);
+  void associateVHDLInstance(INamedItem *pVHDLInstance);
   INamedItem *getAssociatedVHDLInstance();
 
   void write(FILE *pFile);
@@ -56,7 +56,7 @@ private:
   void onSignalDisassociated(VHDLSignal *pSignal, VHDLPort *pPort);
 #endif
   void onPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
-  void onPortRemoved(Edge edge, int position, LayoutPort *pLayoutPort);
+  void onPortRemoved(Edge edge, int position, LayoutPort *pComponentLayoutPort, LayoutPort *pOurLayoutPort);
 };
 
 #endif /* _LAYOUT_INSTANCE_H */

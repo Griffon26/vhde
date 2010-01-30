@@ -34,8 +34,8 @@ LayoutSignal::LayoutSignal():
   m_corners.push_back(LayoutPosition(200,200));
   m_corners.push_back(LayoutPosition(200,250));
 
-  m_beginning.connected = false;
-  m_end.connected = false;
+  m_endPoints[BEGINNING].connected = false;
+  m_endPoints[END].connected = false;
 }
 
 void LayoutSignal::associateSignal(INamedItem *pSignal)
@@ -61,9 +61,9 @@ void LayoutSignal::write(FILE *pFile)
 
   fprintf(pFile, "signal \"%s\" {\n", m_pSignal->getName().c_str());
   fprintf(pFile, "  from ");
-  writeEndPoint(pFile, m_beginning);
+  writeEndPoint(pFile, m_endPoints[BEGINNING]);
   fprintf(pFile, "  to   ");
-  writeEndPoint(pFile, m_end);
+  writeEndPoint(pFile, m_endPoints[END]);
   fprintf(pFile, "  corners {\n");
 
   for(it = m_corners.begin(); it != m_corners.end(); it++)
@@ -79,7 +79,7 @@ void LayoutSignal::write(FILE *pFile)
 void LayoutSignal::connect(EndPointId endPointId, LayoutInstance *pLayoutInstance, Edge edge, int position)
 {
   LayoutPort *pLayoutPort;
-  EndPoint &endPoint = (endPointId == BEGINNING) ? m_beginning : m_end;
+  EndPoint &endPoint = m_endPoints[endPointId];
 
   endPoint.isPort = true;
   endPoint.connected = true;
@@ -89,15 +89,15 @@ void LayoutSignal::connect(EndPointId endPointId, LayoutInstance *pLayoutInstanc
 
   pLayoutInstance->calculatePortPosition(edge, position, &endPoint.offset_x, &endPoint.offset_y);
 
-  m_onInstanceMovedConnection = pLayoutInstance->moved.connect(sigc::bind<EndPoint *>(sigc::mem_fun(this, &LayoutSignal::onInstanceMoved), &endPoint));
-  m_onInstanceResizedConnection = pLayoutInstance->resized.connect(sigc::bind<EndPoint *>(sigc::mem_fun(this, &LayoutSignal::onInstanceResized), &endPoint));
+  endPoint.onInstanceMovedConnection = pLayoutInstance->moved.connect(sigc::bind<EndPointId>(sigc::mem_fun(this, &LayoutSignal::onInstanceMoved), endPointId));
+  endPoint.onInstanceResizedConnection = pLayoutInstance->resized.connect(sigc::bind<EndPointId>(sigc::mem_fun(this, &LayoutSignal::onInstanceResized), endPointId));
 
   pLayoutPort = pLayoutInstance->getPort(edge, position);
   g_assert(pLayoutPort != NULL);
-  m_onPortMovedConnections[endPointId] = pLayoutPort->moved.connect(sigc::bind<EndPoint *>(sigc::mem_fun(this, &LayoutSignal::onPortMoved), &endPoint));
-  m_onPortDisconnectedConnections[endPointId] = pLayoutPort->disconnected.connect(sigc::bind<EndPoint *>(sigc::mem_fun(this, &LayoutSignal::onPortDisconnected), &endPoint));
+  endPoint.onPortMovedConnection = pLayoutPort->moved.connect(sigc::bind<EndPointId>(sigc::mem_fun(this, &LayoutSignal::onPortMoved), endPointId));
+  endPoint.onPortRemovedConnection = pLayoutPort->removed.connect(sigc::bind<EndPointId>(sigc::mem_fun(this, &LayoutSignal::onPortRemoved), endPointId));
 
-  recalcEndPoint(&endPoint);
+  recalcEndPoint(endPointId);
 }
 
 const std::list<LayoutPosition> *LayoutSignal::getCorners()
@@ -132,60 +132,70 @@ void LayoutSignal::writeEndPoint(FILE *pFile, const EndPoint &endPoint)
   }
 }
 
-void LayoutSignal::recalcEndPoint(EndPoint *pEndPoint)
+void LayoutSignal::recalcEndPoint(EndPointId endPointId)
 {
   LayoutPosition instancePosition;
   LayoutPosition *pEndPointPosition;
   LayoutPosition previousPosition;
 
   /* Remember the previous end point position */
-  pEndPointPosition = (pEndPoint == &m_beginning) ? &m_corners.front() : &m_corners.back();
+  pEndPointPosition = (endPointId == BEGINNING) ? &m_corners.front() : &m_corners.back();
   previousPosition = *pEndPointPosition;
 
   /* Get the instance position */
-  pEndPoint->pLayoutInstance->getPosition(&instancePosition);
+  m_endPoints[endPointId].pLayoutInstance->getPosition(&instancePosition);
 
   /* Get the offset of the port relative to the instance position */
-  pEndPoint->pLayoutInstance->calculatePortPosition(pEndPoint->edge, pEndPoint->position, &pEndPoint->offset_x, &pEndPoint->offset_y);
+  m_endPoints[endPointId].pLayoutInstance->calculatePortPosition(m_endPoints[endPointId].edge,
+                                                                 m_endPoints[endPointId].position,
+                                                                 &m_endPoints[endPointId].offset_x,
+                                                                 &m_endPoints[endPointId].offset_y);
 
-  pEndPointPosition->x = instancePosition.x + pEndPoint->offset_x;
-  pEndPointPosition->y = instancePosition.y + pEndPoint->offset_y;
+  pEndPointPosition->x = instancePosition.x + m_endPoints[endPointId].offset_x;
+  pEndPointPosition->y = instancePosition.y + m_endPoints[endPointId].offset_y;
 
   /* Emit a signal if the endpoint has moved */
   if(previousPosition != (*pEndPointPosition))
   {
-    endpoint_moved.emit(ENDPOINT_TO_ENDPOINTID(pEndPoint), *pEndPointPosition);
+    endpoint_moved.emit(endPointId, *pEndPointPosition);
   }
 }
 
-void LayoutSignal::onInstanceMoved(LayoutPosition pos, EndPoint *pEndPoint)
+void LayoutSignal::onInstanceMoved(LayoutPosition pos, EndPointId endPointId)
 {
-  LayoutPosition &endPointPosition = (pEndPoint == &m_beginning) ? m_corners.front() : m_corners.back();
+  LayoutPosition &endPointPosition = (endPointId == BEGINNING) ? m_corners.front() : m_corners.back();
 
-  endPointPosition.x = pos.x + pEndPoint->offset_x;
-  endPointPosition.y = pos.y + pEndPoint->offset_y;
+  endPointPosition.x = pos.x + m_endPoints[endPointId].offset_x;
+  endPointPosition.y = pos.y + m_endPoints[endPointId].offset_y;
 
-  endpoint_moved.emit(ENDPOINT_TO_ENDPOINTID(pEndPoint), endPointPosition);
+  endpoint_moved.emit(endPointId, endPointPosition);
 }
 
-void LayoutSignal::onInstanceResized(LayoutSize size, EndPoint *pEndPoint)
+void LayoutSignal::onInstanceResized(LayoutSize size, EndPointId endPointId)
 {
-  recalcEndPoint(pEndPoint);
+  recalcEndPoint(endPointId);
 }
 
-void LayoutSignal::onPortMoved(Edge newEdge, int newPosition, EndPoint *pEndPoint)
+void LayoutSignal::onPortMoved(Edge newEdge, int newPosition, LayoutPort *pPort, EndPointId endPointId)
 {
-  pEndPoint->edge = newEdge;
-  pEndPoint->position = newPosition;
+  m_endPoints[endPointId].edge = newEdge;
+  m_endPoints[endPointId].position = newPosition;
 
-  recalcEndPoint(pEndPoint);
+  recalcEndPoint(endPointId);
 }
 
-void LayoutSignal::onPortDisconnected(EndPoint *pEndPoint)
+void LayoutSignal::onPortRemoved(Edge edge, int position, LayoutPort *pLayoutPort, EndPointId endPointId)
 {
-  printf("LayoutSignal::onPortDisconnected\n");
-  m_onPortDisconnectedConnections[ENDPOINT_TO_ENDPOINTID(pEndPoint)].disconnect();
+  printf("LayoutSignal::onPortRemoved\n");
+  m_endPoints[endPointId].onPortRemovedConnection.disconnect();
 
-  pEndPoint->connected = false;
-  endpoint_disconnected.emit(ENDPOINT_TO_ENDPOINTID(pEndPoint));
+  m_endPoints[endPointId].connected = false;
+  endpoint_disconnected.emit(endPointId);
+
+  m_endPoints[endPointId].onInstanceMovedConnection.disconnect();
+  m_endPoints[endPointId].onInstanceResizedConnection.disconnect();
+
+  /* The following two aren't really necessary now that the port is being destroyed */
+  m_endPoints[endPointId].onPortMovedConnection.disconnect();
+  m_endPoints[endPointId].onPortRemovedConnection.disconnect();
 }

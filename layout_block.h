@@ -46,9 +46,8 @@ protected:
 
 public:
   /* Signals */
-  sigc::signal<void, const LayoutSize &>            resized;
+  sigc::signal<void, const LayoutSize &>       resized;
   sigc::signal<void, Edge, int, LayoutPort *>  port_added;
-  sigc::signal<void, Edge, int, LayoutPort *>  port_removed;
 
   /* This method assumes ownership of the port */
   void init_addPort(Edge edge, int position, LayoutPort *pPort);

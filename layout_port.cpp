@@ -20,9 +20,19 @@
 
 #include "layout_port.h"
 
+/*
+ * Public methods
+ */
+
 LayoutPort::LayoutPort():
   m_pPort(NULL)
 {
+}
+
+LayoutPort::~LayoutPort()
+{
+  printf("LayoutPort::~LayoutPort()\n");
+  removed.emit(m_edge, m_position, this);
 }
 
 void LayoutPort::associateVHDLPort(INamedItem *pPort)
@@ -40,4 +50,18 @@ INamedItem *LayoutPort::getAssociatedVHDLPort()
 Glib::ustring LayoutPort::getName()
 {
   return m_pPort->getName();
+}
+
+/*
+ * Protected methods
+ */
+
+void LayoutPort::setLocation(Edge edge, int position)
+{
+  if( (m_edge != edge) || (m_position != position) )
+  {
+    m_edge = edge;
+    m_position = position;
+    moved.emit(edge, position, this);
+  }
 }

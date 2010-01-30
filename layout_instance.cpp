@@ -23,18 +23,15 @@
 /*
  * Public methods
  */
-LayoutInstance::LayoutInstance(LayoutComponent *pComponent):
-  m_pComponent(pComponent),
+LayoutInstance::LayoutInstance():
+  m_pComponent(NULL),
   m_pVHDLInstance(NULL)
 {
-  m_onPortAddedConnection = m_pComponent->port_added.connect(sigc::mem_fun(this, &LayoutInstance::onPortAdded));
-  m_onPortRemovedConnection = m_pComponent->port_removed.connect(sigc::mem_fun(this, &LayoutInstance::onPortRemoved));
 }
 
 LayoutInstance::~LayoutInstance()
 {
   m_onPortAddedConnection.disconnect();
-  m_onPortRemovedConnection.disconnect();
 }
 
 void LayoutInstance::setPosition(const LayoutPosition &pos)
@@ -43,7 +40,40 @@ void LayoutInstance::setPosition(const LayoutPosition &pos)
   moved.emit(pos);
 }
 
-void LayoutInstance::associateInstance(INamedItem *pVHDLInstance)
+void LayoutInstance::associateLayoutComponent(LayoutComponent *pComponent)
+{
+  const std::list<PortData> *pPortList;
+  std::list<PortData>::const_iterator it;
+
+  g_assert(m_pComponent == NULL);
+  m_pComponent = pComponent;
+
+  pPortList = m_pComponent->getPortList();
+  g_assert(pPortList->size() == (m_ports[EDGE_LEFT].size() +
+                                 m_ports[EDGE_RIGHT].size() +
+                                 m_ports[EDGE_TOP].size() +
+                                 m_ports[EDGE_BOTTOM].size()));
+
+  for(it = pPortList->begin(); it != pPortList->end(); it++)
+  {
+    Edge edge;
+    int position;
+    LayoutPort *pOurPort = findPortByName(it->pLayoutPort->getName(), &edge, &position);
+
+    /* Surely there's a matching port in this instance */
+    g_assert(pOurPort != NULL);
+
+    /* No need to remember the connection for "removed" signals, because the
+     * only reason we would no longer want to receive them is when the
+     * corresponding port is destroyed (so it won't emit any further signals).
+     */
+    it->pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurPort));
+  }
+
+  m_onPortAddedConnection = m_pComponent->port_added.connect(sigc::mem_fun(this, &LayoutInstance::onPortAdded));
+}
+
+void LayoutInstance::associateVHDLInstance(INamedItem *pVHDLInstance)
 {
   g_assert(!m_init);
   g_assert(m_pVHDLInstance == NULL);
@@ -138,7 +168,11 @@ void LayoutInstance::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPor
   int freePosition;
 
   printf("LayoutInstance::onPortAdded\n");
-  LayoutPort *pNewLayoutPort = new LayoutPort();
+
+  LayoutPort *pOurLayoutPort = new LayoutPort();
+
+  pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurLayoutPort));
+
   if(!findFreeSlot(edge, position, &freeEdge, &freePosition))
   {
     /* Resize the instance in vertical direction to make room for at least one more set of ports */
@@ -151,18 +185,13 @@ void LayoutInstance::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPor
 
   if(findFreeSlot(edge, position, &freeEdge, &freePosition))
   {
-    addPort(freeEdge, freePosition, pNewLayoutPort);
+    addPort(freeEdge, freePosition, pOurLayoutPort);
   }
 }
 
-void LayoutInstance::onPortRemoved(Edge edge, int position, LayoutPort *pLayoutPort)
+void LayoutInstance::onPortRemoved(Edge edge, int position, LayoutPort *pComponentLayoutPort, LayoutPort *pOurLayoutPort)
 {
-  /* Replace the input data about the port of the component with data about our port */
-  pLayoutPort = findPortByName(pLayoutPort->getName(), &edge, &position);
-
-  printf("found port %p at edge %s pos %d\n", pLayoutPort, EDGE_TO_NAME(edge), position);
-  printf("LayoutInstance(%p)::onPortRemoved(%p)\n", this, pLayoutPort);
-  g_assert(pLayoutPort != NULL);
-  removePort(pLayoutPort);
-  delete pLayoutPort;
+  printf("LayoutInstance(%p)::onPortRemoved(%p)\n", this, pOurLayoutPort);
+  removePort(pOurLayoutPort);
+  delete pOurLayoutPort;
 }

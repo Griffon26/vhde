@@ -29,7 +29,8 @@ GuiPort::GuiPort(Glib::RefPtr<Clutter::Group> pGroup, Edge edge, int position, L
   m_pGroup(pGroup),
   m_edge(edge),
   m_position(position),
-  m_pLayoutBlock(pLayoutBlock)
+  m_pLayoutBlock(pLayoutBlock),
+  m_pLayoutPort(pLayoutPort)
 {
   m_pActor = ClutterPort::create(PORT_COLOR);
   m_pActor->setDirection(static_cast<VHDLPort *>(pLayoutPort->getAssociatedVHDLPort())->getDirection());
@@ -76,7 +77,7 @@ bool GuiPort::onPortButtonPress(Clutter::ButtonEvent* pEvent)
   return HANDLED;
 }
 
-void GuiPort::onPortMoved(Edge edge, int position)
+void GuiPort::onPortMoved(Edge edge, int position, LayoutPort *pPort)
 {
   m_edge = edge;
   m_position = position;
