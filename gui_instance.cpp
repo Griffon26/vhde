@@ -61,6 +61,9 @@ GuiInstance::~GuiInstance()
 bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 {
   bool ret;
+  unsigned int modifiers = pEvent->modifier_state & ALL_MODIFIERS_MASK;
+
+  printf("GuiInstance::onBodyButtonPress\n");
 
   ret = GuiBlock::onBodyButtonPress(pEvent);
   g_assert(ret == HANDLED);
@@ -68,8 +71,8 @@ bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
   /* Determine if this button press is the start of a move operation */
   //printf("instance onBodyButtonPress button = %d modstate = %d\n", pEvent->button, pEvent->modifier_state);
   m_dragIsMove = (pEvent->button == 1) &&
-                 ( (pEvent->modifier_state == CLUTTER_CONTROL_MASK) ||
-                   (pEvent->modifier_state == 0) );
+                 ( (modifiers == CLUTTER_CONTROL_MASK) ||
+                   (modifiers == 0) );
 
   return HANDLED;
 }
@@ -77,6 +80,8 @@ bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 bool GuiInstance::onBodyDragged(Clutter::Event *pEvent)
 {
   float handleX, handleY;
+
+  //printf("GuiInstance::onBodyDragged\n");
 
   if((pEvent->type == CLUTTER_MOTION) && m_dragIsMove)
   {

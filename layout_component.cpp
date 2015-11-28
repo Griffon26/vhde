@@ -18,6 +18,8 @@
  *
  */
 
+#include <stdio.h>
+
 #include "layout_component.h"
 #include "layout_port.h"
 

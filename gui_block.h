@@ -42,6 +42,7 @@ private:
 
   /* GUI signals */
   sigc::connection        m_onBodyButtonPressConnection;
+  sigc::connection        m_onTextButtonPressConnection;
   sigc::connection        m_onDragConnection;
 
   /* Model signals */
@@ -81,6 +82,8 @@ private:
 
   bool onPortDragged(Clutter::Event *pEvent, GuiPort *pGuiPort);
   bool onPortButtonPress(Clutter::ButtonEvent *pEvent, GuiPort *pGuiPort);
+  bool onTextButtonPress(Clutter::ButtonEvent* pEvent);
+  bool onTextDragged(Clutter::Event *pEvent);
 
   void onResized(LayoutSize layoutSize);
 

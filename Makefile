@@ -1,15 +1,15 @@
 .PHONY: clean
 
-CPPFLAGS=-g -O0 -Wall \
+CXXFLAGS=-g -O0 -Wall \
 	 `pkg-config cluttermm-1.0 --cflags` \
 	 `pkg-config libglademm-2.4 --cflags`
 LDFLAGS=`pkg-config cluttermm-1.0 --libs` \
 	`pkg-config libglademm-2.4 --libs`
 
-%.d: %.cpp
-	$(SHELL) -ec '$(CC) -M $(CPPFLAGS) $< | sed "s/$*.o/& $@/g" > $@'
+#%.d: %.cpp
+#	$(SHELL) -ec '$(CC) -M $(CPPFLAGS) $< | sed "s/$*.o/& $@/g" > $@'
 
-SOURCES= main.cpp \
+SRCS= main.cpp \
 	 clutter_block.cpp \
 	 clutter_port.cpp \
 	 clutter_scaling_text.cpp \
@@ -34,14 +34,24 @@ SOURCES= main.cpp \
 	 vhdl_signal.cpp \
 	 vhdl_type.cpp
 
-OBJECTS=$(patsubst %.cpp,%.o,$(filter %.cpp,$(SOURCES)))
-DEPS=$(SOURCES:.cpp=.d)
+#OBJECTS=$(patsubst %.cpp,%.o,$(filter %.cpp,$(SOURCES)))
+#DEPS=$(SOURCES:.cpp=.d)
+DEPDIR = .deps
 
-main: $(OBJECTS)
+main: $(SRCS:%.cpp=%.o)
 
 clean:
-	rm -f main $(OBJECTS) $(DEPS)
+	rm -f main $(SRCS:%.cpp=%.o)
 
-include $(DEPS)
+df = $(DEPDIR)/$(*F)
 
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c -Wp,-MD,$(df).d -o $@ $<
+	@cp $(df).d $(df).P; \
+		sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+				-e '/^$$/ d' -e 's/$$/ :/' < $(df).d >> $(df).P; \
+		rm -f $(df).d
+
+#include $(DEPS)
+-include $(SRCS:%.cpp=$(DEPDIR)/%.P)
 

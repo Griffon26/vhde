@@ -18,6 +18,8 @@
  *
  */
 
+#include <stdio.h>
+
 #include "layout_signal.h"
 
 #define ENDPOINT_TO_ENDPOINTID(pEndpoint) ((pEndPoint == &m_beginning) ? BEGINNING : END)

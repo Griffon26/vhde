@@ -69,12 +69,14 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
                                        "  pos  = 0..9");
   m_pText->set_position(10, 10);
   m_pText->set_line_alignment(Pango::ALIGN_LEFT);
+  m_pText->set_reactive();
   m_pGroup->add_actor(m_pText);
 
   m_pGroup->show_all();
 
   /* Connect GUI signal handlers */
-  m_onBodyButtonPressConnection = m_pBody->signal_button_press_event().connect(sigc::mem_fun(*this, &GuiBlock::onBodyButtonPress));
+  m_onBodyButtonPressConnection = m_pBody->signal_button_press_event().connect(sigc::mem_fun(this, &GuiBlock::onBodyButtonPress));
+  m_onTextButtonPressConnection = m_pText->signal_button_press_event().connect(sigc::mem_fun(*this, &GuiBlock::onTextButtonPress));
 
   /* Connect model signal handlers */
   m_onResizedConnection = pLayoutBlock->resized.connect(sigc::mem_fun(this, &GuiBlock::onResized));
@@ -90,6 +92,7 @@ GuiBlock::~GuiBlock()
   m_portList.clear();
 
   m_onBodyButtonPressConnection.disconnect();
+  m_onTextButtonPressConnection.disconnect();
 
   m_onResizedConnection.disconnect();
 }
@@ -225,6 +228,41 @@ bool GuiBlock::onPortDragged(Clutter::Event *pEvent, GuiPort *pGuiPort)
   }
 }
 
+bool GuiBlock::onTextButtonPress(Clutter::ButtonEvent* pEvent)
+{
+  printf("GuiBlock::onTextButtonPress\n");
+  return onBodyButtonPress(pEvent);
+  return UNHANDLED;
+  /* Register for motion and button release events from the stage */
+  m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiBlock::onTextDragged));
+  return HANDLED;
+}
+
+bool GuiBlock::onTextDragged(Clutter::Event *pEvent)
+{
+#if 0
+  float handleX, handleY;
+
+  if(pEvent->type == CLUTTER_MOTION)
+  {
+    LayoutPosition pos;
+
+    m_pStage->transform_stage_point(pEvent->motion.x, pEvent->motion.y, handleX, handleY);
+
+    pos.x = handleX - m_bodyHandleOffsetX;
+    pos.y = handleY - m_bodyHandleOffsetY;
+
+    m_pGroup->set_position(pos.x, pos.y);
+    static_cast<LayoutInstance *>(m_pLayoutBlock)->setPosition(pos);
+    return HANDLED;
+  }
+  else
+#endif
+  {
+    return UNHANDLED;
+  }
+}
+
 void GuiBlock::onResized(LayoutSize layoutSize)
 {
   std::list<GuiPort *>::iterator it;
@@ -276,6 +314,8 @@ void GuiBlock::removePort(Edge edge, int position)
 
 bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 {
+  printf("GuiBlock::onBodyButtonPress\n");
+
   /* Remember the point within the object where it was picked up */
   float actorX, actorY;
   m_pGroup->get_position(actorX, actorY);

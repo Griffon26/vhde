@@ -30,4 +30,6 @@
 #define UNHANDLED false
 #define HANDLED   true
 
+#define ALL_MODIFIERS_MASK  (CLUTTER_SHIFT_MASK | CLUTTER_CONTROL_MASK)
+
 #endif /* _GUI_COMMON_H */

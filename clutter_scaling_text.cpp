@@ -54,7 +54,7 @@ void ClutterScalingText::on_paint()
                                                     alloc.get_x2(), alloc.get_y2());
   printf("actor allocation box is %f x %f\n", alloc.get_x2() - alloc.get_x1(),
                                               alloc.get_y2() - alloc.get_y1());
-  */
+                                              */
 
   double sx, sy;
   get_stage()->get_scale(sx, sy);
@@ -83,4 +83,10 @@ void ClutterScalingText::on_paint()
   set_font_name(fontName);
 
   Clutter::Text::on_paint();
+}
+
+void ClutterScalingText::pick_vfunc(const Clutter::Color &color)
+{
+  set_font_name("monospace 12px");
+  Clutter::Text::pick_vfunc(color);
 }
