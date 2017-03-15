@@ -6,7 +6,7 @@ addons:
     packages:
        - libcogl-dev
        - libclutter-1.0-dev
-       - mm-common
+       #- mm-common
        #- cluttermm
        - libglademm-2.4-dev
 
@@ -15,6 +15,7 @@ compiler:
   - clang
 
 before_script:
+  - ./install-mm-common.sh
   - ./install-cluttermm.sh
 
 script:
