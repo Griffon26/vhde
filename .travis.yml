@@ -1,0 +1,18 @@
+language: cpp
+sudo: false
+
+addons:
+  apt:
+    packages:
+       - cogl
+       - clutter
+       - mm-common
+       - cluttermm
+       - libglademm
+
+compiler:
+  - gcc
+  - clang
+
+script:
+  - make
