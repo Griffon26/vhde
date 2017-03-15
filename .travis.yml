@@ -16,13 +16,7 @@ compiler:
   - clang
 
 before_script:
-  - wget https://github.com/GNOME/cluttermm/archive/master.zip -O /tmp/cluttermm.zip
-  - unzip /tmp/cluttermm.zip
-  - pushd cluttermm-master
-  - ./autogen.sh
-  - ./configure --disable-documentation
-  - make
-  - popd
+  - ./install-cluttermm.sh
 
 script:
   - make
