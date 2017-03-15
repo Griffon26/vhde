@@ -15,6 +15,7 @@ compiler:
   - clang
 
 before_script:
+  - export PATH=$PATH:$HOME/external
   - ./install-mm-common.sh
   - ./install-cluttermm.sh
 
