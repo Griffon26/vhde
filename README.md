@@ -1,5 +1,7 @@
 # VHDE - a VHDL Diagram Editor that doesn't suck
 
+[![Build Status](https://travis-ci.org/spoorcc/vhde.svg?branch=master)](https://travis-ci.org/spoorcc/vhde)
+
 ## Introduction
 
 With the VHDL Diagram Editor you can create hierarchical VHDL where 
