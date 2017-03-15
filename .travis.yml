@@ -9,7 +9,7 @@ addons:
        - libclutter-1.0-dev
        - mm-common
        #- cluttermm
-       #- libglademm
+       - libglademm-2.4-dev
 
 compiler:
   - gcc
