@@ -4,11 +4,11 @@ sudo: false
 addons:
   apt:
     packages:
-       - cogl
-       - clutter
+       - libcogl-dev
+       - libclutter-1.0-dev
        - mm-common
-       - cluttermm
-       - libglademm
+       #- cluttermm
+       #- libglademm
 
 compiler:
   - gcc
