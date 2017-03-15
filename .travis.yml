@@ -16,7 +16,7 @@ compiler:
   - clang
 
 before_script:
-  - ./install-cluttermm.sh
+  - echo "Broken so skip" # ./install-cluttermm.sh
 
 script:
   - make
