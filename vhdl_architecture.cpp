@@ -108,12 +108,12 @@ bool VHDLArchitecture::write(FILE *pFile, int indent)
 
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
-    (*iit)->getComponent()->write(pFile, indent);
+    (*iit)->getComponent()->write(pFile, indent + 2);
   }
 
   for(sit = m_signals.begin(); sit != m_signals.end(); sit++)
   {
-    (*sit)->write(pFile, indent);
+    (*sit)->write(pFile, indent + 2);
   }
   fprintf(pFile, "\n");
 
