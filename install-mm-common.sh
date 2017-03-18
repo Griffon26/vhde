@@ -1,9 +1,23 @@
 #!/bin/sh
 set -ex
-wget https://github.com/GNOME/mm-common/archive/master.zip -O /tmp/mmcommon.zip
-unzip /tmp/mmcommon.zip
-mkdir -p $HOME/external
-cd mm-common-master && \
-./autogen.sh && \
-./configure --prefix=$HOME/external --enable-network --disable-documentation && \
-make && make install
+
+TMPZIP="/tmp/mmcommon.zip"
+SRCDIR="mm-common-master"
+INSTALLDIR="${HOME}/local-cluttermm"
+
+if [ ! -d "${SRCDIR}" ]; then
+  wget https://github.com/GNOME/mm-common/archive/master.zip -O "${TMPZIP}"
+  unzip "${TMPZIP}"
+  rm -f "${TMPZIP}"
+fi
+
+mkdir -p "${INSTALLDIR}"
+
+pushd "${SRCDIR}" > /dev/null
+
+./autogen.sh --prefix="${INSTALLDIR}" --enable-network --disable-documentation
+make
+make install
+
+popd > /dev/null
+
