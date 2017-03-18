@@ -41,6 +41,8 @@
 #define COMPONENT_INITIAL_X  100
 #define COMPONENT_INITIAL_Y  100
 
+#define WINDOW_WIDTH (100)
+#define WINDOW_HEIGHT (70)
 
 #define FACTOR  1.2
 
@@ -202,7 +204,8 @@ int main(int argc, char** argv)
 
   /* Get the stage and set its size and color */
   const Glib::RefPtr<Clutter::Stage> stage = Clutter::Stage::get_default();
-  stage->set_size(1100, 700);
+  stage->set_size(WINDOW_WIDTH, WINDOW_HEIGHT);
+  stage->set_user_resizable(TRUE);
   stage->set_color(STAGE_COLOR);
 
 
