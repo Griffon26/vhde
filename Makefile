@@ -4,7 +4,8 @@ CXXFLAGS=-g -O0 -Wall -std=c++11 \
 	 `pkg-config cluttermm-1.0 --cflags` \
 	 `pkg-config libglademm-2.4 --cflags`
 LDFLAGS=`pkg-config cluttermm-1.0 --libs` \
-	`pkg-config libglademm-2.4 --libs`
+	`pkg-config libglademm-2.4 --libs` \
+  -lstdc++
 
 #%.d: %.cpp
 #	$(SHELL) -ec '$(CC) -M $(CPPFLAGS) $< | sed "s/$*.o/& $@/g" > $@'
