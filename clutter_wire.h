@@ -44,7 +44,7 @@ private:
 
   void drawLine(const Clutter::Color &color);
 
-  void on_paint();
+  void paint_vfunc() override;
   void pick_vfunc(const Clutter::Color &color);
 };
 

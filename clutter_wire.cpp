@@ -65,7 +65,7 @@ void ClutterWire::drawLine(const Clutter::Color &color)
   cogl_path_stroke();
 }
 
-void ClutterWire::on_paint()
+void ClutterWire::paint_vfunc()
 {
   drawLine(m_color);
 }

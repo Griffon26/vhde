@@ -55,7 +55,7 @@ void ClutterBlock::drawBox(const Clutter::Color &color, bool hasBorder)
   }
 }
 
-void ClutterBlock::on_paint()
+void ClutterBlock::paint_vfunc()
 {
   drawBox(m_color, true);
 }

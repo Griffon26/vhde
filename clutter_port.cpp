@@ -89,7 +89,7 @@ void ClutterPort::drawTriangle(const Clutter::Color &color, bool hasBorder)
   }
 }
 
-void ClutterPort::on_paint()
+void ClutterPort::paint_vfunc()
 {
   drawTriangle(m_color, true);
 }
