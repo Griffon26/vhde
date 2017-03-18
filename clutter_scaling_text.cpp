@@ -38,9 +38,6 @@ ClutterScalingText::ClutterScalingText(const Glib::ustring& font_name, const Gli
 {
 }
 
-extern int mysize;
-
-#ifdef BROKEN
 void ClutterScalingText::paint_vfunc()
 {
   double fontSizeSmall = 12, fontSizeMed = 27, fontSizeLarge = 39;
@@ -83,9 +80,10 @@ void ClutterScalingText::paint_vfunc()
   //printf("Setting font to %s (%f would have been ideal)\n", fontName, sx * fontSizeSmall);
   set_font_name(fontName);
 
-  Clutter::Text::on_paint();
+  Clutter::Text::paint_vfunc();
 }
 
+#ifdef BROKEN
 void ClutterScalingText::pick_vfunc(const Clutter::Color &color)
 {
   set_font_name("monospace 12px");
