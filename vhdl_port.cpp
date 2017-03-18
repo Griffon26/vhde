@@ -44,9 +44,9 @@ void VHDLPort::setType(VHDLType type)
 
 bool VHDLPort::write(FILE *pFile, int indent)
 {
-  fprintf(pFile, "%*s%s: %s %s;\n", indent, "", m_name.c_str(),
-                                    (m_direction == DIR_IN) ? "in" :
-                                    (m_direction == DIR_OUT) ? "out" :
-                                                               "inout", "sometype");
+  fprintf(pFile, "%*s%s: %s %s", indent, "", m_name.c_str(),
+                                 (m_direction == DIR_IN) ? "in" :
+                                 (m_direction == DIR_OUT) ? "out" :
+                                                            "inout", "sometype");
   return true;
 }

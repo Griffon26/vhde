@@ -57,9 +57,13 @@ bool VHDLComponent::write(FILE *pFile, int indent)
   fprintf(pFile, "%*sport (\n", indent + 2, "");
   for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
   {
+    if(pit != m_ports.begin())
+    {
+      fprintf(pFile, ";\n");
+    }
     (*pit)->write(pFile, indent + 4);
   }
-  fprintf(pFile, "%*s)\n", indent + 2, "");
+  fprintf(pFile, "\n%*s);\n", indent + 2, "");
 
   fprintf(pFile, "%*send component;\n\n", indent, "");
 
