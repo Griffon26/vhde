@@ -49,18 +49,42 @@ static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::S
   {
     if(pEvent->scroll.modifier_state & CLUTTER_CONTROL_MASK)
     {
-      double scale_x, scale_y;
-      if(pEvent->scroll.direction == CLUTTER_SCROLL_UP)
+      int scaleDirection;
+
+      switch(pEvent->scroll.direction)
       {
-        pStage->get_scale(scale_x, scale_y);
-        pStage->set_scale(scale_x * FACTOR, scale_y * FACTOR);
-        return HANDLED;
+      case CLUTTER_SCROLL_UP:
+        scaleDirection = 1;
+        break;
+      case CLUTTER_SCROLL_DOWN:
+        scaleDirection = -1;
+        break;
+      case CLUTTER_SCROLL_SMOOTH:
+        printf("Support for CLUTTER_SCROLL_SMOOTH events has not yet been implemented.\n");
+        scaleDirection = 0;
+        break;
+      default:
+        scaleDirection = 0;
+        break;
       }
-      else if(pEvent->scroll.direction == CLUTTER_SCROLL_DOWN)
+
+      if(scaleDirection != 0)
       {
-        pStage->get_scale(scale_x, scale_y);
-        pStage->set_scale(scale_x / FACTOR, scale_y / FACTOR);
-        return HANDLED;
+        double scale_x, scale_y;
+        printf("scaling\n");
+
+        if(scaleDirection == 1)
+        {
+          pStage->get_scale(scale_x, scale_y);
+          pStage->set_scale(scale_x * FACTOR, scale_y * FACTOR);
+          return HANDLED;
+        }
+        else
+        {
+          pStage->get_scale(scale_x, scale_y);
+          pStage->set_scale(scale_x / FACTOR, scale_y / FACTOR);
+          return HANDLED;
+        }
       }
       else
       {
@@ -93,7 +117,7 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
   static State state = NORMAL;
 
   /* Handle escape */
-  if(pEvent->keyval == CLUTTER_Escape)
+  if(pEvent->keyval == CLUTTER_KEY_Escape)
   {
     printf("Escaped\n");
     state = NORMAL;

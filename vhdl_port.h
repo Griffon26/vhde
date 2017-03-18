@@ -39,7 +39,7 @@ public:
   sigc::signal<void, VHDLPort *> removed;
 
   VHDLPort(Glib::ustring name);
-  ~VHDLPort();
+  virtual ~VHDLPort();
 
   void setDirection(Direction dir);
   void setType(VHDLType type);
