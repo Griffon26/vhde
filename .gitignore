@@ -1,6 +1,7 @@
-01_moving_rectangles_by_dragging
-02_dragging_port_on_component
+/CMakeCache.txt
+/CMakeFiles
+/cmake_install.cmake
+/Makefile
 *.dia~
-main
-*.d
 *.o
+vhde
