@@ -3,7 +3,7 @@ set -ex
 
 TMPZIP="/tmp/mmcommon.zip"
 SRCDIR="mm-common-master"
-INSTALLDIR="${HOME}/local-cluttermm"
+INSTALLDIR="${HOME}/.local"
 
 if [ ! -d "${SRCDIR}" ]; then
   wget https://github.com/GNOME/mm-common/archive/master.zip -O "${TMPZIP}"
