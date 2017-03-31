@@ -4,6 +4,20 @@ set(CMAKE_CXX_EXTENSIONS off)
 
 project (VHDE)
 
+
+set(ANTLR_RUNTIME antlr4-cpp-runtime)
+include(ExternalProject)
+externalproject_add(${ANTLR_RUNTIME}
+    PREFIX                ${ANTLR_RUNTIME}-prefix
+    GIT_REPOSITORY        https://github.com/antlr/antlr4.git
+    GIT_TAG               "4.7"
+    UPDATE_COMMAND        ""
+    PATCH_COMMAND         sed -i "s,FILES LICENSE.txt,FILES ../../LICENSE.txt," runtime/Cpp/CMakeLists.txt
+    SOURCE_SUBDIR         runtime/Cpp
+    CMAKE_ARGS            -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    BUILD_IN_SOURCE       1
+)
+
 find_package(PkgConfig)
 
 pkg_check_modules(CLUTTERMM REQUIRED cluttermm-1.0)
