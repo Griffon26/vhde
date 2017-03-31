@@ -9,7 +9,7 @@ addons:
        - libclutter-1.0-dev
        #- mm-common
        #- cluttermm
-       - libglademm-2.4-dev
+       - libgtkmm-2.4-dev
 
 compiler:
   - gcc
@@ -21,4 +21,5 @@ before_script:
   - ./install-cluttermm.sh
 
 script:
+  - cmake .
   - make
