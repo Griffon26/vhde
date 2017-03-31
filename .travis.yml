@@ -1,4 +1,5 @@
 language: cpp
+dist: trusty
 sudo: false
 
 addons:
@@ -15,8 +16,8 @@ compiler:
   - clang
 
 before_script:
-  - export PATH=$PATH:$HOME/external
   - ./install-mm-common.sh
+  - export PATH="${PATH}:${HOME}/.local/bin"
   - ./install-cluttermm.sh
 
 script:
