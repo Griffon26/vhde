@@ -1,6 +1,6 @@
 # VHDE - a VHDL Diagram Editor that doesn't suck
 
-[![Build Status](https://travis-ci.org/spoorcc/vhde.svg?branch=master)](https://travis-ci.org/spoorcc/vhde)
+[![Build Status](https://travis-ci.org/Griffon26/vhde.svg?branch=master)](https://travis-ci.org/Griffon26/vhde)
 
 ## Introduction
 
