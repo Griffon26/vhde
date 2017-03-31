@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -ex
 
 TMPZIP="/tmp/cluttermm.zip"
