@@ -52,6 +52,7 @@ public:
   void init_done() { m_init = false; }
 
   void setEntity(VHDLEntity *pEntity);
+  VHDLEntity *getEntity() { return m_pEntity; }
 
   VHDLComponent *findComponentByName(Glib::ustring name);
 

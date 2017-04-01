@@ -27,9 +27,144 @@
 
 class vhdlConstructor: public vhdlBaseVisitor
 {
-  virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override
-  {
-    return new VHDLArchitecture("myarch");
+public:
+  std::map<std::string, VHDLEntity *> m_entityStore;
+  std::map<std::string, VHDLArchitecture *> m_architectureStore;
+
+private:
+  virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override {
+    for(auto &el: ctx->design_unit())
+    {
+      visit(el);
+    }
+    return nullptr;
+  }
+
+  virtual antlrcpp::Any visitDesign_unit(vhdlParser::Design_unitContext *ctx) override {
+    return visit(ctx->library_unit());
+  }
+
+  virtual antlrcpp::Any visitLibrary_unit(vhdlParser::Library_unitContext *ctx) override {
+    if(ctx->primary_unit())
+    {
+      return visit(ctx->primary_unit());
+    }
+    else
+    {
+      assert(ctx->secondary_unit());
+      return visit(ctx->secondary_unit());
+    }
+  }
+
+  virtual antlrcpp::Any visitPrimary_unit(vhdlParser::Primary_unitContext *ctx) override {
+    if(ctx->entity_declaration())
+    {
+      return visit(ctx->entity_declaration());
+    }
+    else
+    {
+      throw antlr4::RuntimeException("Parsing of primary units other than entity declarations not implemented");
+    }
+  }
+
+  virtual antlrcpp::Any visitSecondary_unit(vhdlParser::Secondary_unitContext *ctx) override {
+    assert(ctx->architecture_body());
+    return visit(ctx->architecture_body());
+  }
+
+  virtual antlrcpp::Any visitEntity_declaration(vhdlParser::Entity_declarationContext *ctx) override {
+    auto name = visit(ctx->identifier(0)).as<std::string>();
+    m_entityStore[name] = new VHDLEntity(name);
+    return nullptr;
+  }
+
+  virtual antlrcpp::Any visitEntity_header(vhdlParser::Entity_headerContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitArchitecture_body(vhdlParser::Architecture_bodyContext *ctx) override {
+    auto archName = visit(ctx->identifier(0)).as<std::string>();
+    auto entityName = visit(ctx->identifier(1)).as<std::string>();
+    auto pArch = new VHDLArchitecture(archName);
+    pArch->setEntity(m_entityStore.at(entityName));
+    m_architectureStore[archName] = pArch;
+    return nullptr;
+  }
+
+  virtual antlrcpp::Any visitArchitecture_declarative_part(vhdlParser::Architecture_declarative_partContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitArchitecture_statement_part(vhdlParser::Architecture_statement_partContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitArchitecture_statement(vhdlParser::Architecture_statementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitComponent_instantiation_statement(vhdlParser::Component_instantiation_statementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitPort_map_aspect(vhdlParser::Port_map_aspectContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitAssociation_list(vhdlParser::Association_listContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitAssociation_element(vhdlParser::Association_elementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFormal_part(vhdlParser::Formal_partContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitActual_part(vhdlParser::Actual_partContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitBlock_declarative_item(vhdlParser::Block_declarative_itemContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitSignal_declaration(vhdlParser::Signal_declarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitComponent_declaration(vhdlParser::Component_declarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitPort_clause(vhdlParser::Port_clauseContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitPort_list(vhdlParser::Port_listContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitInterface_port_declaration(vhdlParser::Interface_port_declarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitSignal_mode(vhdlParser::Signal_modeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIdentifier_list(vhdlParser::Identifier_listContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIdentifier(vhdlParser::IdentifierContext *ctx) override {
+    return ctx->getText();
+  }
+
+  virtual antlrcpp::Any visitName(vhdlParser::NameContext *ctx) override {
+    return ctx->getText();
   }
 };
 
@@ -49,14 +184,16 @@ void parseVHDL(std::istream &stream)
     std::cout << "visitor output is null" << std::endl;
   }
 
-  auto pArch = result.as<VHDLArchitecture *>();
+  for (auto& kv: visitor.m_entityStore)
+  {
+    std::cout << "Entity " << kv.first << " is at " << kv.second << std::endl;
+  }
 
-  std::cout << "visitor output: [" << pArch << "]" << std::endl;
-
-  std::cout << "name of arch is: [" << pArch->getName() << "]" << std::endl;
+  for (auto& kv: visitor.m_architectureStore)
+  {
+    std::cout << "Architecture " << kv.first << " of entity " << kv.second->getEntity()->getName() << " is at " << kv.second << std::endl;
+  }
 
   std::cout << tree->toStringTree(&parser) << std::endl;
-
-  delete pArch;
 }
 
