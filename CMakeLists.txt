@@ -30,6 +30,7 @@ include_directories(${CLUTTERMM_INCLUDE_DIRS}
                     src/common
                     src/gui
                     src/layout
+                    src/parser
                     src/parser/generated
                     src/vhdl)
 link_directories(${CLUTTERMM_LIBRARY_DIRS}

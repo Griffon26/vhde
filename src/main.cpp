@@ -21,6 +21,7 @@
 #include <assert.h>
 
 #include <cluttermm.h>
+#include <fstream>
 #include <iostream>
 
 #include "gui_component.h"
@@ -28,6 +29,7 @@
 #include "gui_signal.h"
 #include "layout_instance.h"
 #include "layout_signal.h"
+#include "parser.h"
 #include "vhdl_architecture.h"
 #include "vhdl_port.h"
 
@@ -143,6 +145,11 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
     {
       state = WAITING_FOR_EDGE;
       printf("Enter edge of port to delete (L, R, T, B)\n");
+    }
+    if(pEvent->keyval == 'q')
+    {
+      printf("Exiting...\n");
+      Clutter::main_quit();
     }
     break;
   case WAITING_FOR_EDGE:
@@ -367,6 +374,11 @@ int main(int argc, char** argv)
   pFile = fopen("externalentity.vhd", "w+b");
   externalEntity.write(pFile, 0);
   fclose(pFile);
+
+  std::ifstream myFile;
+  myFile.open("dinges.vhd");
+  parseVHDL(myFile);
+  myFile.close();
 
   return 0;
 }
