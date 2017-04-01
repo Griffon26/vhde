@@ -7,7 +7,7 @@ project (VHDE)
 find_package(PkgConfig)
 
 pkg_check_modules(CLUTTERMM REQUIRED cluttermm-1.0)
-pkg_check_modules(GTKMM REQUIRED gtkmm-2.4)
+pkg_search_module(GTKMM REQUIRED gtkmm-3.0 gtkmm-2.4)
 
 include_directories(${CLUTTERMM_INCLUDE_DIRS}
                     ${GTKMM_INCLUDE_DIRS}
