@@ -21,7 +21,7 @@ public:
     GUARDED = 35, IF = 36, IMPURE = 37, IN = 38, INERTIAL = 39, INOUT = 40, 
     IS = 41, LABEL = 42, LIBRARY = 43, LIMIT = 44, LINKAGE = 45, LITERAL = 46, 
     LOOP = 47, MAP = 48, MOD = 49, NAND = 50, NATURE = 51, NEW = 52, NEXT = 53, 
-    NOISE = 54, NOR = 55, NOT = 56, NULL = 57, OF = 58, ON = 59, OPEN = 60, 
+    NOISE = 54, NOR = 55, NOT = 56, NULL_ = 57, OF = 58, ON = 59, OPEN = 60, 
     OR = 61, OTHERS = 62, OUT = 63, PACKAGE = 64, PORT = 65, POSTPONED = 66, 
     PROCESS = 67, PROCEDURE = 68, PROCEDURAL = 69, PURE = 70, QUANTITY = 71, 
     RANGE = 72, REVERSE_RANGE = 73, REJECT = 74, REM = 75, RECORD = 76, 
@@ -2596,7 +2596,7 @@ public:
   public:
     LiteralContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *NULL();
+    antlr4::tree::TerminalNode *NULL_();
     antlr4::tree::TerminalNode *BIT_STRING_LITERAL();
     antlr4::tree::TerminalNode *STRING_LITERAL();
     Enumeration_literalContext *enumeration_literal();
@@ -3645,7 +3645,7 @@ public:
     Next_statementContext *next_statement();
     Exit_statementContext *exit_statement();
     Return_statementContext *return_statement();
-    antlr4::tree::TerminalNode *NULL();
+    antlr4::tree::TerminalNode *NULL_();
     antlr4::tree::TerminalNode *SEMI();
     Label_colonContext *label_colon();
     Break_statementContext *break_statement();
@@ -3896,7 +3896,7 @@ public:
     Simultaneous_if_statementContext *simultaneous_if_statement();
     Simultaneous_case_statementContext *simultaneous_case_statement();
     Simultaneous_procedural_statementContext *simultaneous_procedural_statement();
-    antlr4::tree::TerminalNode *NULL();
+    antlr4::tree::TerminalNode *NULL_();
     antlr4::tree::TerminalNode *SEMI();
     Label_colonContext *label_colon();
 

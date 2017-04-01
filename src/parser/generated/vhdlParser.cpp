@@ -265,7 +265,7 @@ vhdlParser::Actual_designatorContext* vhdlParser::actual_designator() {
       case vhdlParser::ABS:
       case vhdlParser::NEW:
       case vhdlParser::NOT:
-      case vhdlParser::NULL:
+      case vhdlParser::NULL_:
       case vhdlParser::BASE_LITERAL:
       case vhdlParser::BIT_STRING_LITERAL:
       case vhdlParser::REAL_LITERAL:
@@ -1316,7 +1316,7 @@ vhdlParser::Architecture_statement_partContext* vhdlParser::architecture_stateme
       | (1ULL << vhdlParser::IF)
       | (1ULL << vhdlParser::NEW)
       | (1ULL << vhdlParser::NOT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 66) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 66) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 66)) & ((1ULL << (vhdlParser::POSTPONED - 66))
       | (1ULL << (vhdlParser::PROCESS - 66))
       | (1ULL << (vhdlParser::PROCEDURAL - 66))
@@ -3000,7 +3000,7 @@ vhdlParser::Block_statement_partContext* vhdlParser::block_statement_part() {
       | (1ULL << vhdlParser::IF)
       | (1ULL << vhdlParser::NEW)
       | (1ULL << vhdlParser::NOT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 66) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 66) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 66)) & ((1ULL << (vhdlParser::POSTPONED - 66))
       | (1ULL << (vhdlParser::PROCESS - 66))
       | (1ULL << (vhdlParser::PROCEDURAL - 66))
@@ -7997,7 +7997,7 @@ vhdlParser::FactorContext* vhdlParser::factor() {
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case vhdlParser::NEW:
-      case vhdlParser::NULL:
+      case vhdlParser::NULL_:
       case vhdlParser::BASE_LITERAL:
       case vhdlParser::BIT_STRING_LITERAL:
       case vhdlParser::REAL_LITERAL:
@@ -8676,7 +8676,7 @@ vhdlParser::Generate_statementContext* vhdlParser::generate_statement() {
       | (1ULL << vhdlParser::IF)
       | (1ULL << vhdlParser::NEW)
       | (1ULL << vhdlParser::NOT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 66) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 66) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 66)) & ((1ULL << (vhdlParser::POSTPONED - 66))
       | (1ULL << (vhdlParser::PROCESS - 66))
       | (1ULL << (vhdlParser::PROCEDURAL - 66))
@@ -11296,8 +11296,8 @@ vhdlParser::LiteralContext::LiteralContext(ParserRuleContext *parent, size_t inv
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* vhdlParser::LiteralContext::NULL() {
-  return getToken(vhdlParser::NULL, 0);
+tree::TerminalNode* vhdlParser::LiteralContext::NULL_() {
+  return getToken(vhdlParser::NULL_, 0);
 }
 
 tree::TerminalNode* vhdlParser::LiteralContext::BIT_STRING_LITERAL() {
@@ -11339,10 +11339,10 @@ vhdlParser::LiteralContext* vhdlParser::literal() {
     setState(1621);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
-      case vhdlParser::NULL: {
+      case vhdlParser::NULL_: {
         enterOuterAlt(_localctx, 1);
         setState(1616);
-        match(vhdlParser::NULL);
+        match(vhdlParser::NULL_);
         break;
       }
 
@@ -12144,7 +12144,7 @@ vhdlParser::Name_function_call_or_indexed_partContext* vhdlParser::name_function
       ((1ULL << _la) & ((1ULL << vhdlParser::ABS)
       | (1ULL << vhdlParser::NEW)
       | (1ULL << vhdlParser::NOT)
-      | (1ULL << vhdlParser::NULL)
+      | (1ULL << vhdlParser::NULL_)
       | (1ULL << vhdlParser::OPEN))) != 0) || ((((_la - 112) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 112)) & ((1ULL << (vhdlParser::BASE_LITERAL - 112))
       | (1ULL << (vhdlParser::BIT_STRING_LITERAL - 112))
@@ -14494,7 +14494,7 @@ vhdlParser::Procedural_statement_partContext* vhdlParser::procedural_statement_p
       | (1ULL << vhdlParser::IF)
       | (1ULL << vhdlParser::LOOP)
       | (1ULL << vhdlParser::NEXT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 79) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 79) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 79)) & ((1ULL << (vhdlParser::REPORT - 79))
       | (1ULL << (vhdlParser::RETURN - 79))
       | (1ULL << (vhdlParser::WAIT - 79))
@@ -15125,7 +15125,7 @@ vhdlParser::Process_statement_partContext* vhdlParser::process_statement_part() 
       | (1ULL << vhdlParser::IF)
       | (1ULL << vhdlParser::LOOP)
       | (1ULL << vhdlParser::NEXT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 79) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 79) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 79)) & ((1ULL << (vhdlParser::REPORT - 79))
       | (1ULL << (vhdlParser::RETURN - 79))
       | (1ULL << (vhdlParser::WAIT - 79))
@@ -16115,7 +16115,7 @@ vhdlParser::Return_statementContext* vhdlParser::return_statement() {
       ((1ULL << _la) & ((1ULL << vhdlParser::ABS)
       | (1ULL << vhdlParser::NEW)
       | (1ULL << vhdlParser::NOT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 112) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 112) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 112)) & ((1ULL << (vhdlParser::BASE_LITERAL - 112))
       | (1ULL << (vhdlParser::BIT_STRING_LITERAL - 112))
       | (1ULL << (vhdlParser::REAL_LITERAL - 112))
@@ -16760,7 +16760,7 @@ vhdlParser::Sequence_of_statementsContext* vhdlParser::sequence_of_statements() 
       | (1ULL << vhdlParser::IF)
       | (1ULL << vhdlParser::LOOP)
       | (1ULL << vhdlParser::NEXT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 79) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 79) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 79)) & ((1ULL << (vhdlParser::REPORT - 79))
       | (1ULL << (vhdlParser::RETURN - 79))
       | (1ULL << (vhdlParser::WAIT - 79))
@@ -16835,8 +16835,8 @@ vhdlParser::Return_statementContext* vhdlParser::Sequential_statementContext::re
   return getRuleContext<vhdlParser::Return_statementContext>(0);
 }
 
-tree::TerminalNode* vhdlParser::Sequential_statementContext::NULL() {
-  return getToken(vhdlParser::NULL, 0);
+tree::TerminalNode* vhdlParser::Sequential_statementContext::NULL_() {
+  return getToken(vhdlParser::NULL_, 0);
 }
 
 tree::TerminalNode* vhdlParser::Sequential_statementContext::SEMI() {
@@ -16969,7 +16969,7 @@ vhdlParser::Sequential_statementContext* vhdlParser::sequential_statement() {
         label_colon();
       }
       setState(2137);
-      match(vhdlParser::NULL);
+      match(vhdlParser::NULL_);
       setState(2138);
       match(vhdlParser::SEMI);
       break;
@@ -18271,8 +18271,8 @@ vhdlParser::Simultaneous_procedural_statementContext* vhdlParser::Simultaneous_s
   return getRuleContext<vhdlParser::Simultaneous_procedural_statementContext>(0);
 }
 
-tree::TerminalNode* vhdlParser::Simultaneous_statementContext::NULL() {
-  return getToken(vhdlParser::NULL, 0);
+tree::TerminalNode* vhdlParser::Simultaneous_statementContext::NULL_() {
+  return getToken(vhdlParser::NULL_, 0);
 }
 
 tree::TerminalNode* vhdlParser::Simultaneous_statementContext::SEMI() {
@@ -18348,7 +18348,7 @@ vhdlParser::Simultaneous_statementContext* vhdlParser::simultaneous_statement() 
         label_colon();
       }
       setState(2304);
-      match(vhdlParser::NULL);
+      match(vhdlParser::NULL_);
       setState(2305);
       match(vhdlParser::SEMI);
       break;
@@ -18411,7 +18411,7 @@ vhdlParser::Simultaneous_statement_partContext* vhdlParser::simultaneous_stateme
       | (1ULL << vhdlParser::IF)
       | (1ULL << vhdlParser::NEW)
       | (1ULL << vhdlParser::NOT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 69) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 69) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 69)) & ((1ULL << (vhdlParser::PROCEDURAL - 69))
       | (1ULL << (vhdlParser::BASE_LITERAL - 69))
       | (1ULL << (vhdlParser::BIT_STRING_LITERAL - 69))
@@ -19606,7 +19606,7 @@ vhdlParser::Subprogram_statement_partContext* vhdlParser::subprogram_statement_p
       | (1ULL << vhdlParser::IF)
       | (1ULL << vhdlParser::LOOP)
       | (1ULL << vhdlParser::NEXT)
-      | (1ULL << vhdlParser::NULL))) != 0) || ((((_la - 79) & ~ 0x3fULL) == 0) &&
+      | (1ULL << vhdlParser::NULL_))) != 0) || ((((_la - 79) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 79)) & ((1ULL << (vhdlParser::REPORT - 79))
       | (1ULL << (vhdlParser::RETURN - 79))
       | (1ULL << (vhdlParser::WAIT - 79))
@@ -21098,7 +21098,7 @@ vhdlParser::WaveformContext* vhdlParser::waveform() {
       case vhdlParser::ABS:
       case vhdlParser::NEW:
       case vhdlParser::NOT:
-      case vhdlParser::NULL:
+      case vhdlParser::NULL_:
       case vhdlParser::BASE_LITERAL:
       case vhdlParser::BIT_STRING_LITERAL:
       case vhdlParser::REAL_LITERAL:
@@ -21316,7 +21316,7 @@ std::vector<std::string> vhdlParser::_symbolicNames = {
   "GENERATE", "GENERIC", "GROUP", "GUARDED", "IF", "IMPURE", "IN", "INERTIAL", 
   "INOUT", "IS", "LABEL", "LIBRARY", "LIMIT", "LINKAGE", "LITERAL", "LOOP", 
   "MAP", "MOD", "NAND", "NATURE", "NEW", "NEXT", "NOISE", "NOR", "NOT", 
-  "NULL", "OF", "ON", "OPEN", "OR", "OTHERS", "OUT", "PACKAGE", "PORT", 
+  "NULL_", "OF", "ON", "OPEN", "OR", "OTHERS", "OUT", "PACKAGE", "PORT", 
   "POSTPONED", "PROCESS", "PROCEDURE", "PROCEDURAL", "PURE", "QUANTITY", 
   "RANGE", "REVERSE_RANGE", "REJECT", "REM", "RECORD", "REFERENCE", "REGISTER", 
   "REPORT", "RETURN", "ROL", "ROR", "SELECT", "SEVERITY", "SHARED", "SIGNAL", 
