@@ -41,6 +41,7 @@ private:
 
 public:
   VHDLArchitecture(Glib::ustring name);
+  virtual ~VHDLArchitecture();
 
   /* This method assumes ownership of the port */
   void init_addSignal(VHDLSignal *pSignal);
@@ -59,6 +60,8 @@ public:
   VHDLInstance *findInstanceByName(Glib::ustring name);
 
   bool write(FILE *pFile, int indent);
+
+  Glib::ustring getName() { return m_name; }
 };
 
 #endif /* _VHDL_ARCHITECTURE_H */

@@ -18,6 +18,8 @@
  *
  */
 
+#include <iostream>
+
 #include "vhdl_architecture.h"
 
 /*
@@ -29,6 +31,12 @@ VHDLArchitecture::VHDLArchitecture(Glib::ustring name):
   m_name(name),
   m_pEntity(NULL)
 {
+  std::cout << "Creating architecture with name " << m_name << " at address " << this << std::endl;
+}
+
+VHDLArchitecture::~VHDLArchitecture()
+{
+  std::cout << "Destroying architecture with name " << m_name << " at address " << this << std::endl;
 }
 
 void VHDLArchitecture::init_addSignal(VHDLSignal *pSignal)
