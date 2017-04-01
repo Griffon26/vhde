@@ -4,11 +4,11 @@
 
 void parseVHDL(std::istream &stream)
 {
-  ANTLRInputStream input(stream);
+  antlr4::ANTLRInputStream input(stream);
   vhdlLexer lexer(&input);
-  CommonTokenStream tokens(lexer);
+  antlr4::CommonTokenStream tokens(&lexer);
   vhdlParser parser(&tokens);
-  tree::ParseTree *tree = parser.main();
+  antlr4::tree::ParseTree *tree = parser.design_file();
 
   std::cout << tree->toStringTree(&parser) << std::endl;
 }

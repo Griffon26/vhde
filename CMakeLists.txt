@@ -33,9 +33,11 @@ include_directories(${CLUTTERMM_INCLUDE_DIRS}
                     src/parser/generated
                     src/vhdl)
 link_directories(${CLUTTERMM_LIBRARY_DIRS}
-                 ${GTKMM_LIBRARY_DIRS})
+                 ${GTKMM_LIBRARY_DIRS}
+                 ${ANTLR_RUNTIME_PREFIX}/lib)
 link_libraries(${CLUTTERMM_LIBRARIES}
-               ${GTKMM_LIBRARIES})
+               ${GTKMM_LIBRARIES}
+               ${ANTLR_RUNTIME_PREFIX}/lib/libantlr4-runtime.so)
 
 set(SRCS src/main.cpp
          src/clutter/clutter_block.cpp
