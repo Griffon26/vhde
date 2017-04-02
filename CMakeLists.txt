@@ -72,9 +72,11 @@ set(SRCS src/main.cpp
 
 add_executable(vhde ${SRCS})
 
-target_compile_features(vhde PRIVATE cxx_noexcept
+target_compile_features(vhde PRIVATE cxx_generic_lambdas
+                                     cxx_noexcept
                                      cxx_override
-                                     cxx_range_for)
+                                     cxx_range_for
+                       )
 
 add_dependencies(vhde ${ANTLR_RUNTIME})
 

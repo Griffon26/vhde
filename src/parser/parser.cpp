@@ -25,11 +25,36 @@
 
 #include "vhdl_architecture.h"
 
+Direction directionFromSignalMode(std::string modeString)
+{
+  std::transform(std::begin(modeString), std::end(modeString), std::begin(modeString), ::toupper);
+
+  if(modeString == "IN")
+  {
+    return DIR_IN;
+  }
+  else if(modeString == "OUT")
+  {
+    return DIR_OUT;
+  }
+  else if(modeString == "INOUT")
+  {
+    return DIR_INOUT;
+  }
+  else
+  {
+    return DIR_INVALID;
+  }
+}
+
 class vhdlConstructor: public vhdlBaseVisitor
 {
 public:
   std::map<std::string, VHDLEntity *> m_entityStore;
   std::map<std::string, VHDLArchitecture *> m_architectureStore;
+  std::map<std::string, std::vector<VHDLComponent *>> m_entityLessComponents;
+
+  VHDLArchitecture *m_pCurrentArchitecture;
 
 private:
   virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override {
@@ -63,7 +88,7 @@ private:
     }
     else
     {
-      throw antlr4::RuntimeException("Parsing of primary units other than entity declarations not implemented");
+      throw antlr4::RuntimeException("Parsing of primary units other than entity declarations is not implemented");
     }
   }
 
@@ -88,11 +113,31 @@ private:
     auto pArch = new VHDLArchitecture(archName);
     pArch->setEntity(m_entityStore.at(entityName));
     m_architectureStore[archName] = pArch;
+
+    m_pCurrentArchitecture = pArch;
+    visit(ctx->architecture_declarative_part());
+    visit(ctx->architecture_statement_part());
     return nullptr;
   }
 
   virtual antlrcpp::Any visitArchitecture_declarative_part(vhdlParser::Architecture_declarative_partContext *ctx) override {
-    return visitChildren(ctx);
+    for(auto &el: ctx->block_declarative_item())
+    {
+      auto value = visit(el);
+      if(value.is<VHDLComponent *>())
+      {
+        m_pCurrentArchitecture->init_addComponent(value);
+      }
+      else if(value.is<VHDLSignal *>())
+      {
+        m_pCurrentArchitecture->init_addSignal(value);
+      }
+      else
+      {
+        assert(false);
+      }
+    }
+    return nullptr;
   }
 
   virtual antlrcpp::Any visitArchitecture_statement_part(vhdlParser::Architecture_statement_partContext *ctx) override {
@@ -128,7 +173,18 @@ private:
   }
 
   virtual antlrcpp::Any visitBlock_declarative_item(vhdlParser::Block_declarative_itemContext *ctx) override {
-    return visitChildren(ctx);
+    if(ctx->component_declaration())
+    {
+      return visit(ctx->component_declaration());
+    }
+    else if(ctx->signal_declaration())
+    {
+      return new VHDLSignal("dummy");
+    }
+    else
+    {
+        throw antlr4::RuntimeException("Parsing of architecture declarative parts other than component declarations and signal declarations is not implemented");
+    }
   }
 
   virtual antlrcpp::Any visitSignal_declaration(vhdlParser::Signal_declarationContext *ctx) override {
@@ -136,27 +192,56 @@ private:
   }
 
   virtual antlrcpp::Any visitComponent_declaration(vhdlParser::Component_declarationContext *ctx) override {
-    return visitChildren(ctx);
+    auto pComponent = new VHDLComponent();
+    std::string entityName = visit(ctx->identifier(0));
+
+    // Remember it so we can resolve all the entity references once we know all entities
+    m_entityLessComponents[entityName].push_back(pComponent);
+
+    std::vector<VHDLPort *> ports = visit(ctx->port_clause());
+
+    for(auto pPort: ports)
+    {
+      std::cout << "Adding port " << pPort->getName() << " to component " << entityName << std::endl;
+      pComponent->init_addPort(pPort);
+    }
+    return pComponent;
   }
 
   virtual antlrcpp::Any visitPort_clause(vhdlParser::Port_clauseContext *ctx) override {
-    return visitChildren(ctx);
-  }
+    std::vector<VHDLPort *> result;
+    auto portCtxs = ctx->port_list()->interface_port_list()->interface_port_declaration();
 
-  virtual antlrcpp::Any visitPort_list(vhdlParser::Port_listContext *ctx) override {
-    return visitChildren(ctx);
+    for(auto &portCtx: portCtxs)
+    {
+      auto ports = visit(portCtx).as<std::vector<VHDLPort *>>();
+      result.insert(std::end(result), std::begin(ports), std::end(ports));
+    }
+    return result;
   }
 
   virtual antlrcpp::Any visitInterface_port_declaration(vhdlParser::Interface_port_declarationContext *ctx) override {
-    return visitChildren(ctx);
+    std::vector<VHDLPort *> ports;
+
+    for(auto &identctx: ctx->identifier_list()->identifier())
+    {
+      auto pPort = new VHDLPort(visit(identctx).as<std::string>());
+      Direction dir = visit(ctx->signal_mode());
+      if(dir == DIR_INVALID)
+      {
+        throw antlr4::RuntimeException("Parsing of signal modes other than IN, OUT and INOUT is not implemented");
+      }
+
+      pPort->setDirection(dir);
+      // TODO: also parse and store subtype_indication
+
+      ports.push_back(pPort);
+    }
+    return ports;
   }
 
   virtual antlrcpp::Any visitSignal_mode(vhdlParser::Signal_modeContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitIdentifier_list(vhdlParser::Identifier_listContext *ctx) override {
-    return visitChildren(ctx);
+    return directionFromSignalMode(ctx->getText());
   }
 
   virtual antlrcpp::Any visitIdentifier(vhdlParser::IdentifierContext *ctx) override {
