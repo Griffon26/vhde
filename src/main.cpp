@@ -247,7 +247,7 @@ int main(int argc, char** argv)
 
 
   /* Create a component declaration for the external entity */
-  VHDLComponent *pComponent = new VHDLComponent();
+  VHDLComponent *pComponent = new VHDLComponent("externalentity");
 
   pPort = new VHDLPort("myport1");
   pPort->setDirection(DIR_IN);

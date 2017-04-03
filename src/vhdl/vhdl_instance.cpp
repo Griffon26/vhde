@@ -38,6 +38,8 @@ VHDLInstance::~VHDLInstance()
 void VHDLInstance::connectSignalToPort(VHDLSignal *pSignal, VHDLPort *pPort)
 {
   MapEntry mapEntry;
+  g_assert(pSignal != nullptr);
+  g_assert(pPort != nullptr);
   mapEntry.onPortRemovedConnection = pPort->removed.connect(sigc::mem_fun(this, &VHDLInstance::onPortRemoved));
   mapEntry.onSignalRemovedConnection = pSignal->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLInstance::onSignalRemoved), pPort));
   mapEntry.pSignal = pSignal;

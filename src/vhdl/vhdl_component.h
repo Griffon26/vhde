@@ -32,9 +32,10 @@ class VHDLComponent: public VHDLInterface, public INamedItem
 private:
   VHDLEntity *m_pEntity;
   sigc::connection m_onPortAddedConnection;
+  Glib::ustring m_unresolvedName;
 
 public:
-  VHDLComponent();
+  VHDLComponent(Glib::ustring entityName);
   ~VHDLComponent();
 
   /* Inherited methods */

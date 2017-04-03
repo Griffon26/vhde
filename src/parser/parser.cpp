@@ -57,6 +57,8 @@ public:
   VHDLArchitecture *m_pCurrentArchitecture;
 
 private:
+  typedef std::pair<std::string, std::string> stringpair;
+
   virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override {
     for(auto &el: ctx->design_unit())
     {
@@ -128,9 +130,13 @@ private:
       {
         m_pCurrentArchitecture->init_addComponent(value);
       }
-      else if(value.is<VHDLSignal *>())
+      else if(value.is<std::vector<VHDLSignal *>>())
       {
-        m_pCurrentArchitecture->init_addSignal(value);
+        std::vector<VHDLSignal *> signals = value;
+        for(auto pSignal: signals)
+        {
+          m_pCurrentArchitecture->init_addSignal(pSignal);
+        }
       }
       else
       {
@@ -149,27 +155,65 @@ private:
   }
 
   virtual antlrcpp::Any visitComponent_instantiation_statement(vhdlParser::Component_instantiation_statementContext *ctx) override {
-    return visitChildren(ctx);
+    std::string instanceName = visit(ctx->label_colon()->identifier());
+    std::string componentName = visit(ctx->instantiated_unit()->name());
+
+    auto pInstance = new VHDLInstance(instanceName, m_pCurrentArchitecture->findComponentByName(componentName));
+    m_pCurrentArchitecture->init_addInstance(pInstance);
+
+    std::vector<stringpair> port_maps = visit(ctx->port_map_aspect()->association_list());
+    for(auto port_map: port_maps)
+    {
+      auto pPort = pInstance->getComponent()->findPortByName(port_map.first);
+
+      auto signalNameUpper = port_map.second;
+      std::transform(std::begin(signalNameUpper), std::end(signalNameUpper), std::begin(signalNameUpper), ::toupper);
+
+      if(signalNameUpper != "OPEN")
+      {
+        auto pSignal = m_pCurrentArchitecture->findSignalByName(port_map.second);
+        std::cout << "connecting signal " << port_map.second << " to port " << port_map.first << std::endl;
+        pInstance->connectSignalToPort(pSignal, pPort);
+      }
+    }
+
+    return nullptr;
   }
 
   virtual antlrcpp::Any visitPort_map_aspect(vhdlParser::Port_map_aspectContext *ctx) override {
-    return visitChildren(ctx);
+    return visit(ctx->association_list());
   }
 
   virtual antlrcpp::Any visitAssociation_list(vhdlParser::Association_listContext *ctx) override {
-    return visitChildren(ctx);
+
+    std::vector<stringpair> list;
+
+#if 1
+    for(auto &el: ctx->association_element())
+    {
+      list.push_back(visit(el).as<stringpair>());
+    }
+#else
+    #warning "figure out why this loop won't work"
+    std::transform(std::begin(ctx->association_element()),
+                   std::end(ctx->association_element()),
+                   std::back_inserter(list),
+                   [this](vhdlParser::Association_elementContext *elctx) { return this->visit(elctx).as<stringpair>(); });
+#endif
+
+    return list;
   }
 
   virtual antlrcpp::Any visitAssociation_element(vhdlParser::Association_elementContext *ctx) override {
-    return visitChildren(ctx);
+    return stringpair(visit(ctx->formal_part()).as<std::string>(), visit(ctx->actual_part()).as<std::string>());
   }
 
   virtual antlrcpp::Any visitFormal_part(vhdlParser::Formal_partContext *ctx) override {
-    return visitChildren(ctx);
+    return ctx->getText();
   }
 
   virtual antlrcpp::Any visitActual_part(vhdlParser::Actual_partContext *ctx) override {
-    return visitChildren(ctx);
+    return ctx->getText();
   }
 
   virtual antlrcpp::Any visitBlock_declarative_item(vhdlParser::Block_declarative_itemContext *ctx) override {
@@ -179,7 +223,7 @@ private:
     }
     else if(ctx->signal_declaration())
     {
-      return new VHDLSignal("dummy");
+      return visit(ctx->signal_declaration());
     }
     else
     {
@@ -188,12 +232,21 @@ private:
   }
 
   virtual antlrcpp::Any visitSignal_declaration(vhdlParser::Signal_declarationContext *ctx) override {
-    return visitChildren(ctx);
+    std::vector<VHDLSignal *> signals;
+
+    for(auto &identctx: ctx->identifier_list()->identifier())
+    {
+      auto pSignal = new VHDLSignal(visit(identctx).as<std::string>());
+      // TODO: also parse and store subtype_indication
+
+      signals.push_back(pSignal);
+    }
+    return signals;
   }
 
   virtual antlrcpp::Any visitComponent_declaration(vhdlParser::Component_declarationContext *ctx) override {
-    auto pComponent = new VHDLComponent();
     std::string entityName = visit(ctx->identifier(0));
+    auto pComponent = new VHDLComponent(entityName);
 
     // Remember it so we can resolve all the entity references once we know all entities
     m_entityLessComponents[entityName].push_back(pComponent);
@@ -205,6 +258,9 @@ private:
       std::cout << "Adding port " << pPort->getName() << " to component " << entityName << std::endl;
       pComponent->init_addPort(pPort);
     }
+
+    pComponent->init_done();
+
     return pComponent;
   }
 

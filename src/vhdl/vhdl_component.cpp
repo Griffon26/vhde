@@ -25,8 +25,9 @@
  * Public methods
  */
 
-VHDLComponent::VHDLComponent():
-  m_pEntity(NULL)
+VHDLComponent::VHDLComponent(Glib::ustring entityName):
+  m_pEntity(NULL),
+  m_unresolvedName(entityName)
 {
 }
 
@@ -79,6 +80,8 @@ void VHDLComponent::associateEntity(VHDLEntity *pEntity)
   g_assert(m_pEntity == NULL);
   m_pEntity = pEntity;
 
+  g_assert(m_unresolvedName == m_pEntity->getName());
+
   pPortList = m_pEntity->getPortList();
   g_assert(pPortList->size() == m_ports.size());
 
@@ -106,8 +109,15 @@ VHDLEntity *VHDLComponent::getAssociatedEntity()
 
 const Glib::ustring &VHDLComponent::getName()
 {
-  g_assert(m_pEntity);
-  return m_pEntity->getName();
+  if(!m_init)
+  {
+    return m_unresolvedName;
+  }
+  else
+  {
+    g_assert(m_pEntity);
+    return m_pEntity->getName();
+  }
 }
 
 /*
