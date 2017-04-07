@@ -41,6 +41,7 @@ link_libraries(${CLUTTERMM_LIBRARIES}
                ${ANTLR_RUNTIME_PREFIX}/lib/libantlr4-runtime.so)
 
 set(SRCS src/main.cpp
+         src/project.cpp
          src/clutter/clutter_block.cpp
          src/clutter/clutter_port.cpp
          src/clutter/clutter_scaling_text.cpp

@@ -23,6 +23,7 @@
 #include "vhdlParser.h"
 #include "vhdlBaseVisitor.h"
 
+#include "parser.h"
 #include "vhdl_architecture.h"
 
 Direction directionFromSignalMode(std::string modeString)
@@ -47,10 +48,10 @@ Direction directionFromSignalMode(std::string modeString)
   }
 }
 
-class vhdlConstructor: public vhdlBaseVisitor
+class VhdlConstructingVisitor: public vhdlBaseVisitor
 {
 public:
-  std::map<std::string, VHDLEntity *> m_entityStore;
+  std::map<std::string, VHDLEntity *> m_entityMap;
   std::map<std::string, VHDLArchitecture *> m_architectureStore;
   std::map<std::string, std::vector<VHDLComponent *>> m_entityLessComponents;
 
@@ -101,7 +102,7 @@ private:
 
   virtual antlrcpp::Any visitEntity_declaration(vhdlParser::Entity_declarationContext *ctx) override {
     auto name = visit(ctx->identifier(0)).as<std::string>();
-    m_entityStore[name] = new VHDLEntity(name);
+    m_entityMap[name] = new VHDLEntity(name);
     return nullptr;
   }
 
@@ -113,7 +114,7 @@ private:
     auto archName = visit(ctx->identifier(0)).as<std::string>();
     auto entityName = visit(ctx->identifier(1)).as<std::string>();
     auto pArch = new VHDLArchitecture(archName);
-    pArch->setEntity(m_entityStore.at(entityName));
+    pArch->setEntity(m_entityMap.at(entityName));
     m_architectureStore[archName] = pArch;
 
     m_pCurrentArchitecture = pArch;
@@ -310,34 +311,29 @@ private:
 };
 
 
-void parseVHDL(std::istream &stream)
+VHDLUnitList Parser::parseVHDL(std::istream &stream) const
 {
+  VHDLUnitList unitList;
+
   antlr4::ANTLRInputStream input(stream);
   vhdlLexer lexer(&input);
   antlr4::CommonTokenStream tokens(&lexer);
   vhdlParser parser(&tokens);
   antlr4::tree::ParseTree *tree = parser.design_file();
 
-  auto visitor = vhdlConstructor();
-  auto result = visitor.visit(tree);
-  if(result.isNull())
+  auto visitor = VhdlConstructingVisitor();
+  visitor.visit(tree);
+
+  for (auto& kv: visitor.m_entityMap)
   {
-    std::cout << "visitor output is null" << std::endl;
+    unitList.push_back(kv.second);
   }
 
-  for (auto& kv: visitor.m_entityStore)
-  {
-    std::cout << "Entity " << kv.first << " is at " << kv.second << std::endl;
-  }
-
-  std::ofstream outFile("out_dinges.vhd");
   for (auto& kv: visitor.m_architectureStore)
   {
-    std::cout << "Architecture " << kv.first << " of entity " << kv.second->getEntity()->getName() << " is at " << kv.second << std::endl;
-    kv.second->write(outFile, 0);
+    unitList.push_back(kv.second);
   }
-  outFile.close();
 
-  std::cout << tree->toStringTree(&parser) << std::endl;
+  return unitList;
 }
 

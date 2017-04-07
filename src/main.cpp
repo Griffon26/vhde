@@ -30,6 +30,7 @@
 #include "layout_instance.h"
 #include "layout_signal.h"
 #include "parser.h"
+#include "project.h"
 #include "vhdl_architecture.h"
 #include "vhdl_port.h"
 
@@ -377,10 +378,12 @@ int main(int argc, char** argv)
   externalEntity.write(outFile, 0);
   outFile.close();
 
-  std::ifstream myFile;
-  myFile.open("dinges.vhd");
-  parseVHDL(myFile);
-  myFile.close();
+  Parser parser;
+
+  Project project(&parser);
+  project.addFile("dinges.vhd");
+  project.addFile("externalentity.vhd");
+  //project.resolveEntityReferences();
 
   return 0;
 }
