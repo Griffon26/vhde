@@ -33,6 +33,8 @@ private:
   const Parser *m_pParser;
   std::map<std::string, VHDLEntity *> m_entityMap;
 
+  std::map<std::string, VHDLUnitList *> m_unitsPerFile;
+
 public:
   Project(const Parser *pParser):
     m_pParser(pParser)
@@ -40,6 +42,10 @@ public:
   }
 
   void addFile(std::string fileName);
+  void resolveEntityReferences();
+
+  /* temporary method for testing if parsing and saving is done correctly */
+  void save();
 };
 
 #endif

@@ -55,14 +55,15 @@ public:
   VHDLEntity *getEntity() { return m_pEntity; }
 
   VHDLComponent *findComponentByName(Glib::ustring name);
-
   VHDLSignal *findSignalByName(Glib::ustring name);
-
   VHDLInstance *findInstanceByName(Glib::ustring name);
 
   bool write(std::ostream &outStream, int indent);
 
   Glib::ustring getName() { return m_name; }
+
+  void resolveEntityReferences(const std::map<std::string, VHDLEntity *> &entityMap);
+
 };
 
 #endif /* _VHDL_ARCHITECTURE_H */

@@ -102,7 +102,22 @@ private:
 
   virtual antlrcpp::Any visitEntity_declaration(vhdlParser::Entity_declarationContext *ctx) override {
     auto name = visit(ctx->identifier(0)).as<std::string>();
-    m_entityMap[name] = new VHDLEntity(name);
+    auto pEntity = new VHDLEntity(name);
+
+    auto pPortClauseCtx = ctx->entity_header()->port_clause();
+    if(pPortClauseCtx)
+    {
+      std::vector<VHDLPort *> ports = visit(pPortClauseCtx);
+
+      for(auto pPort: ports)
+      {
+        std::cout << "Adding port " << pPort->getName() << " to entity " << name << std::endl;
+        pEntity->init_addPort(pPort);
+      }
+    }
+
+    m_entityMap[name] = pEntity;
+
     return nullptr;
   }
 
@@ -252,12 +267,15 @@ private:
     // Remember it so we can resolve all the entity references once we know all entities
     m_entityLessComponents[entityName].push_back(pComponent);
 
-    std::vector<VHDLPort *> ports = visit(ctx->port_clause());
-
-    for(auto pPort: ports)
+    if(ctx->port_clause())
     {
-      std::cout << "Adding port " << pPort->getName() << " to component " << entityName << std::endl;
-      pComponent->init_addPort(pPort);
+      std::vector<VHDLPort *> ports = visit(ctx->port_clause());
+
+      for(auto pPort: ports)
+      {
+        std::cout << "Adding port " << pPort->getName() << " to component " << entityName << std::endl;
+        pComponent->init_addPort(pPort);
+      }
     }
 
     pComponent->init_done();
@@ -311,9 +329,9 @@ private:
 };
 
 
-VHDLUnitList Parser::parseVHDL(std::istream &stream) const
+VHDLUnitList *Parser::parseVHDL(std::istream &stream) const
 {
-  VHDLUnitList unitList;
+  VHDLUnitList *pUnitList = new VHDLUnitList();
 
   antlr4::ANTLRInputStream input(stream);
   vhdlLexer lexer(&input);
@@ -326,14 +344,14 @@ VHDLUnitList Parser::parseVHDL(std::istream &stream) const
 
   for (auto& kv: visitor.m_entityMap)
   {
-    unitList.push_back(kv.second);
+    pUnitList->push_back(kv.second);
   }
 
   for (auto& kv: visitor.m_architectureStore)
   {
-    unitList.push_back(kv.second);
+    pUnitList->push_back(kv.second);
   }
 
-  return unitList;
+  return pUnitList;
 }
 

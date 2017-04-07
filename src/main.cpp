@@ -18,8 +18,6 @@
  *
  */
 
-#include <assert.h>
-
 #include <cluttermm.h>
 #include <fstream>
 #include <iostream>
@@ -362,6 +360,11 @@ int main(int argc, char** argv)
   stage->show();
   Clutter::main();
 
+
+  /*
+   * Write out the manually constructed model to files
+   */
+
   FILE *pFile = fopen("dinges.layout", "w+b");
   layoutComponent.write(pFile);
   layoutInstance.write(pFile);
@@ -371,6 +374,7 @@ int main(int argc, char** argv)
   std::ofstream outFile;
 
   outFile.open("dinges.vhd");
+  entity.write(outFile, 0);
   arch.write(outFile, 0);
   outFile.close();
 
@@ -378,12 +382,22 @@ int main(int argc, char** argv)
   externalEntity.write(outFile, 0);
   outFile.close();
 
+
+  /*
+   * Read the written files back in to reconstruct the model
+   */
   Parser parser;
 
   Project project(&parser);
   project.addFile("dinges.vhd");
   project.addFile("externalentity.vhd");
-  //project.resolveEntityReferences();
+  project.resolveEntityReferences();
+
+  /*
+   * Write the model back out to files, suffixing each filename with a '2'
+   * (to facilitate checking if reading or writing changes anything in the content)
+   */
+  project.save();
 
   return 0;
 }

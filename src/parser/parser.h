@@ -21,9 +21,10 @@
 #ifndef _PARSER_H
 #define _PARSER_H
 
-#include <assert.h>
+#include <glib.h>
 #include <iostream>
 #include <vector>
+
 
 class VHDLEntity;
 class VHDLArchitecture;
@@ -66,13 +67,13 @@ public:
 
   VHDLEntity *getEntity()
   {
-    assert(m_type == UnitType::ENTITY);
+    g_assert(m_type == UnitType::ENTITY);
     return m_pEntity;
   }
 
   VHDLArchitecture *getArch()
   {
-    assert(m_type == UnitType::ARCHITECTURE);
+    g_assert(m_type == UnitType::ARCHITECTURE);
     return m_pArch;
   }
 };
@@ -82,7 +83,7 @@ typedef std::vector<VHDLUnitPtr> VHDLUnitList;
 class Parser
 {
 public:
-   VHDLUnitList parseVHDL(std::istream &stream) const;
+   VHDLUnitList *parseVHDL(std::istream &stream) const;
 };
 
 #endif

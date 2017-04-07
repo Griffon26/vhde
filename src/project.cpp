@@ -28,9 +28,9 @@
 void Project::addFile(std::string fileName)
 {
   std::ifstream inFile(fileName);
-  VHDLUnitList unitList = m_pParser->parseVHDL(inFile);
+  VHDLUnitList *pUnitList = m_pParser->parseVHDL(inFile);
 
-  for(auto &unit: unitList)
+  for(auto &unit: *pUnitList)
   {
     VHDLEntity *pEntity = nullptr;
     VHDLArchitecture *pArch = nullptr;
@@ -39,6 +39,7 @@ void Project::addFile(std::string fileName)
     {
     case UnitType::ENTITY:
       pEntity = unit.getEntity();
+      m_entityMap[pEntity->getName()] = pEntity;
       std::cout << "Entity " << pEntity->getName() << " is at " << pEntity << std::endl;
       break;
     case UnitType::ARCHITECTURE:
@@ -48,6 +49,56 @@ void Project::addFile(std::string fileName)
     default:
       std::cout << "Unknown entry in unit list" << std::endl;
       break;
+    }
+  }
+
+  m_unitsPerFile[fileName] = pUnitList;
+}
+
+void Project::resolveEntityReferences()
+{
+  for(auto &kv: m_unitsPerFile)
+  {
+    std::cout << "Resolving references for units in file " << kv.first << std::endl;
+    for(auto &unit: *kv.second)
+    {
+      if(unit.type() == UnitType::ARCHITECTURE)
+      {
+        unit.getArch()->resolveEntityReferences(m_entityMap);
+      }
+    }
+  }
+}
+
+void Project::save()
+{
+  for(auto &kv: m_unitsPerFile)
+  {
+    std::cout << "Saving units to file 2" << kv.first << std::endl;
+
+    std::ofstream outStream("2" + kv.first);
+
+    for(auto &unit: *kv.second)
+    {
+      VHDLEntity *pEntity = nullptr;
+      VHDLArchitecture *pArch = nullptr;
+
+      switch(unit.type())
+      {
+      case UnitType::ENTITY:
+        pEntity = unit.getEntity();
+        std::cout << "  writing entity " << pEntity->getName() << std::endl;
+        pEntity->write(outStream, 0);
+        break;
+      case UnitType::ARCHITECTURE:
+        pArch = unit.getArch();
+        std::cout << "  writing architecture " << pArch->getName() << std::endl;
+        pArch->write(outStream, 0);
+        break;
+      default:
+        std::cout << "Unknown entry in unit list" << std::endl;
+        break;
+      }
     }
   }
 }

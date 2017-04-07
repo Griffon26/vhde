@@ -112,8 +112,6 @@ bool VHDLArchitecture::write(std::ostream &outStream, int indent)
 
   std::string indentString(indent, ' ');
 
-  m_pEntity->write(outStream, indent);
-
   outStream << indentString << "architecture " << m_name << " of " << m_pEntity->getName() << " is\n\n";
 
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
@@ -135,6 +133,17 @@ bool VHDLArchitecture::write(std::ostream &outStream, int indent)
   outStream << indentString << "end;\n\n";
 
   return true;
+}
+
+void VHDLArchitecture::resolveEntityReferences(const std::map<std::string, VHDLEntity *> &entityMap)
+{
+  for(auto &pComp: m_components)
+  {
+    if(!pComp->getAssociatedEntity())
+    {
+      pComp->associateEntity(entityMap.at(pComp->getName()));
+    }
+  }
 }
 
 /*
