@@ -367,13 +367,15 @@ int main(int argc, char** argv)
   layoutSignal.write(pFile);
   fclose(pFile);
 
-  pFile = fopen("dinges.vhd", "w+b");
-  arch.write(pFile, 0);
-  fclose(pFile);
+  std::ofstream outFile;
 
-  pFile = fopen("externalentity.vhd", "w+b");
-  externalEntity.write(pFile, 0);
-  fclose(pFile);
+  outFile.open("dinges.vhd");
+  arch.write(outFile, 0);
+  outFile.close();
+
+  outFile.open("externalentity.vhd");
+  externalEntity.write(outFile, 0);
+  outFile.close();
 
   std::ifstream myFile;
   myFile.open("dinges.vhd");

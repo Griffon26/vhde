@@ -42,11 +42,13 @@ void VHDLPort::setType(VHDLType type)
   m_type = type;
 }
 
-bool VHDLPort::write(FILE *pFile, int indent)
+bool VHDLPort::write(std::ostream &outStream, int indent)
 {
-  fprintf(pFile, "%*s%s: %s %s", indent, "", m_name.c_str(),
-                                 (m_direction == DIR_IN) ? "in" :
-                                 (m_direction == DIR_OUT) ? "out" :
-                                                            "inout", "sometype");
+
+  outStream << std::string(indent, ' ') << m_name << ": "
+            << ((m_direction == DIR_IN)  ? "in" :
+                (m_direction == DIR_OUT) ? "out" :
+                                           "inout")
+            << " sometype";
   return true;
 }

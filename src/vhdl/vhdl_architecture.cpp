@@ -105,32 +105,34 @@ VHDLInstance *VHDLArchitecture::findInstanceByName(Glib::ustring name)
   return NULL;
 }
 
-bool VHDLArchitecture::write(FILE *pFile, int indent)
+bool VHDLArchitecture::write(std::ostream &outStream, int indent)
 {
   std::list<VHDLSignal *>::iterator sit;
   std::list<VHDLInstance *>::iterator iit;
 
-  m_pEntity->write(pFile, indent);
+  std::string indentString(indent, ' ');
 
-  fprintf(pFile, "%*sarchitecture %s of %s is\n\n", indent, "", m_name.c_str(), m_pEntity->getName().c_str());
+  m_pEntity->write(outStream, indent);
+
+  outStream << indentString << "architecture " << m_name << " of " << m_pEntity->getName() << " is\n\n";
 
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
-    (*iit)->getComponent()->write(pFile, indent + 2);
+    (*iit)->getComponent()->write(outStream, indent + 2);
   }
 
   for(sit = m_signals.begin(); sit != m_signals.end(); sit++)
   {
-    (*sit)->write(pFile, indent + 2);
+    (*sit)->write(outStream, indent + 2);
   }
-  fprintf(pFile, "\n");
+  outStream << "\n";
 
-  fprintf(pFile, "%*sbegin\n", indent, "");
+  outStream << indentString << "begin\n";
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
-    (*iit)->write(pFile, indent + 2);
+    (*iit)->write(outStream, indent + 2);
   }
-  fprintf(pFile, "%*send;\n\n", indent, "");
+  outStream << indentString << "end;\n\n";
 
   return true;
 }

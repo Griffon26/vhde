@@ -39,7 +39,7 @@ public:
   ~VHDLComponent();
 
   /* Inherited methods */
-  virtual bool write(FILE *pFile, int indent);
+  virtual bool write(std::ostream &outStream, int indent);
 
   void associateEntity(VHDLEntity *pEntity);
   VHDLEntity *getAssociatedEntity();

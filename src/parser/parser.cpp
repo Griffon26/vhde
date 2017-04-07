@@ -330,10 +330,13 @@ void parseVHDL(std::istream &stream)
     std::cout << "Entity " << kv.first << " is at " << kv.second << std::endl;
   }
 
+  std::ofstream outFile("out_dinges.vhd");
   for (auto& kv: visitor.m_architectureStore)
   {
     std::cout << "Architecture " << kv.first << " of entity " << kv.second->getEntity()->getName() << " is at " << kv.second << std::endl;
+    kv.second->write(outFile, 0);
   }
+  outFile.close();
 
   std::cout << tree->toStringTree(&parser) << std::endl;
 }

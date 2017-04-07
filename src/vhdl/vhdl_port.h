@@ -44,7 +44,7 @@ public:
   void setDirection(Direction dir);
   void setType(VHDLType type);
 
-  bool write(FILE *pFile, int indent);
+  bool write(std::ostream &outStream, int indent);
 
   const Glib::ustring   &getName()       { return m_name; }
   const Direction       getDirection()  { return m_direction; }

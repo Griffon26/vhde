@@ -60,7 +60,7 @@ public:
 
   VHDLInstance *findInstanceByName(Glib::ustring name);
 
-  bool write(FILE *pFile, int indent);
+  bool write(std::ostream &outStream, int indent);
 
   Glib::ustring getName() { return m_name; }
 };

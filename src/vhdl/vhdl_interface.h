@@ -45,7 +45,7 @@ public:
 
   VHDLPort *findPortByName(Glib::ustring name);
 
-  virtual bool write(FILE *pFile, int indent) = 0;
+  virtual bool write(std::ostream &outStream, int indent) = 0;
 
   const std::list<VHDLPort *> *getPortList() { return &m_ports; }
 

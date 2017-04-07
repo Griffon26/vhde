@@ -55,7 +55,7 @@ public:
   void disconnectSignalFromPort(VHDLSignal *pSignal, VHDLPort *pPort);
   //void disconnectSignal(VHDLSignal *pSignal);
 
-  bool write(FILE *pFile, int indent);
+  bool write(std::ostream &outStream, int indent);
 
   const Glib::ustring &getName() { return m_name; }
   VHDLComponent *getComponent() { return m_pComponent; }

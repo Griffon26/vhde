@@ -62,28 +62,29 @@ void VHDLEntity::destroyPort(VHDLPort *pPort)
   end INV;
 
 */
-bool VHDLEntity::write(FILE *pFile, int indent)
+bool VHDLEntity::write(std::ostream &outStream, int indent)
 {
   std::list<VHDLGeneric *>::iterator git;
   std::list<VHDLPort *>::iterator pit;
+  std::string indentString(indent, ' ');
 
-  fprintf(pFile, "%*sentity %s is\n", indent, "", m_name.c_str());
+  outStream << indentString << "entity " << m_name << " is\n";
 
   if(m_ports.size() > 0)
   {
-    fprintf(pFile, "%*sport (\n", indent + 2, "");
+    outStream << indentString << "  port (\n";
     for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
     {
       if(pit != m_ports.begin())
       {
-        fprintf(pFile, ";\n");
+        outStream << ";\n";
       }
-      (*pit)->write(pFile, indent + 4);
+      (*pit)->write(outStream, indent + 4);
     }
-    fprintf(pFile, "\n%*s);\n", indent + 2, "");
+    outStream << "\n" << indentString << "  );\n";
   }
 
-  fprintf(pFile, "%*send %s;\n\n", indent, "", m_name.c_str());
+  outStream << indentString << "end " << m_name << ";\n\n";
 
   return true;
 }

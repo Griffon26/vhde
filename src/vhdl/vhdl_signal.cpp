@@ -34,8 +34,8 @@ void setType(VHDLType type)
 {
 }
 
-bool VHDLSignal::write(FILE *pFile, int indent)
+bool VHDLSignal::write(std::ostream &outStream, int indent)
 {
-  fprintf(pFile, "%*ssignal %s: %s;\n", indent, "", m_name.c_str(), "sometype");
+  outStream << std::string(indent, ' ') << "signal " << m_name << ": sometype;\n";
   return true;
 }

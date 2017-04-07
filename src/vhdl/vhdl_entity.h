@@ -44,7 +44,7 @@ public:
   VHDLPort *createPort(Direction dir, const Glib::ustring &name);
   void destroyPort(VHDLPort *pPort);
 
-  bool write(FILE *pFile, int indent);
+  bool write(std::ostream &outStream, int indent);
 };
 
 #endif /* _VHDL_ENTITY_H */

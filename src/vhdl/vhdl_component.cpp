@@ -46,27 +46,28 @@ VHDLComponent::~VHDLComponent()
   end component;
 
 */
-bool VHDLComponent::write(FILE *pFile, int indent)
+bool VHDLComponent::write(std::ostream &outStream, int indent)
 {
   std::list<VHDLGeneric *>::iterator git;
   std::list<VHDLPort *>::iterator pit;
+  std::string indentString(indent, ' ');
 
   g_assert(m_pEntity);
 
-  fprintf(pFile, "%*scomponent %s\n", indent, "", m_pEntity->getName().c_str());
+  outStream << indentString << "component " << m_pEntity->getName() << "\n";
 
-  fprintf(pFile, "%*sport (\n", indent + 2, "");
+  outStream << indentString << "  port (\n";
   for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
   {
     if(pit != m_ports.begin())
     {
-      fprintf(pFile, ";\n");
+      outStream << ";\n";
     }
-    (*pit)->write(pFile, indent + 4);
+    (*pit)->write(outStream, indent + 4);
   }
-  fprintf(pFile, "\n%*s);\n", indent + 2, "");
+  outStream << "\n" << indentString << "  );\n";
 
-  fprintf(pFile, "%*send component;\n\n", indent, "");
+  outStream << indentString << "end component;\n\n";
 
   return true;
 }
