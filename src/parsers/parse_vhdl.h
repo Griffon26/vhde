@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef _PARSER_H
-#define _PARSER_H
+#ifndef _PARSE_VHDL_H
+#define _PARSE_VHDL_H
 
 #include <glib.h>
 #include <iostream>
@@ -80,11 +80,7 @@ public:
 
 typedef std::vector<VHDLUnitPtr> VHDLUnitList;
 
-class Parser
-{
-public:
-   VHDLUnitList *parseVHDL(std::istream &stream) const;
-};
+VHDLUnitList *parseVHDL(std::istream &stream);
 
 #endif
 

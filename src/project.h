@@ -24,25 +24,26 @@
 #include <map>
 #include <string>
 
-class Parser;
+class LayoutResolverActions;
+class VHDLArchitecture;
 class VHDLEntity;
 
 class Project
 {
 private:
-  const Parser *m_pParser;
   std::map<std::string, VHDLEntity *> m_entityMap;
 
-  std::map<std::string, VHDLUnitList *> m_unitsPerFile;
+  /* Both of these maps use the name of the VHDL file as key */
+  std::map<std::string, VHDLArchitecture *> m_fileToArchMap;
+  std::map<std::string, LayoutResolverActions *> m_layoutResolverMap;
+
+  VHDLArchitecture *readVHDLFromFile(std::string fileName);
+  void readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
 
 public:
-  Project(const Parser *pParser):
-    m_pParser(pParser)
-  {
-  }
-
   void addFile(std::string fileName);
   void resolveEntityReferences();
+  void resolveLayoutReferences();
 
   /* temporary method for testing if parsing and saving is done correctly */
   void save();

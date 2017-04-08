@@ -30,8 +30,8 @@ include_directories(${CLUTTERMM_INCLUDE_DIRS}
                     src/common
                     src/gui
                     src/layout
-                    src/parser
-                    src/parser/generated
+                    src/parsers
+                    src/parsers/generated
                     src/vhdl)
 link_directories(${CLUTTERMM_LIBRARY_DIRS}
                  ${GTKMM_LIBRARY_DIRS}
@@ -56,11 +56,12 @@ set(SRCS src/main.cpp
          src/layout/layout_instance.cpp
          src/layout/layout_port.cpp
          src/layout/layout_signal.cpp
-         src/parser/generated/vhdlBaseVisitor.cpp
-         src/parser/generated/vhdlLexer.cpp
-         src/parser/generated/vhdlParser.cpp
-         src/parser/generated/vhdlVisitor.cpp
-         src/parser/parser.cpp
+         src/parsers/generated/vhdlBaseVisitor.cpp
+         src/parsers/generated/vhdlLexer.cpp
+         src/parsers/generated/vhdlParser.cpp
+         src/parsers/generated/vhdlVisitor.cpp
+         src/parsers/parse_layout.cpp
+         src/parsers/parse_vhdl.cpp
          src/vhdl/vhdl_architecture.cpp
          src/vhdl/vhdl_component.cpp
          src/vhdl/vhdl_entity.cpp

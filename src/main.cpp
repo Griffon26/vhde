@@ -27,7 +27,6 @@
 #include "gui_signal.h"
 #include "layout_instance.h"
 #include "layout_signal.h"
-#include "parser.h"
 #include "project.h"
 #include "vhdl_architecture.h"
 #include "vhdl_port.h"
@@ -234,6 +233,8 @@ int main(int argc, char** argv)
 
   externalEntity.init_done();
 
+  VHDLArchitecture extArch("extarch");
+  extArch.setEntity(&externalEntity);
 
 
   printf("externalEntity: %s\n", externalEntity.getName().c_str());
@@ -374,24 +375,22 @@ int main(int argc, char** argv)
   std::ofstream outFile;
 
   outFile.open("dinges.vhd");
-  entity.write(outFile, 0);
   arch.write(outFile, 0);
   outFile.close();
 
   outFile.open("externalentity.vhd");
-  externalEntity.write(outFile, 0);
+  extArch.write(outFile, 0);
   outFile.close();
 
 
   /*
    * Read the written files back in to reconstruct the model
    */
-  Parser parser;
-
-  Project project(&parser);
+  Project project;
   project.addFile("dinges.vhd");
   project.addFile("externalentity.vhd");
   project.resolveEntityReferences();
+  project.resolveLayoutReferences();
 
   /*
    * Write the model back out to files, suffixing each filename with a '2'

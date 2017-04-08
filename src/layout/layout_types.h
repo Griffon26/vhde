@@ -73,5 +73,10 @@ typedef enum {
                          (e == EDGE_RIGHT) ? "RIGHT" : \
                          (e == EDGE_BOTTOM) ? "BOTTOM" : "INVALID")
 
+#define NAME_TO_EDGE(n) ((n == "LEFT") ? EDGE_LEFT : \
+                         (n == "TOP") ? EDGE_TOP : \
+                         (n == "RIGHT") ? EDGE_RIGHT : \
+                         (n == "BOTTOM") ? EDGE_BOTTOM : NR_OF_EDGES)
+
 
 #endif /* _LAYOUT_TYPES_H */

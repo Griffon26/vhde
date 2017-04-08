@@ -23,7 +23,7 @@
 #include "vhdlParser.h"
 #include "vhdlBaseVisitor.h"
 
-#include "parser.h"
+#include "parse_vhdl.h"
 #include "vhdl_architecture.h"
 
 Direction directionFromSignalMode(std::string modeString)
@@ -329,7 +329,7 @@ private:
 };
 
 
-VHDLUnitList *Parser::parseVHDL(std::istream &stream) const
+VHDLUnitList *parseVHDL(std::istream &stream)
 {
   VHDLUnitList *pUnitList = new VHDLUnitList();
 

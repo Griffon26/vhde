@@ -112,6 +112,8 @@ bool VHDLArchitecture::write(std::ostream &outStream, int indent)
 
   std::string indentString(indent, ' ');
 
+  m_pEntity->write(outStream, indent);
+
   outStream << indentString << "architecture " << m_name << " of " << m_pEntity->getName() << " is\n\n";
 
   for(iit = m_instances.begin(); iit != m_instances.end(); iit++)

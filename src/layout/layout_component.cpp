@@ -62,8 +62,7 @@ void LayoutComponent::destroyPort(Edge edge, int position)
 }
 
 /*
-instance "blaat" {
-  position 100 200
+component {
   size 200 300
   ports {
     LEFT 0 "dinges"
@@ -77,7 +76,7 @@ void LayoutComponent::write(FILE *pFile)
   int edge;
   std::map<int, LayoutPort *>::iterator it;
 
-  fprintf(pFile, "component \"%s\" {\n", m_pVHDLEntity->getName().c_str());
+  fprintf(pFile, "component {\n");
   fprintf(pFile, "  size %d %d\n", m_size.width, m_size.height);
   fprintf(pFile, "  ports {\n");
 
