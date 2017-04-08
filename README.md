@@ -4,11 +4,11 @@
 
 ## Introduction
 
-With the VHDL Diagram Editor you can create hierarchical VHDL where 
-only the lowest level is written as text and the others are presented
-in a diagram as graphical components that can be connected to each other.
-Each diagram defines its inputs and outputs so it can be used as a
-component in a higher level diagram.
+With the VHDL Diagram Editor you can create hierarchical VHDL designs where
+only the lowest level is written as text and the others are presented in a
+diagram as graphical components that can be connected to each other.  Each
+diagram defines its inputs and outputs so it can be used as a component in
+a higher level diagram.
 
 ## Unique "selling" points
 
