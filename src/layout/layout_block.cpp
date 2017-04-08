@@ -31,6 +31,7 @@ void LayoutBlock::init_addPort(Edge edge, int position, LayoutPort *pLayoutPort)
 {
   g_assert(m_init);
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
+  printf("LayoutBlock(%p)::init_addPort(%s, %d, %p)\n", this, EDGE_TO_NAME(edge), position, pLayoutPort);
   pLayoutPort->setLocation(edge, position);
   m_ports[edge][position] = pLayoutPort;
 }

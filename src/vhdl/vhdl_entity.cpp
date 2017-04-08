@@ -23,6 +23,7 @@
 VHDLEntity::VHDLEntity(Glib::ustring name):
   m_name(name)
 {
+  printf("VHDLEntity(%p)::VHDLEntity(%s)\n", this, name.c_str());
 
 }
 

@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.7)
 
 set(CMAKE_CXX_EXTENSIONS off)
 
+# -Wall only works for gcc or clang, but let's fix that when someone starts
+# complaining.
+# Also disable deprecation warnings, because there is no point in fixing them
+# when I'm planning to migrate to GSK (the successor of clutter) once it's 
+# available widely enough in Gtk.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations")
+
 project (VHDE)
 
 set(ANTLR_RUNTIME antlr4-cpp-runtime)
@@ -51,6 +58,7 @@ set(SRCS src/main.cpp
          src/gui/gui_instance.cpp
          src/gui/gui_port.cpp
          src/gui/gui_signal.cpp
+         src/layout/layout_architecture.cpp
          src/layout/layout_block.cpp
          src/layout/layout_component.cpp
          src/layout/layout_instance.cpp

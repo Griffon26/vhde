@@ -29,6 +29,7 @@ VHDLComponent::VHDLComponent(Glib::ustring entityName):
   m_pEntity(NULL),
   m_unresolvedName(entityName)
 {
+  printf("VHDLComponent(%p)::VHDLComponent(%s)\n", this, entityName.c_str());
 }
 
 VHDLComponent::~VHDLComponent()

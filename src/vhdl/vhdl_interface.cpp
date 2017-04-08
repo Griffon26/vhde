@@ -35,6 +35,8 @@ void VHDLInterface::init_addPort(VHDLPort *pPort)
 {
   g_assert(m_init);
 
+  printf("VHDLInterface(%p)::init_addPort(%s(%p))\n", this, pPort->getName().c_str(), pPort);
+
   m_ports.push_back(pPort);
 }
 
@@ -42,7 +44,7 @@ VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
 {
   std::list<VHDLPort *>::iterator it;
 
-  printf("findPortByName %s\n", name.c_str());
+  printf("VHDLInterface(%p)::findPortByName(%s)\n", this, name.c_str());
 
   for(it = m_ports.begin(); it != m_ports.end(); it++)
   {
@@ -57,7 +59,7 @@ VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
 
 void VHDLInterface::addPort(VHDLPort *pPort)
 {
-  printf("VHDLInterface(%p)::addPort(%p)\n", this, pPort->getName().c_str());
+  printf("VHDLInterface(%p)::addPort(%s(%p))\n", this, pPort->getName().c_str(), pPort);
   g_assert(find(m_ports.begin(), m_ports.end(), pPort) == m_ports.end());
   m_ports.push_back(pPort);
   port_added.emit(pPort);

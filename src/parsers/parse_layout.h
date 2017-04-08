@@ -50,20 +50,20 @@ private:
   };
 public:
   LayoutPtr(LayoutComponent *pComponent):
-    m_pComponent(pComponent),
-    m_type(LayoutType::COMPONENT)
+    m_type(LayoutType::COMPONENT),
+    m_pComponent(pComponent)
   {
   }
 
   LayoutPtr(LayoutInstance *pInstance):
-    m_pInstance(pInstance),
-    m_type(LayoutType::INSTANCE)
+    m_type(LayoutType::INSTANCE),
+    m_pInstance(pInstance)
   {
   }
 
   LayoutPtr(LayoutSignal *pSignal):
-    m_pSignal(pSignal),
-    m_type(LayoutType::SIGNAL)
+    m_type(LayoutType::SIGNAL),
+    m_pSignal(pSignal)
   {
   }
 

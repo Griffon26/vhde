@@ -105,6 +105,8 @@ LayoutComponent *parseComponent(std::istream &stream, LayoutResolverActions &res
   } while(portAndName.first);
 
   pLayoutComponent->init_done();
+
+  return pLayoutComponent;
 }
 
 LayoutInstance *parseInstance(std::istream &stream, std::map<std::string, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
@@ -137,6 +139,8 @@ LayoutInstance *parseInstance(std::istream &stream, std::map<std::string, Layout
   resolver.add([pLayoutInstance, instanceName](VHDLArchitecture *pArch) { pLayoutInstance->associateVHDLInstance(pArch->findInstanceByName(instanceName)); });
 
   layoutInstanceMap[instanceName] = pLayoutInstance;
+
+  return pLayoutInstance;
 }
 
 LayoutSignal *parseSignal(std::istream &stream, std::map<std::string, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
@@ -176,6 +180,7 @@ LayoutSignal *parseSignal(std::istream &stream, std::map<std::string, LayoutInst
 
 LayoutList *parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions)
 {
+  LayoutList *pLayoutList = new LayoutList();
   std::map<std::string, LayoutInstance *> layoutInstanceMap;
 
   std::string nextToken;
@@ -183,15 +188,15 @@ LayoutList *parseLayout(std::istream &stream, LayoutResolverActions &layoutResol
   {
     if(nextToken == "component")
     {
-      auto pLayoutComponent = parseComponent(stream, layoutResolverActions);
+      pLayoutList->push_back(parseComponent(stream, layoutResolverActions));
     }
     else if(nextToken == "instance")
     {
-      auto pLayoutInstance = parseInstance(stream, layoutInstanceMap, layoutResolverActions);
+      pLayoutList->push_back(parseInstance(stream, layoutInstanceMap, layoutResolverActions));
     }
     else if(nextToken == "signal")
     {
-      auto pLayoutSignal = parseSignal(stream, layoutInstanceMap, layoutResolverActions);
+      pLayoutList->push_back(parseSignal(stream, layoutInstanceMap, layoutResolverActions));
     }
     else if(nextToken == "}")
     {
@@ -202,5 +207,7 @@ LayoutList *parseLayout(std::istream &stream, LayoutResolverActions &layoutResol
       g_assert_not_reached();
     }
   }
+
+  return pLayoutList;
 }
 

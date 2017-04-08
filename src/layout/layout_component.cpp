@@ -35,6 +35,8 @@ LayoutComponent::LayoutComponent()
 
 void LayoutComponent::associateEntity(INamedItem *pVHDLEntity)
 {
+  g_assert(pVHDLEntity);
+  printf("LayoutComponent(%p)::associateEntity(%p)\n", this, pVHDLEntity);
   m_pVHDLEntity = pVHDLEntity;
 }
 

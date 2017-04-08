@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 
+class LayoutArchitecture;
 class LayoutResolverActions;
 class VHDLArchitecture;
 class VHDLEntity;
@@ -33,12 +34,13 @@ class Project
 private:
   std::map<std::string, VHDLEntity *> m_entityMap;
 
-  /* Both of these maps use the name of the VHDL file as key */
-  std::map<std::string, VHDLArchitecture *> m_fileToArchMap;
+  /* These maps use the base name of the VHDL file as key */
+  std::map<std::string, VHDLArchitecture *> m_fileToVHDLArchMap;
+  std::map<std::string, LayoutArchitecture *> m_fileToLayoutArchMap;
   std::map<std::string, LayoutResolverActions *> m_layoutResolverMap;
 
   VHDLArchitecture *readVHDLFromFile(std::string fileName);
-  void readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
+  LayoutArchitecture *readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
 
 public:
   void addFile(std::string fileName);

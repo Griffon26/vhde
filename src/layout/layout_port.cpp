@@ -40,6 +40,7 @@ LayoutPort::~LayoutPort()
 void LayoutPort::associateVHDLPort(INamedItem *pPort)
 {
   g_assert(m_pPort == NULL);
+  g_assert(pPort != NULL);
   m_pPort = pPort;
 }
 
@@ -51,6 +52,7 @@ INamedItem *LayoutPort::getAssociatedVHDLPort()
 
 Glib::ustring LayoutPort::getName()
 {
+  g_assert(m_pPort != NULL);
   return m_pPort->getName();
 }
 

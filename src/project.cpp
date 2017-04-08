@@ -20,6 +20,7 @@
 
 #include <fstream>
 
+#include "layout_architecture.h"
 #include "parse_layout.h"
 #include "parse_vhdl.h"
 #include "project.h"
@@ -50,7 +51,8 @@ VHDLArchitecture *Project::readVHDLFromFile(std::string fileName)
       std::cout << "Architecture " << pArch->getName() << " is at " << pArch << std::endl;
       break;
     default:
-      std::cout << "Unknown entry in unit list" << std::endl;
+      std::cerr << "Unknown entry in unit list" << std::endl;
+      g_assert_not_reached();
       break;
     }
   }
@@ -59,11 +61,35 @@ VHDLArchitecture *Project::readVHDLFromFile(std::string fileName)
   return pArch;
 }
 
-void Project::readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions)
+LayoutArchitecture *Project::readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions)
 {
   std::ifstream inFile(fileName);
 
   LayoutList *pLayoutList = ::parseLayout(inFile, *pLayoutResolverActions);
+
+  LayoutArchitecture *pLayoutArch = new LayoutArchitecture();
+
+  for(auto &layoutPtr: *pLayoutList)
+  {
+    switch(layoutPtr.type())
+    {
+    case LayoutType::COMPONENT:
+      pLayoutArch->setComponent(layoutPtr.getComponent());
+      break;
+    case LayoutType::INSTANCE:
+      pLayoutArch->init_addInstance(layoutPtr.getInstance());
+      break;
+    case LayoutType::SIGNAL:
+      pLayoutArch->init_addSignal(layoutPtr.getSignal());
+      break;
+    default:
+      std::cerr << "Unknown entry in layout list" << std::endl;
+      g_assert_not_reached();
+      break;
+    }
+  }
+
+  return pLayoutArch;
 }
 
 void Project::addFile(std::string fileName)
@@ -72,18 +98,19 @@ void Project::addFile(std::string fileName)
   auto baseName = fileName.substr(0, found);
 
   auto pArch = readVHDLFromFile(fileName);
-  m_fileToArchMap[baseName] = pArch;
+  m_fileToVHDLArchMap[baseName] = pArch;
 
   auto layoutFileName = baseName + ".layout";
 
   LayoutResolverActions *pResolver = new LayoutResolverActions();
-  readLayoutFromFile(layoutFileName, pResolver);
+  auto pLayoutArch = readLayoutFromFile(layoutFileName, pResolver);
   m_layoutResolverMap[baseName] = pResolver;
+  m_fileToLayoutArchMap[baseName] = pLayoutArch;
 }
 
 void Project::resolveEntityReferences()
 {
-  for(auto &kv: m_fileToArchMap)
+  for(auto &kv: m_fileToVHDLArchMap)
   {
     std::cout << "Resolving entity references for architecture in file " << kv.first << std::endl;
     kv.second->resolveEntityReferences(m_entityMap);
@@ -95,18 +122,25 @@ void Project::resolveLayoutReferences()
   for(auto &kv: m_layoutResolverMap)
   {
     std::cout << "Resolving layout references to VHDL objects in file " << kv.first << std::endl;
-    kv.second->run(m_fileToArchMap.at(kv.first));
+    kv.second->run(m_fileToVHDLArchMap.at(kv.first));
   }
 }
 
 void Project::save()
 {
-  for(auto &kv: m_fileToArchMap)
+  for(auto &kv: m_fileToVHDLArchMap)
   {
-    std::cout << "Saving architecture " << kv.second->getName() << " to file 2" << kv.first << std::endl;
+    std::cout << "Saving architecture " << kv.second->getName() << " to file " << kv.first << "2.*" << std::endl;
 
-    std::ofstream outStream(kv.first + "2.vhd");
+    std::ofstream outStream;
+    
+    outStream.open(kv.first + "2.vhd");
     kv.second->write(outStream, 0);
+    outStream.close();
+
+    outStream.open(kv.first + "2.layout");
+    m_fileToLayoutArchMap.at(kv.first)->write(outStream);
+    outStream.close();
   }
 }
 

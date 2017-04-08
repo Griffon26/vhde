@@ -45,9 +45,9 @@ void ClutterScalingText::paint_vfunc()
   int fontSize;
 
   char fontName[] = "monospace NNpx";
+  /*
   Clutter::ActorBox alloc = get_allocation_box();
 
-  /*
   printf("actor allocation box is %f,%f - %f,%f\n", alloc.get_x1(), alloc.get_y1(),
                                                     alloc.get_x2(), alloc.get_y2());
   printf("actor allocation box is %f x %f\n", alloc.get_x2() - alloc.get_x1(),

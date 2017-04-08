@@ -49,14 +49,14 @@ private:
   };
 public:
   VHDLUnitPtr(VHDLEntity *pEntity):
-    m_pEntity(pEntity),
-    m_type(UnitType::ENTITY)
+    m_type(UnitType::ENTITY),
+    m_pEntity(pEntity)
   {
   }
 
   VHDLUnitPtr(VHDLArchitecture *pArch):
-    m_pArch(pArch),
-    m_type(UnitType::ARCHITECTURE)
+    m_type(UnitType::ARCHITECTURE),
+    m_pArch(pArch)
   {
   }
 

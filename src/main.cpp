@@ -25,6 +25,7 @@
 #include "gui_component.h"
 #include "gui_instance.h"
 #include "gui_signal.h"
+#include "layout_architecture.h"
 #include "layout_instance.h"
 #include "layout_signal.h"
 #include "project.h"
@@ -294,26 +295,34 @@ int main(int argc, char** argv)
 
   VHDLEntity *pVHDLEntity;
 
-  LayoutComponent layoutComponent;
-  layoutComponent.setSize(LayoutSize(150, 400));
+  LayoutComponent extLayoutComponent;
+  extLayoutComponent.setSize(LayoutSize(150, 400));
 
   /* TODO: Create a LayoutComponent as it is read from the layout file.
    *       Find the corresponding VHDL entity by name from the store.
    */
   pVHDLEntity = &externalEntity;
 
-  layoutComponent.associateEntity(pVHDLEntity);
+  extLayoutComponent.associateEntity(pVHDLEntity);
 
   pPort = pVHDLEntity->findPortByName("myport1");
   pLayoutPort = new LayoutPort();
   pLayoutPort->associateVHDLPort(pPort);
-  layoutComponent.init_addPort(EDGE_LEFT, 0, pLayoutPort);
+  extLayoutComponent.init_addPort(EDGE_LEFT, 0, pLayoutPort);
 
   pPort = pVHDLEntity->findPortByName("myport2");
   pLayoutPort = new LayoutPort();
   pLayoutPort->associateVHDLPort(pPort);
-  layoutComponent.init_addPort(EDGE_RIGHT, 8, pLayoutPort);
+  extLayoutComponent.init_addPort(EDGE_RIGHT, 8, pLayoutPort);
 
+  extLayoutComponent.init_done();
+
+  LayoutArchitecture extLayoutArch;
+  extLayoutArch.setComponent(&extLayoutComponent);
+
+  LayoutComponent layoutComponent;
+  layoutComponent.setSize(LayoutSize(150, 400));
+  layoutComponent.associateEntity(&entity);
   layoutComponent.init_done();
 
 
@@ -341,7 +350,7 @@ int main(int argc, char** argv)
 
   layoutInstance.init_done();
 
-  layoutInstance.associateLayoutComponent(&layoutComponent);
+  layoutInstance.associateLayoutComponent(&extLayoutComponent);
   layoutInstance.associateVHDLInstance(pVHDLInstance);
 
 
@@ -353,7 +362,7 @@ int main(int argc, char** argv)
 
 
   GuiInstance guiInstance(stage, &layoutInstance);
-  GuiComponent guiComponent(stage, &layoutComponent);
+  GuiComponent guiComponent(stage, &extLayoutComponent);
 
 
   stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
@@ -382,6 +391,10 @@ int main(int argc, char** argv)
   extArch.write(outFile, 0);
   outFile.close();
 
+  outFile.open("externalentity.layout");
+  extLayoutArch.write(outFile);
+  outFile.close();
+
 
   /*
    * Read the written files back in to reconstruct the model
@@ -391,6 +404,10 @@ int main(int argc, char** argv)
   project.addFile("externalentity.vhd");
   project.resolveEntityReferences();
   project.resolveLayoutReferences();
+
+  /* TODO: resolve the conflicts between the VHDL and the layout files, such as
+   * absence of a .layout file
+   */
 
   /*
    * Write the model back out to files, suffixing each filename with a '2'
