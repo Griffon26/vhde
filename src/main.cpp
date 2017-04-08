@@ -366,13 +366,13 @@ int main(int argc, char** argv)
    * Write out the manually constructed model to files
    */
 
-  FILE *pFile = fopen("dinges.layout", "w+b");
-  layoutComponent.write(pFile);
-  layoutInstance.write(pFile);
-  layoutSignal.write(pFile);
-  fclose(pFile);
-
   std::ofstream outFile;
+
+  outFile.open("dinges.layout");
+  layoutComponent.write(outFile);
+  layoutInstance.write(outFile);
+  layoutSignal.write(outFile);
+  outFile.close();
 
   outFile.open("dinges.vhd");
   arch.write(outFile, 0);

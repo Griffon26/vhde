@@ -57,25 +57,25 @@ signal "mysignal" {
   }
 }
 */
-void LayoutSignal::write(FILE *pFile)
+void LayoutSignal::write(std::ostream &stream)
 {
   std::list<LayoutPosition>::iterator it;
 
-  fprintf(pFile, "signal \"%s\" {\n", m_pSignal->getName().c_str());
-  fprintf(pFile, "  from ");
-  writeEndPoint(pFile, m_endPoints[BEGINNING]);
-  fprintf(pFile, "  to   ");
-  writeEndPoint(pFile, m_endPoints[END]);
-  fprintf(pFile, "  corners {\n");
+  stream << "signal \"" << m_pSignal->getName() << "\" {\n"
+         << "  from ";
+  writeEndPoint(stream, m_endPoints[BEGINNING]);
+  stream << "  to   ";
+  writeEndPoint(stream, m_endPoints[END]);
+  stream << "  corners {\n";
 
   for(it = m_corners.begin(); it != m_corners.end(); it++)
   {
-    fprintf(pFile, "    %d %d\n", it->x, it->y);
+    stream << "    " << it->x << " " << it->y << "\n";
   }
 
-  fprintf(pFile, "  }\n"
-                 "}\n"
-                 "\n");
+  stream << "  }\n"
+         << "}\n"
+         << "\n";
 }
 
 void LayoutSignal::connect(EndPointId endPointId, LayoutInstance *pLayoutInstance, Edge edge, int position)
@@ -111,26 +111,22 @@ const std::list<LayoutPosition> *LayoutSignal::getCorners()
  * Private methods
  */
 
-void LayoutSignal::writeEndPoint(FILE *pFile, const EndPoint &endPoint)
+void LayoutSignal::writeEndPoint(std::ostream &stream, const EndPoint &endPoint)
 {
   if(endPoint.connected)
   {
     if(endPoint.isPort)
     {
-      fprintf(pFile, "port \"%s\" %s %d\n", endPoint.pLayoutInstance->getAssociatedVHDLInstance()->getName().c_str(),
-                                            EDGE_TO_NAME(endPoint.edge),
-                                            endPoint.position);
+      stream << "port \"" << endPoint.pLayoutInstance->getAssociatedVHDLInstance()->getName() << "\" " << EDGE_TO_NAME(endPoint.edge) << " " << endPoint.position << "\n";
     }
     else
     {
-      fprintf(pFile, "signal \"%s\" %d %d\n", endPoint.pSignal->getName().c_str(),
-                                              endPoint.x,
-                                              endPoint.y);
+      stream << "signal \"" << endPoint.pSignal->getName() << "\" " << endPoint.x << " " << endPoint.y << "\n";
     }
   }
   else
   {
-    fprintf(pFile, "unconnected\n");
+    stream << "unconnected\n";
   }
 }
 

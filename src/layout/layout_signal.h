@@ -75,14 +75,14 @@ public:
   LayoutSignal();
   void associateSignal(INamedItem *pSignal);
 
-  void write(FILE *pFile);
+  void write(std::ostream &stream);
 
   void connect(EndPointId endPointId, LayoutInstance *pInstance, Edge edge, int position);
 
   const std::list<LayoutPosition> *getCorners();
 
 private:
-  void writeEndPoint(FILE *pFile, const EndPoint &endPoint);
+  void writeEndPoint(std::ostream &stream, const EndPoint &endPoint);
   void recalcEndPoint(EndPointId endPointId);
 
   void onInstanceMoved(LayoutPosition pos, EndPointId endPointId);

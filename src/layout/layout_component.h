@@ -40,7 +40,7 @@ public:
   LayoutPort *createPort(Edge edge, int position, INamedItem *pVHDLPort);
   void destroyPort(Edge edge, int position);
 
-  void write(FILE *pFile);
+  void write(std::ostream &stream);
 };
 
 #endif /* _LAYOUT_COMPONENT_H */

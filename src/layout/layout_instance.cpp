@@ -99,27 +99,27 @@ instance "blaat" {
 }
 
 */
-void LayoutInstance::write(FILE *pFile)
+void LayoutInstance::write(std::ostream &stream)
 {
   int edge;
   std::map<int, LayoutPort *>::iterator it;
 
-  fprintf(pFile, "instance \"%s\" {\n", m_pVHDLInstance->getName().c_str());
-  fprintf(pFile, "  position %d %d\n", m_position.x, m_position.y);
-  fprintf(pFile, "  size %d %d\n", m_size.width, m_size.height);
-  fprintf(pFile, "  ports {\n");
+  stream << "instance \"" << m_pVHDLInstance->getName() << "\" {\n"
+         << "  position " << m_position.x << " " << m_position.y << "\n"
+         << "  size " << m_size.width << " " << m_size.height << "\n"
+         << "  ports {\n";
 
   for(edge = 0; edge < NR_OF_EDGES; edge++)
   {
     for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
     {
-      fprintf(pFile, "    %s %d \"%s\"\n", EDGE_TO_NAME(edge), it->first, it->second->getAssociatedVHDLPort()->getName().c_str());
+      stream << "    " << EDGE_TO_NAME(edge) << " " << it->first << " \"" << it->second->getAssociatedVHDLPort()->getName() << "\"\n";
     }
   }
 
-  fprintf(pFile, "  }\n"
-                 "}\n"
-                 "\n");
+  stream << "  }\n"
+         << "}\n"
+         << "\n";
 }
 
 /*

@@ -71,24 +71,25 @@ component {
 }
 
 */
-void LayoutComponent::write(FILE *pFile)
+void LayoutComponent::write(std::ostream &stream)
 {
   int edge;
   std::map<int, LayoutPort *>::iterator it;
 
-  fprintf(pFile, "component {\n");
-  fprintf(pFile, "  size %d %d\n", m_size.width, m_size.height);
-  fprintf(pFile, "  ports {\n");
+  stream << "component {\n"
+         << "  size " << m_size.width << " " << m_size.height << "\n"
+         << "  ports {\n";
 
   for(edge = 0; edge < NR_OF_EDGES; edge++)
   {
     for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
     {
-      fprintf(pFile, "    %s %d \"%s\"\n", EDGE_TO_NAME(edge), it->first, it->second->getAssociatedVHDLPort()->getName().c_str());
+      stream << "    " << EDGE_TO_NAME(edge) << " " << it->first << " \"" << it->second->getAssociatedVHDLPort()->getName() << "\"\n";
     }
   }
 
-  fprintf(pFile, "  }\n"
-                 "}\n"
-                 "\n");
+  stream << "  }\n"
+         << "}\n"
+         << "\n";
 }
+
