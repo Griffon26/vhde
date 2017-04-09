@@ -30,6 +30,9 @@ key improvements:
 
 ## Current status
 
-I haven't worked on this project for a while, but if you think this program
-is interesting send me a mail at griffon26@kfk4ever.com and I'll see what I
-can do about picking up development again.
+I recently picked back up development on this project. There is now [a backlog
+that lists items to be done in order of priority](docs/backlog.md). If you have
+any additional items you would like to see on this backlog or you have a
+comment on the chosen priorities, don't hesitate to contact me at
+griffon26@kfk4ever.com.
+
