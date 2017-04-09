@@ -27,6 +27,12 @@
 #include "vhdl_architecture.h"
 #include "vhdl_entity.h"
 
+static std::string getBaseName(std::string fileName)
+{
+  auto dotIndex = fileName.rfind(".");
+  return fileName.substr(0, dotIndex);
+}
+
 VHDLArchitecture *Project::readVHDLFromFile(std::string fileName)
 {
   std::ifstream inFile(fileName);
@@ -94,8 +100,7 @@ LayoutArchitecture *Project::readLayoutFromFile(std::string fileName, LayoutReso
 
 void Project::addFile(std::string fileName)
 {
-  auto found = fileName.find_last_of(".");
-  auto baseName = fileName.substr(0, found);
+  auto baseName = getBaseName(fileName);
 
   auto pArch = readVHDLFromFile(fileName);
   m_fileToVHDLArchMap[baseName] = pArch;
@@ -124,6 +129,11 @@ void Project::resolveLayoutReferences()
     std::cout << "Resolving layout references to VHDL objects in file " << kv.first << std::endl;
     kv.second->run(m_fileToVHDLArchMap.at(kv.first));
   }
+}
+
+LayoutArchitecture *Project::getLayoutArchitecture(std::string fileName)
+{
+  return m_fileToLayoutArchMap.at(getBaseName(fileName));
 }
 
 void Project::save()

@@ -36,8 +36,8 @@ class LayoutArchitecture
 private:
   bool                          m_init;
   LayoutComponent              *m_pComponent;
-  std::list<LayoutInstance *>   m_instances;
-  std::list<LayoutSignal *>     m_signals;
+  std::vector<LayoutInstance *> m_instances;
+  std::vector<LayoutSignal *>   m_signals;
 
 public:
   LayoutArchitecture();
@@ -50,6 +50,12 @@ public:
   void init_addSignal(LayoutSignal *pSignal);
 
   void init_done() { m_init = false; }
+
+  int getNumberOfInstances();
+  LayoutInstance *getInstance(int index);
+
+  int getNumberOfSignals();
+  LayoutSignal *getSignal(int index);
 
   void write(std::ostream &stream);
 };

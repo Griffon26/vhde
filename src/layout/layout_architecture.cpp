@@ -51,6 +51,26 @@ void LayoutArchitecture::init_addSignal(LayoutSignal *pSignal)
   m_signals.push_back(pSignal);
 }
 
+int LayoutArchitecture::getNumberOfInstances()
+{
+  return m_instances.size();
+}
+
+LayoutInstance *LayoutArchitecture::getInstance(int index)
+{
+  return m_instances[index];
+}
+
+int LayoutArchitecture::getNumberOfSignals()
+{
+  return m_signals.size();
+}
+
+LayoutSignal *LayoutArchitecture::getSignal(int index)
+{
+  return m_signals[index];
+}
+
 void LayoutArchitecture::write(std::ostream &stream)
 {
   g_assert(m_pComponent);

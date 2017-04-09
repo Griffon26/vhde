@@ -47,6 +47,8 @@ public:
   void resolveEntityReferences();
   void resolveLayoutReferences();
 
+  LayoutArchitecture *getLayoutArchitecture(std::string fileName);
+
   /* temporary method for testing if parsing and saving is done correctly */
   void save();
 };

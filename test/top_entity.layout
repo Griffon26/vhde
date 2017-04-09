@@ -1,0 +1,26 @@
+component {
+  size 150 400
+  ports {
+  }
+}
+
+instance "myinstance1" {
+  position 300 200
+  size 200 300
+  ports {
+    LEFT 0 "myport1"
+    RIGHT 8 "myport2"
+  }
+}
+
+signal "mysignal2" {
+  from unconnected
+  to   port "myinstance1" LEFT 0
+  corners {
+    0 0
+    100 200
+    200 200
+    290 220
+  }
+}
+

@@ -218,190 +218,13 @@ int main(int argc, char** argv)
   fprintf(stderr, "sold to the man in the blue hat!\n");
   pActor->get_stage();
 
-  /* Try out the model classes */
-  VHDLPort *pPort;
-
-  /* Create one entity out of a package */
-  /* TODO: put the entity in a store, accessible by name */
-  VHDLEntity externalEntity("externalentity");
-  pPort = new VHDLPort("myport1");
-  pPort->setDirection(DIR_IN);
-  externalEntity.init_addPort(pPort);
-
-  pPort = new VHDLPort("myport2");
-  pPort->setDirection(DIR_INOUT);
-  externalEntity.init_addPort(pPort);
-
-  externalEntity.init_done();
-
-  VHDLArchitecture extArch("extarch");
-  extArch.setEntity(&externalEntity);
-
-
-  printf("externalEntity: %s\n", externalEntity.getName().c_str());
-
-
-
-  VHDLArchitecture arch("myarch");
-  VHDLEntity entity("myentity");
-  arch.setEntity(&entity);
-
-
-  /* Create a component declaration for the external entity */
-  VHDLComponent *pComponent = new VHDLComponent("externalentity");
-
-  pPort = new VHDLPort("myport1");
-  pPort->setDirection(DIR_IN);
-  pComponent->init_addPort(pPort);
-
-  pPort = new VHDLPort("myport2");
-  pPort->setDirection(DIR_INOUT);
-  pComponent->init_addPort(pPort);
-
-  pComponent->init_done();
-
-  arch.init_addComponent(pComponent);
-
-  /* TODO: get the VHDLEntity to be associated from a store by name */
-  /* TODO: check consistency with entity and return failure if incorrect
-   *       The caller can then ask the user how to resolve it and try again
-   */
-  pComponent->associateEntity(&externalEntity);
-
-  printf("vhdlcomponent: %s\n", pComponent->getName().c_str());
-
-
-  VHDLSignal *pSignal = new VHDLSignal("mysignal1");
-  arch.init_addSignal(pSignal);
-  pSignal = new VHDLSignal("mysignal2");
-  arch.init_addSignal(pSignal);
-
-  VHDLInstance *pVHDLInstance = new VHDLInstance("myinstance1", arch.findComponentByName("externalentity"));
-  arch.init_addInstance(pVHDLInstance);
-
-  pPort = pVHDLInstance->getComponent()->findPortByName("myport1");
-  pVHDLInstance->connectSignalToPort(arch.findSignalByName("mysignal2"), pPort);
-
-  arch.init_done();
-
-
-
-
-
-  /* read layout instance */
-  /* find associated vhdl instance by name */
-  /* loop through loaded ports and associate with ports in the vhdl instance by name */
-  LayoutPort *pLayoutPort;
-
-  VHDLEntity *pVHDLEntity;
-
-  LayoutComponent extLayoutComponent;
-  extLayoutComponent.setSize(LayoutSize(150, 400));
-
-  /* TODO: Create a LayoutComponent as it is read from the layout file.
-   *       Find the corresponding VHDL entity by name from the store.
-   */
-  pVHDLEntity = &externalEntity;
-
-  extLayoutComponent.associateEntity(pVHDLEntity);
-
-  pPort = pVHDLEntity->findPortByName("myport1");
-  pLayoutPort = new LayoutPort();
-  pLayoutPort->associateVHDLPort(pPort);
-  extLayoutComponent.init_addPort(EDGE_LEFT, 0, pLayoutPort);
-
-  pPort = pVHDLEntity->findPortByName("myport2");
-  pLayoutPort = new LayoutPort();
-  pLayoutPort->associateVHDLPort(pPort);
-  extLayoutComponent.init_addPort(EDGE_RIGHT, 8, pLayoutPort);
-
-  extLayoutComponent.init_done();
-
-  LayoutArchitecture extLayoutArch;
-  extLayoutArch.setComponent(&extLayoutComponent);
-
-  LayoutComponent layoutComponent;
-  layoutComponent.setSize(LayoutSize(150, 400));
-  layoutComponent.associateEntity(&entity);
-  layoutComponent.init_done();
-
-
-
-
-  /* TODO: Create a LayoutInstance as it is read from the layout file.
-   *       Find the corresponding VHDL instance by name from the store (or arch?)
-   *       Find the corresponding LayoutComponent by name (VHDLInstance->getComponent()->getName()) from the store
-   */
-  LayoutInstance layoutInstance;
-  layoutInstance.setPosition(LayoutPosition(300,200));
-  layoutInstance.setSize(LayoutSize(200, 300));
-
-  pVHDLInstance = arch.findInstanceByName("myinstance1");
-
-  pPort = pVHDLInstance->getComponent()->findPortByName("myport1");
-  pLayoutPort = new LayoutPort();
-  pLayoutPort->associateVHDLPort(pPort);
-  layoutInstance.init_addPort(EDGE_LEFT, 0, pLayoutPort);
-
-  pPort = pVHDLInstance->getComponent()->findPortByName("myport2");
-  pLayoutPort = new LayoutPort();
-  pLayoutPort->associateVHDLPort(pPort);
-  layoutInstance.init_addPort(EDGE_RIGHT, 8, pLayoutPort);
-
-  layoutInstance.init_done();
-
-  layoutInstance.associateLayoutComponent(&extLayoutComponent);
-  layoutInstance.associateVHDLInstance(pVHDLInstance);
-
-
-  LayoutSignal layoutSignal;
-  layoutSignal.associateSignal(arch.findSignalByName("mysignal2"));
-  layoutSignal.connect(LayoutSignal::END, &layoutInstance, EDGE_LEFT, 0);
-
-  GuiSignal guiSignal(stage, &layoutSignal);
-
-
-  GuiInstance guiInstance(stage, &layoutInstance);
-  GuiComponent guiComponent(stage, &extLayoutComponent);
-
-
-  stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
-  stage->signal_key_press_event().connect(sigc::bind(&on_key_pressed, &guiComponent));
-  stage->show();
-  Clutter::main();
-
 
   /*
-   * Write out the manually constructed model to files
-   */
-
-  std::ofstream outFile;
-
-  outFile.open("dinges.layout");
-  layoutComponent.write(outFile);
-  layoutInstance.write(outFile);
-  layoutSignal.write(outFile);
-  outFile.close();
-
-  outFile.open("dinges.vhd");
-  arch.write(outFile, 0);
-  outFile.close();
-
-  outFile.open("externalentity.vhd");
-  extArch.write(outFile, 0);
-  outFile.close();
-
-  outFile.open("externalentity.layout");
-  extLayoutArch.write(outFile);
-  outFile.close();
-
-
-  /*
-   * Read the written files back in to reconstruct the model
+   * Read in some example files to create a model
    */
   Project project;
-  project.addFile("dinges.vhd");
-  project.addFile("externalentity.vhd");
+  project.addFile("test/top_entity.vhd");
+  project.addFile("test/used_entity.vhd");
   project.resolveEntityReferences();
   project.resolveLayoutReferences();
 
@@ -410,8 +233,25 @@ int main(int argc, char** argv)
    */
 
   /*
+   * Create GUI objects from some of the layout classes to show them on the screen
+   */
+  auto pLayoutArch = project.getLayoutArchitecture("test/top_entity.vhd");
+
+  GuiSignal guiSignal(stage, pLayoutArch->getSignal(0));
+  GuiInstance guiInstance(stage, pLayoutArch->getInstance(0));
+  GuiComponent guiComponent(stage, pLayoutArch->getComponent());
+
+  /*
+   * Allow the user to interact with the diagram
+   */
+  stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
+  stage->signal_key_press_event().connect(sigc::bind(&on_key_pressed, &guiComponent));
+  stage->show();
+  Clutter::main();
+
+  /*
    * Write the model back out to files, suffixing each filename with a '2'
-   * (to facilitate checking if reading or writing changes anything in the content)
+   * (to avoid making changes in versioned example files)
    */
   project.save();
 
