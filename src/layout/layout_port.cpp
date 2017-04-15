@@ -27,7 +27,9 @@
  */
 
 LayoutPort::LayoutPort():
-  m_pPort(NULL)
+  m_pPort(NULL),
+  m_edge(EDGE_LEFT),
+  m_position(0)
 {
 }
 

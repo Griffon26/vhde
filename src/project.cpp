@@ -21,6 +21,9 @@
 #include <fstream>
 
 #include "layout_architecture.h"
+#include "layout_component.h"
+#include "layout_instance.h"
+#include "layout_signal.h"
 #include "parse_layout.h"
 #include "parse_vhdl.h"
 #include "project.h"
@@ -69,30 +72,106 @@ VHDLArchitecture *Project::readVHDLFromFile(std::string fileName)
 
 LayoutArchitecture *Project::readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions)
 {
+  LayoutArchitecture *pLayoutArch = nullptr;
   std::ifstream inFile(fileName);
 
-  LayoutList *pLayoutList = ::parseLayout(inFile, *pLayoutResolverActions);
+  if(inFile.good())
+  {
+    LayoutList *pLayoutList = ::parseLayout(inFile, *pLayoutResolverActions);
+
+    pLayoutArch = new LayoutArchitecture();
+
+    for(auto &layoutPtr: *pLayoutList)
+    {
+      switch(layoutPtr.type())
+      {
+      case LayoutType::COMPONENT:
+        pLayoutArch->setComponent(layoutPtr.getComponent());
+        break;
+      case LayoutType::INSTANCE:
+        pLayoutArch->init_addInstance(layoutPtr.getInstance());
+        break;
+      case LayoutType::SIGNAL:
+        pLayoutArch->init_addSignal(layoutPtr.getSignal());
+        break;
+      default:
+        std::cerr << "Unknown entry in layout list" << std::endl;
+        g_assert_not_reached();
+        break;
+      }
+    }
+  }
+
+  return pLayoutArch;
+}
+
+void Project::createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock)
+{
+  auto portList = pVHDLInterface->getPortList();
+  int nrOfPortsToAddOnLeft = portList->size() / 2;
+  int portIndex = 0;
+
+  for(auto &pPort: *portList)
+  {
+    LayoutPort *pLayoutPort = new LayoutPort();
+    pLayoutPort->associateVHDLPort(pPort);
+    if(portIndex < nrOfPortsToAddOnLeft)
+    {
+      pLayoutBlock->init_addPort(EDGE_LEFT, portIndex, pLayoutPort);
+    }
+    else
+    {
+      pLayoutBlock->init_addPort(EDGE_RIGHT, portIndex - nrOfPortsToAddOnLeft, pLayoutPort);
+    }
+    portIndex++;
+  }
+  LayoutSize size;
+  pLayoutBlock->getMinimumSize(&size);
+  if(size.width < 200) size.width = 200;
+  if(size.height < 250) size.height = 250;
+  pLayoutBlock->setSize(size);
+}
+
+LayoutArchitecture *Project::createDefaultArchitectureLayout(VHDLArchitecture *pArch)
+{
+  std::cout << "Creating default layout for architecture " << pArch->getName() << std::endl;
 
   LayoutArchitecture *pLayoutArch = new LayoutArchitecture();
 
-  for(auto &layoutPtr: *pLayoutList)
+  LayoutComponent *pLayoutComponent = new LayoutComponent();
+  createDefaultPorts(pArch->getEntity(), pLayoutComponent);
+
+  pLayoutArch->setComponent(pLayoutComponent);
+
+  std::map<VHDLSignal *, LayoutSignal *> vhdlToLayoutSignal;
+  for(auto &pSignal: pArch->getSignals())
   {
-    switch(layoutPtr.type())
-    {
-    case LayoutType::COMPONENT:
-      pLayoutArch->setComponent(layoutPtr.getComponent());
-      break;
-    case LayoutType::INSTANCE:
-      pLayoutArch->init_addInstance(layoutPtr.getInstance());
-      break;
-    case LayoutType::SIGNAL:
-      pLayoutArch->init_addSignal(layoutPtr.getSignal());
-      break;
-    default:
-      std::cerr << "Unknown entry in layout list" << std::endl;
-      g_assert_not_reached();
-      break;
+    LayoutSignal *pLayoutSignal = new LayoutSignal();
+    pLayoutSignal->associateSignal(pSignal);
+    pLayoutArch->init_addSignal(pLayoutSignal);
+    vhdlToLayoutSignal[pSignal] = pLayoutSignal;
+  }
+
+  for(auto &pInstance: pArch->getInstances())
+  {
+    LayoutInstance *pLayoutInstance = new LayoutInstance();
+    createDefaultPorts(pInstance->getComponent(), pLayoutInstance);
+
+    auto pPortsAndSignals = pInstance->getPortsAndSignals();
+		for(auto &portAndSignal: *pPortsAndSignals)
+		{
+      Edge edge;
+      int position;
+      LayoutSignal *pLayoutSignal = vhdlToLayoutSignal.at(portAndSignal.second);
+      pLayoutInstance->findPortByName(portAndSignal.first->getName(), &edge, &position);
+      std::cout << "Connecting port " << portAndSignal.first->getName() << " to instance at edge " << edge << " position " << position << std::endl;
+      pLayoutSignal->init_connect(pLayoutInstance, edge, position);
     }
+    delete pPortsAndSignals;
+
+    pLayoutInstance->init_done();
+    pLayoutInstance->associateVHDLInstance(pInstance);
+    pLayoutArch->init_addInstance(pLayoutInstance);
   }
 
   return pLayoutArch;
@@ -109,6 +188,13 @@ void Project::addFile(std::string fileName)
 
   LayoutResolverActions *pResolver = new LayoutResolverActions();
   auto pLayoutArch = readLayoutFromFile(layoutFileName, pResolver);
+
+  /* If we failed to read an architecture layout from file, we'll construct a suitable one here */
+  if(!pLayoutArch)
+  {
+    pLayoutArch = createDefaultArchitectureLayout(pArch);
+  }
+
   m_layoutResolverMap[baseName] = pResolver;
   m_fileToLayoutArchMap[baseName] = pLayoutArch;
 }
@@ -117,7 +203,7 @@ void Project::resolveEntityReferences()
 {
   for(auto &kv: m_fileToVHDLArchMap)
   {
-    std::cout << "Resolving entity references for architecture in file " << kv.first << std::endl;
+    std::cout << "Resolving vhdl entity references for vhdl architecture in file " << kv.first << std::endl;
     kv.second->resolveEntityReferences(m_entityMap);
   }
 }
@@ -128,6 +214,28 @@ void Project::resolveLayoutReferences()
   {
     std::cout << "Resolving layout references to VHDL objects in file " << kv.first << std::endl;
     kv.second->run(m_fileToVHDLArchMap.at(kv.first));
+  }
+}
+
+void Project::resolveLayoutComponentReferences()
+{
+  std::map<std::string, LayoutComponent *> componentMap;
+
+  /* First create a map of names to components by getting the name from the associated VHDL entity */
+  for(auto &kv: m_fileToLayoutArchMap)
+  {
+    LayoutComponent *pComponent = (LayoutComponent *)kv.second->getComponent();
+    componentMap[pComponent->getAssociatedVHDLEntity()->getName()] = pComponent;
+  }
+
+  /* Now associate all layout instances with the appropriate layout components through the associated VHDL entity name */
+  for(auto &kvarch: m_fileToLayoutArchMap)
+  {
+    for(auto &pInstance: kvarch.second->getInstances())
+    {
+      auto instanceName = pInstance->getAssociatedVHDLInstance()->getName();
+      pInstance->associateLayoutComponent(componentMap.at(instanceName));
+    }
   }
 }
 

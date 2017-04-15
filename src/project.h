@@ -25,9 +25,11 @@
 #include <string>
 
 class LayoutArchitecture;
+class LayoutComponent;
 class LayoutResolverActions;
 class VHDLArchitecture;
 class VHDLEntity;
+class VHDLInterface;
 
 class Project
 {
@@ -41,11 +43,14 @@ private:
 
   VHDLArchitecture *readVHDLFromFile(std::string fileName);
   LayoutArchitecture *readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
+  void createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock);
+  LayoutArchitecture *createDefaultArchitectureLayout(VHDLArchitecture *pArch);
 
 public:
   void addFile(std::string fileName);
   void resolveEntityReferences();
   void resolveLayoutReferences();
+  void resolveLayoutComponentReferences();
 
   LayoutArchitecture *getLayoutArchitecture(std::string fileName);
 

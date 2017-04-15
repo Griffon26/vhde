@@ -13,7 +13,7 @@ instance "myinstance1" {
   }
 }
 
-signal "mysignal2" {
+signal "mysignal1" {
   from unconnected
   to   port "myinstance1" LEFT 0
   corners {

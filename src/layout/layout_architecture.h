@@ -51,11 +51,9 @@ public:
 
   void init_done() { m_init = false; }
 
-  int getNumberOfInstances();
-  LayoutInstance *getInstance(int index);
-
-  int getNumberOfSignals();
-  LayoutSignal *getSignal(int index);
+  /* Accessors */
+  const std::vector<LayoutInstance *> &getInstances();
+  const std::vector<LayoutSignal *> &getSignals();
 
   void write(std::ostream &stream);
 };

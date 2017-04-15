@@ -40,6 +40,25 @@ LayoutSignal::LayoutSignal():
   m_endPoints[END].connected = false;
 }
 
+void LayoutSignal::init_connect(LayoutInstance *pInstance, Edge edge, int position)
+{
+  EndPointId endPoint;
+  if(!m_endPoints[BEGINNING].connected)
+  {
+    endPoint = BEGINNING;
+  }
+  else if(!m_endPoints[END].connected)
+  {
+    endPoint = END;
+  }
+  else
+  {
+    g_assert_not_reached();
+  }
+
+  connect(endPoint, pInstance, edge, position);
+}
+
 void LayoutSignal::associateSignal(INamedItem *pSignal)
 {
   g_assert(m_pSignal == NULL);

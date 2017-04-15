@@ -235,11 +235,12 @@ int main(int argc, char** argv)
   /*
    * Create GUI objects from some of the layout classes to show them on the screen
    */
-  auto pLayoutArch = project.getLayoutArchitecture("test/top_entity.vhd");
+  auto pLayoutTopArch = project.getLayoutArchitecture("test/top_entity.vhd");
+  auto pLayoutUsedArch = project.getLayoutArchitecture("test/used_entity.vhd");
 
-  GuiSignal guiSignal(stage, pLayoutArch->getSignal(0));
-  GuiInstance guiInstance(stage, pLayoutArch->getInstance(0));
-  GuiComponent guiComponent(stage, pLayoutArch->getComponent());
+  GuiSignal guiSignal(stage, pLayoutTopArch->getSignals()[0]);
+  GuiInstance guiInstance(stage, pLayoutTopArch->getInstances()[0]);
+  GuiComponent guiComponent(stage, pLayoutUsedArch->getComponent());
 
   /*
    * Allow the user to interact with the diagram

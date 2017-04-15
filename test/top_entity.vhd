@@ -16,7 +16,7 @@ architecture top_arch of top_entity is
 begin
   myinstance1: used_entity
   port map (
-    myport1 => mysignal2,
+    myport1 => mysignal1,
     myport2 => open
   );
 end;

@@ -57,6 +57,16 @@ void VHDLArchitecture::init_addComponent(VHDLComponent *pComponent)
   m_components.push_back(pComponent);
 }
 
+const std::vector<VHDLInstance *> &VHDLArchitecture::getInstances()
+{
+  return m_instances;
+}
+
+const std::vector<VHDLSignal *> &VHDLArchitecture::getSignals()
+{
+  return m_signals;
+}
+
 void VHDLArchitecture::setEntity(VHDLEntity *pEntity)
 {
   g_assert(m_pEntity == NULL);
@@ -65,9 +75,7 @@ void VHDLArchitecture::setEntity(VHDLEntity *pEntity)
 
 VHDLComponent *VHDLArchitecture::findComponentByName(Glib::ustring name)
 {
-  std::list<VHDLComponent *>::iterator it;
-
-  for(it = m_components.begin(); it != m_components.end(); it++)
+  for(auto it = m_components.begin(); it != m_components.end(); it++)
   {
     if((*it)->getName() == name)
     {
@@ -79,9 +87,7 @@ VHDLComponent *VHDLArchitecture::findComponentByName(Glib::ustring name)
 
 VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)
 {
-  std::list<VHDLSignal *>::iterator it;
-
-  for(it = m_signals.begin(); it != m_signals.end(); it++)
+  for(auto it = m_signals.begin(); it != m_signals.end(); it++)
   {
     if((*it)->getName() == name)
     {
@@ -93,9 +99,7 @@ VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)
 
 VHDLInstance *VHDLArchitecture::findInstanceByName(Glib::ustring name)
 {
-  std::list<VHDLInstance *>::iterator it;
-
-  for(it = m_instances.begin(); it != m_instances.end(); it++)
+  for(auto it = m_instances.begin(); it != m_instances.end(); it++)
   {
     if((*it)->getName() == name)
     {
@@ -107,28 +111,25 @@ VHDLInstance *VHDLArchitecture::findInstanceByName(Glib::ustring name)
 
 bool VHDLArchitecture::write(std::ostream &outStream, int indent)
 {
-  std::list<VHDLSignal *>::iterator sit;
-  std::list<VHDLInstance *>::iterator iit;
-
   std::string indentString(indent, ' ');
 
   m_pEntity->write(outStream, indent);
 
   outStream << indentString << "architecture " << m_name << " of " << m_pEntity->getName() << " is\n\n";
 
-  for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
+  for(auto iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
     (*iit)->getComponent()->write(outStream, indent + 2);
   }
 
-  for(sit = m_signals.begin(); sit != m_signals.end(); sit++)
+  for(auto sit = m_signals.begin(); sit != m_signals.end(); sit++)
   {
     (*sit)->write(outStream, indent + 2);
   }
   outStream << "\n";
 
   outStream << indentString << "begin\n";
-  for(iit = m_instances.begin(); iit != m_instances.end(); iit++)
+  for(auto iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
     (*iit)->write(outStream, indent + 2);
   }

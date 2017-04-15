@@ -36,6 +36,14 @@ void LayoutBlock::init_addPort(Edge edge, int position, LayoutPort *pLayoutPort)
   m_ports[edge][position] = pLayoutPort;
 }
 
+void LayoutBlock::init_done()
+{
+  g_assert(m_init);
+  g_assert(m_size.width != 0);
+  g_assert(m_size.height != 0);
+  m_init = false;
+}
+
 void LayoutBlock::getPosition(LayoutPosition *pLayoutPosition)
 {
   *pLayoutPosition = m_position;
@@ -253,7 +261,9 @@ bool LayoutBlock::findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *
       }
     }
   }
-  printf("LayoutBlock(%p)::findFreeSlot() -> %s %s %d\n", this, found ? "true" : "false", EDGE_TO_NAME(*pFreeEdge), *pFreePosition);
+  printf("LayoutBlock(%p)::findFreeSlot() -> %s %s %d\n", this, found ? "true" : "false",
+                                                          found ? EDGE_TO_NAME(*pFreeEdge) : "n.a.",
+                                                          found ? *pFreePosition : -1);
   return found;
 }
 

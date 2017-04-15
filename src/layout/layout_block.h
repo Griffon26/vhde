@@ -51,7 +51,7 @@ public:
 
   /* This method assumes ownership of the port */
   void init_addPort(Edge edge, int position, LayoutPort *pPort);
-  void init_done() { m_init = false; }
+  void init_done();
 
   void getPosition(LayoutPosition *pLayoutPosition);
 

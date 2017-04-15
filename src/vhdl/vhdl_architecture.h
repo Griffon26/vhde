@@ -32,12 +32,12 @@
 class VHDLArchitecture
 {
 private:
-  bool                        m_init;
-  Glib::ustring               m_name;
-  VHDLEntity                 *m_pEntity;
-  std::list<VHDLComponent *>  m_components;
-  std::list<VHDLSignal *>     m_signals;
-  std::list<VHDLInstance *>   m_instances;
+  bool                          m_init;
+  Glib::ustring                 m_name;
+  VHDLEntity                   *m_pEntity;
+  std::vector<VHDLComponent *>  m_components;
+  std::vector<VHDLSignal *>     m_signals;
+  std::vector<VHDLInstance *>   m_instances;
 
 public:
   VHDLArchitecture(Glib::ustring name);
@@ -50,6 +50,10 @@ public:
   /* This method assumes ownership of the instance */
   void init_addInstance(VHDLInstance *pInstance);
   void init_done() { m_init = false; }
+
+  /* Accessors */
+  const std::vector<VHDLInstance *> &getInstances();
+  const std::vector<VHDLSignal *> &getSignals();
 
   void setEntity(VHDLEntity *pEntity);
   VHDLEntity *getEntity() { return m_pEntity; }

@@ -24,6 +24,7 @@
 #include "layout_signal.h"
 
 LayoutArchitecture::LayoutArchitecture():
+  m_init(true),
   m_pComponent(nullptr)
 {
 }
@@ -51,24 +52,14 @@ void LayoutArchitecture::init_addSignal(LayoutSignal *pSignal)
   m_signals.push_back(pSignal);
 }
 
-int LayoutArchitecture::getNumberOfInstances()
+const std::vector<LayoutInstance *> &LayoutArchitecture::getInstances()
 {
-  return m_instances.size();
+  return m_instances;
 }
 
-LayoutInstance *LayoutArchitecture::getInstance(int index)
+const std::vector<LayoutSignal *> &LayoutArchitecture::getSignals()
 {
-  return m_instances[index];
-}
-
-int LayoutArchitecture::getNumberOfSignals()
-{
-  return m_signals.size();
-}
-
-LayoutSignal *LayoutArchitecture::getSignal(int index)
-{
-  return m_signals[index];
+  return m_signals;
 }
 
 void LayoutArchitecture::write(std::ostream &stream)
