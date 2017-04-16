@@ -7,7 +7,6 @@ explanation or subdivision.
 The identifiers (`VHDE-nn`) are only used to refer to other items on the list
 and do not indicate priority.
 
-1. `VHDE-14`: Automatically generate a .layout file when it's missing
 1. `VHDE-02`: Complete support for the currently implemented VHDL items (remove shortcuts)
 1. `VHDE-03`: Decide on the use of pointers (raw pointers vs unique_ptr + documenting the decision)
 1. `VHDE-01`: Get TravisCI builds to work
