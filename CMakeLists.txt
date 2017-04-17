@@ -73,6 +73,7 @@ set(SRCS src/main.cpp
          src/vhdl/vhdl_architecture.cpp
          src/vhdl/vhdl_component.cpp
          src/vhdl/vhdl_entity.cpp
+         src/vhdl/vhdl_fragment.cpp
          src/vhdl/vhdl_generic.cpp
          src/vhdl/vhdl_instance.cpp
          src/vhdl/vhdl_interface.cpp

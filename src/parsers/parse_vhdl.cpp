@@ -25,6 +25,7 @@
 
 #include "parse_vhdl.h"
 #include "vhdl_architecture.h"
+#include "vhdl_fragment.h"
 
 Direction directionFromSignalMode(std::string modeString)
 {
@@ -59,6 +60,15 @@ public:
 
 private:
   typedef std::pair<std::string, std::string> stringpair;
+
+  std::string getCurrentFragment(antlr4::ParserRuleContext *ctx)
+  {
+    /* Return any unknown VHDL as a VHDLFragment */
+    auto start = ctx->getStart()->getStartIndex();
+    auto stop = ctx->getStop()->getStopIndex();
+    auto pStream = ctx->getStart()->getInputStream();
+    return pStream->getText(antlr4::misc::Interval(start, stop));
+  }
 
   virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override {
     for(auto &el: ctx->design_unit())
@@ -154,6 +164,10 @@ private:
           m_pCurrentArchitecture->init_addSignal(pSignal);
         }
       }
+      else if(value.is<VHDLFragment *>())
+      {
+        std::cout << "Visited fragment: [" << value.as<VHDLFragment *>()->getText() << "]" << std::endl;
+      }
       else
       {
         assert(false);
@@ -221,7 +235,17 @@ private:
   }
 
   virtual antlrcpp::Any visitAssociation_element(vhdlParser::Association_elementContext *ctx) override {
-    return stringpair(visit(ctx->formal_part()).as<std::string>(), visit(ctx->actual_part()).as<std::string>());
+    std::string formalPart;
+    if(ctx->formal_part())
+    {
+      formalPart = visit(ctx->formal_part()).as<std::string>();
+    }
+    else
+    {
+      formalPart = "";
+    }
+    std::string actualPart = visit(ctx->actual_part()).as<std::string>();
+    return stringpair(formalPart, actualPart);
   }
 
   virtual antlrcpp::Any visitFormal_part(vhdlParser::Formal_partContext *ctx) override {
@@ -243,7 +267,8 @@ private:
     }
     else
     {
-        throw antlr4::RuntimeException("Parsing of architecture declarative parts other than component declarations and signal declarations is not implemented");
+      /* Return any unknown VHDL as a VHDLFragment */
+      return new VHDLFragment(getCurrentFragment(ctx));
     }
   }
 

@@ -48,12 +48,12 @@ VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
 
   for(it = m_ports.begin(); it != m_ports.end(); it++)
   {
-    printf(".. %s\n", (*it)->getName().c_str());
     if((*it)->getName() == name)
     {
       return *it;
     }
   }
+  printf(".. not found\n");
   return NULL;
 }
 

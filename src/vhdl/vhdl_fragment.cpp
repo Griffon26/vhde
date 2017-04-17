@@ -18,37 +18,25 @@
  *
  */
 
-#ifndef _VHDL_PORT_H
-#define _VHDL_PORT_H
+#include "vhdl_fragment.h"
 
-#include <glibmm.h>
-#include <stdio.h>
-
-#include "common.h"
-#include "i_named_item.h"
-#include "vhdl_type.h"
-
-class VHDLPort: public INamedItem
+VHDLFragment::VHDLFragment(const Glib::ustring &text):
+  m_text(text)
 {
-private:
-  Glib::ustring           m_name;
-  Direction               m_direction;
-  VHDLType                m_type;
+}
 
-public:
-  sigc::signal<void, VHDLPort *> removed;
+VHDLFragment::~VHDLFragment()
+{
+}
 
-  VHDLPort(Glib::ustring name);
-  virtual ~VHDLPort();
+const Glib::ustring &VHDLFragment::getText()
+{
+  return m_text;
+}
 
-  void setDirection(Direction dir);
-  void setType(VHDLType type);
+bool VHDLFragment::write(std::ostream &outStream, int indent)
+{
 
-  bool write(std::ostream &outStream, int indent);
-
-  const Glib::ustring   &getName()       { return m_name; }
-  const Direction       getDirection()  { return m_direction; }
-};
-
-#endif /* _VHDL_PORT_H */
-
+  outStream << std::string(indent, ' ') << m_text << std::endl;
+  return true;
+}
