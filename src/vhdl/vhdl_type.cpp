@@ -19,3 +19,19 @@
  */
 
 #include "vhdl_type.h"
+
+VHDLType::VHDLType()
+{
+}
+
+VHDLType::VHDLType(Glib::ustring name):
+  m_name(name)
+{
+}
+
+bool VHDLType::write(std::ostream &outStream, int indent)
+{
+  g_assert(m_name != "");
+  outStream << m_name;
+  return true;
+}

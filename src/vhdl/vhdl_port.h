@@ -42,7 +42,7 @@ public:
   virtual ~VHDLPort();
 
   void setDirection(Direction dir);
-  void setType(VHDLType type);
+  void setType(const VHDLType &type);
 
   bool write(std::ostream &outStream, int indent);
 

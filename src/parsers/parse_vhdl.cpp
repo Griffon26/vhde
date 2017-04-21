@@ -61,9 +61,9 @@ public:
 private:
   typedef std::pair<std::string, std::string> stringpair;
 
+  /* Return any parsed node as literal text */
   std::string getCurrentFragment(antlr4::ParserRuleContext *ctx)
   {
-    /* Return any unknown VHDL as a VHDLFragment */
     auto start = ctx->getStart()->getStartIndex();
     auto stop = ctx->getStop()->getStopIndex();
     auto pStream = ctx->getStart()->getInputStream();
@@ -272,15 +272,24 @@ private:
     }
   }
 
+  virtual antlrcpp::Any visitSubtype_indication(vhdlParser::Subtype_indicationContext *ctx) override {
+    return VHDLType(getCurrentFragment(ctx));
+  }
+
   virtual antlrcpp::Any visitSignal_declaration(vhdlParser::Signal_declarationContext *ctx) override {
     std::vector<VHDLSignal *> signals;
 
     for(auto &identctx: ctx->identifier_list()->identifier())
     {
       auto pSignal = new VHDLSignal(visit(identctx).as<std::string>());
-      // TODO: also parse and store subtype_indication
 
       signals.push_back(pSignal);
+    }
+    auto type = visit(ctx->subtype_indication());
+    for(auto &pSignal: signals)
+    {
+      pSignal->setType(type);
+      // TODO: also parse and store signal_kind and expression
     }
     return signals;
   }
@@ -333,10 +342,17 @@ private:
       }
 
       pPort->setDirection(dir);
-      // TODO: also parse and store subtype_indication
 
       ports.push_back(pPort);
     }
+
+    auto type = visit(ctx->subtype_indication());
+    for(auto &pPort: ports)
+    {
+      pPort->setType(type);
+      // TODO: also parse and store expression
+    }
+
     return ports;
   }
 

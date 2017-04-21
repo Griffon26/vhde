@@ -30,12 +30,15 @@ VHDLSignal::~VHDLSignal()
   removed.emit(this);
 }
 
-void setType(VHDLType type)
+void VHDLSignal::setType(const VHDLType &type)
 {
+  m_type = type;
 }
 
 bool VHDLSignal::write(std::ostream &outStream, int indent)
 {
-  outStream << std::string(indent, ' ') << "signal " << m_name << ": sometype;\n";
+  outStream << std::string(indent, ' ') << "signal " << m_name << ": ";
+  m_type.write(outStream, indent);
+  outStream << ";\n";
   return true;
 }

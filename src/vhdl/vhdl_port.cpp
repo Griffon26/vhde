@@ -37,7 +37,7 @@ void VHDLPort::setDirection(Direction dir)
   m_direction = dir;
 }
 
-void VHDLPort::setType(VHDLType type)
+void VHDLPort::setType(const VHDLType &type)
 {
   m_type = type;
 }
@@ -49,6 +49,7 @@ bool VHDLPort::write(std::ostream &outStream, int indent)
             << ((m_direction == DIR_IN)  ? "in" :
                 (m_direction == DIR_OUT) ? "out" :
                                            "inout")
-            << " sometype";
+            << " ";
+  m_type.write(outStream, indent);
   return true;
 }
