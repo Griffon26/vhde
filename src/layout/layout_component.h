@@ -21,9 +21,10 @@
 #ifndef _LAYOUT_COMPONENT_H
 #define _LAYOUT_COMPONENT_H
 
-#include "i_named_item.h"
 #include "layout_block.h"
 #include "layout_types.h"
+
+class INamedItem;
 
 class LayoutComponent: public LayoutBlock
 {

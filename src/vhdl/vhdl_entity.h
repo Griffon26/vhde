@@ -23,8 +23,11 @@
 
 #include <glibmm.h>
 
+#include "common.h"
 #include "i_named_item.h"
 #include "vhdl_interface.h"
+
+class VHDLPort;
 
 class VHDLEntity: public VHDLInterface, public INamedItem
 {

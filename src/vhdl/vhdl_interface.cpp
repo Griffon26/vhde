@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "vhdl_interface.h"
+#include "vhdl_port.h"
 
 /*
  * Public methods

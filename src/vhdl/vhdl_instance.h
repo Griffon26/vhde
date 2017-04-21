@@ -25,9 +25,9 @@
 #include <map>
 
 #include "i_named_item.h"
-#include "vhdl_signal.h"
 
 class VHDLComponent;
+class VHDLSignal;
 
 class VHDLInstance: public INamedItem
 {

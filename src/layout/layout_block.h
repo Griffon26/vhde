@@ -24,7 +24,8 @@
 #include <glibmm.h>
 
 #include "layout_types.h"
-#include "layout_port.h"
+
+class LayoutPort;
 
 class LayoutBlock
 {

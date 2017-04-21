@@ -23,8 +23,8 @@
 
 #include <glibmm.h>
 
-#include "vhdl_generic.h"
-#include "vhdl_port.h"
+class VHDLGeneric;
+class VHDLPort;
 
 class VHDLInterface
 {

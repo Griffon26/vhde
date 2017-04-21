@@ -20,7 +20,10 @@
 
 #include <stdio.h>
 
+#include "i_named_item.h"
+#include "layout_component.h"
 #include "layout_instance.h"
+#include "layout_port.h"
 
 /*
  * Public methods

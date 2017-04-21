@@ -24,10 +24,10 @@
 #include <glibmm.h>
 #include <stdio.h>
 
-#include "vhdl_component.h"
-#include "vhdl_entity.h"
-#include "vhdl_instance.h"
-#include "vhdl_signal.h"
+class VHDLComponent;
+class VHDLEntity;
+class VHDLInstance;
+class VHDLSignal;
 
 class VHDLArchitecture
 {
@@ -71,3 +71,4 @@ public:
 };
 
 #endif /* _VHDL_ARCHITECTURE_H */
+

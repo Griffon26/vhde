@@ -23,6 +23,7 @@
 
 #include <glibmm.h>
 
+#include "i_named_item.h"
 #include "vhdl_interface.h"
 
 class VHDLEntity;

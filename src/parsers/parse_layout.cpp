@@ -23,10 +23,15 @@
 
 #include "layout_component.h"
 #include "layout_instance.h"
+#include "layout_port.h"
 #include "layout_signal.h"
 #include "parse_layout.h"
 #include "vhdl_architecture.h"
+#include "vhdl_component.h"
 #include "vhdl_entity.h"
+#include "vhdl_instance.h"
+#include "vhdl_port.h"
+#include "vhdl_signal.h"
 
 std::string stripQuotes(std::string s)
 {

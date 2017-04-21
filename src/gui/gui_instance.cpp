@@ -20,8 +20,10 @@
 
 #include "gui_common.h"
 #include "gui_instance.h"
+#include "layout_port.h"
 #include "vhdl_component.h"
 #include "vhdl_instance.h"
+#include "vhdl_port.h"
 
 GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance):
   GuiBlock(pStage, pLayoutInstance)

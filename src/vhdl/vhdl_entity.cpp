@@ -19,6 +19,7 @@
  */
 
 #include "vhdl_entity.h"
+#include "vhdl_port.h"
 
 VHDLEntity::VHDLEntity(Glib::ustring name):
   m_name(name)

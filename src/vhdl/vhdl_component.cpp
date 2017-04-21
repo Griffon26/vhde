@@ -20,6 +20,7 @@
 
 #include "vhdl_component.h"
 #include "vhdl_entity.h"
+#include "vhdl_port.h"
 
 /*
  * Public methods

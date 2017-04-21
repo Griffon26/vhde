@@ -23,9 +23,10 @@
 
 #include <glibmm.h>
 
-#include "i_named_item.h"
 #include "layout_instance.h"
 #include "layout_types.h"
+
+class INamedItem;
 
 class LayoutSignal
 {

@@ -23,9 +23,15 @@
 #include "vhdlParser.h"
 #include "vhdlBaseVisitor.h"
 
+#include "common.h"
 #include "parse_vhdl.h"
 #include "vhdl_architecture.h"
+#include "vhdl_component.h"
+#include "vhdl_entity.h"
 #include "vhdl_fragment.h"
+#include "vhdl_instance.h"
+#include "vhdl_port.h"
+#include "vhdl_signal.h"
 
 Direction directionFromSignalMode(std::string modeString)
 {

@@ -21,6 +21,10 @@
 #include <iostream>
 
 #include "vhdl_architecture.h"
+#include "vhdl_component.h"
+#include "vhdl_entity.h"
+#include "vhdl_instance.h"
+#include "vhdl_signal.h"
 
 /*
  * Public methods
