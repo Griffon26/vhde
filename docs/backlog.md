@@ -25,3 +25,24 @@ and do not indicate priority.
 1. `VHDE-18`: Write user manual
 1. ...
 1. `VHDE-07`: Verilog support (don't hold your breath)
+
+The above backlog focuses on getting VHDE into a state that is usable and
+useful for regular users. To achieve this goal as soon as possible often a
+simple implementation of a feature is chosen first, which can be replaced by a
+more sophisticated one at a later time. The list below is meant to record some
+ideas for improvement that are not important enough to make it to the current
+backlog.
+
+1. When loading a VHDL file that does not have a corresponding layout file,
+   instead of putting half of the ports on the left side of a block and half of
+   them on the right, put inputs on the left and outputs on the right.
+1. When adding a VHDL file that was not created by VHDE to a project, detect if
+   the content of the file would change if VHDE had written it. If so, warn the
+   user about this and give him the option to open the file read-only or to
+   accept that VHDE will change the file.
+1. When loading VHDL files with comments, maintain them in the model and
+   include them when the VHDL is written. Use some heuristics to determine
+   where to put the comments as the file is modified (associate a comment
+   directly above or at the end of a line with the VHDL object on that line,
+   associate a comment followed by an empty line with the current section, e.g.
+   the list of signals or the header of the file)
