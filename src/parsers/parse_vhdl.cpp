@@ -27,6 +27,7 @@
 #include "parse_vhdl.h"
 #include "vhdl_architecture.h"
 #include "vhdl_component.h"
+#include "vhdl_file.h"
 #include "vhdl_entity.h"
 #include "vhdl_fragment.h"
 #include "vhdl_instance.h"
@@ -59,10 +60,10 @@ class VhdlConstructingVisitor: public vhdlBaseVisitor
 {
 public:
   std::map<std::string, VHDLEntity *> m_entityMap;
-  std::map<std::string, VHDLArchitecture *> m_architectureStore;
   std::map<std::string, std::vector<VHDLComponent *>> m_entityLessComponents;
 
   VHDLArchitecture *m_pCurrentArchitecture;
+  VHDLFile *m_pCurrentFile;
 
 private:
   typedef std::pair<std::string, std::string> stringpair;
@@ -77,15 +78,35 @@ private:
   }
 
   virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override {
+    VHDLFile *pVHDLFile = new VHDLFile();
+    m_pCurrentFile = pVHDLFile;
     for(auto &el: ctx->design_unit())
     {
       visit(el);
     }
-    return nullptr;
+    return pVHDLFile;
   }
 
   virtual antlrcpp::Any visitDesign_unit(vhdlParser::Design_unitContext *ctx) override {
-    return visit(ctx->library_unit());
+    auto library_unit = visit(ctx->library_unit());
+
+    if(library_unit.is<VHDLEntity *>())
+    {
+      if(m_pCurrentFile->getEntity())
+      {
+        throw antlr4::RuntimeException("Only one entity is supported per VHDL file");
+      }
+      m_pCurrentFile->setEntity(library_unit);
+    }
+    else if(library_unit.is<VHDLArchitecture *>())
+    {
+      m_pCurrentFile->addArchitecture(library_unit);
+    }
+    else
+    {
+      g_assert(false);
+    }
+    return nullptr;
   }
 
   virtual antlrcpp::Any visitLibrary_unit(vhdlParser::Library_unitContext *ctx) override {
@@ -134,7 +155,7 @@ private:
 
     m_entityMap[name] = pEntity;
 
-    return nullptr;
+    return pEntity;
   }
 
   virtual antlrcpp::Any visitEntity_header(vhdlParser::Entity_headerContext *ctx) override {
@@ -146,12 +167,11 @@ private:
     auto entityName = visit(ctx->identifier(1)).as<std::string>();
     auto pArch = new VHDLArchitecture(archName);
     pArch->setEntity(m_entityMap.at(entityName));
-    m_architectureStore[archName] = pArch;
 
     m_pCurrentArchitecture = pArch;
     visit(ctx->architecture_declarative_part());
     visit(ctx->architecture_statement_part());
-    return nullptr;
+    return pArch;
   }
 
   virtual antlrcpp::Any visitArchitecture_declarative_part(vhdlParser::Architecture_declarative_partContext *ctx) override {
@@ -376,10 +396,8 @@ private:
 };
 
 
-VHDLUnitList *parseVHDL(std::istream &stream)
+VHDLFile *parseVHDL(std::istream &stream)
 {
-  VHDLUnitList *pUnitList = new VHDLUnitList();
-
   antlr4::ANTLRInputStream input(stream);
   vhdlLexer lexer(&input);
   antlr4::CommonTokenStream tokens(&lexer);
@@ -387,18 +405,6 @@ VHDLUnitList *parseVHDL(std::istream &stream)
   antlr4::tree::ParseTree *tree = parser.design_file();
 
   auto visitor = VhdlConstructingVisitor();
-  visitor.visit(tree);
-
-  for (auto& kv: visitor.m_entityMap)
-  {
-    pUnitList->push_back(kv.second);
-  }
-
-  for (auto& kv: visitor.m_architectureStore)
-  {
-    pUnitList->push_back(kv.second);
-  }
-
-  return pUnitList;
+  return visitor.visit(tree);
 }
 

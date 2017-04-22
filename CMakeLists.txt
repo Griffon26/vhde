@@ -61,6 +61,7 @@ set(SRCS src/main.cpp
          src/layout/layout_architecture.cpp
          src/layout/layout_block.cpp
          src/layout/layout_component.cpp
+         src/layout/layout_file.cpp
          src/layout/layout_instance.cpp
          src/layout/layout_port.cpp
          src/layout/layout_signal.cpp
@@ -73,6 +74,7 @@ set(SRCS src/main.cpp
          src/vhdl/vhdl_architecture.cpp
          src/vhdl/vhdl_component.cpp
          src/vhdl/vhdl_entity.cpp
+         src/vhdl/vhdl_file.cpp
          src/vhdl/vhdl_fragment.cpp
          src/vhdl/vhdl_generic.cpp
          src/vhdl/vhdl_instance.cpp

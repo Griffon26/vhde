@@ -46,3 +46,7 @@ backlog.
    directly above or at the end of a line with the VHDL object on that line,
    associate a comment followed by an empty line with the current section, e.g.
    the list of signals or the header of the file)
+1. Implement graceful degradation when reading layout files that do not match
+   the VHDL file. 
+1. Fall back to generating a default layout when the layout file has syntactic
+   errors

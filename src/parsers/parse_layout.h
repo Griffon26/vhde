@@ -27,9 +27,10 @@
 #include <vector>
 
 class LayoutComponent;
+class LayoutFile;
 class LayoutInstance;
 class LayoutSignal;
-class VHDLArchitecture;
+class VHDLFile;
 
 enum class LayoutType
 {
@@ -94,22 +95,22 @@ public:
 class LayoutResolverActions
 {
 private:
-  std::vector<std::function<void(VHDLArchitecture *)>> m_actions;
+  std::vector<std::function<void(VHDLFile *)>> m_actions;
 
 public:
-  void add(std::function<void(VHDLArchitecture *)> action) { m_actions.push_back(action); }
-  void run(VHDLArchitecture *pArch)
+  void add(std::function<void(VHDLFile *)> action) { m_actions.push_back(action); }
+  void run(VHDLFile *pVHDLFile)
   {
     for(auto &action: m_actions)
     {
-      action(pArch);
+      action(pVHDLFile);
     }
   }
 };
 
 typedef std::vector<LayoutPtr> LayoutList;
 
-LayoutList *parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions);
+LayoutFile *parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions);
 
 #endif
 

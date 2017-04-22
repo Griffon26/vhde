@@ -78,25 +78,25 @@ signal "mysignal" {
   }
 }
 */
-void LayoutSignal::write(std::ostream &stream)
+void LayoutSignal::write(std::ostream &stream, int indent)
 {
   std::list<LayoutPosition>::iterator it;
+  std::string indentString(indent, ' ');
 
-  stream << "signal \"" << m_pSignal->getName() << "\" {\n"
-         << "  from ";
+  stream << indentString << "signal \"" << m_pSignal->getName() << "\" {\n"
+         << indentString << "  from ";
   writeEndPoint(stream, m_endPoints[BEGINNING]);
-  stream << "  to   ";
+  stream << indentString << "  to   ";
   writeEndPoint(stream, m_endPoints[END]);
-  stream << "  corners {\n";
+  stream << indentString << "  corners {\n";
 
   for(it = m_corners.begin(); it != m_corners.end(); it++)
   {
-    stream << "    " << it->x << " " << it->y << "\n";
+    stream << indentString << "    " << it->x << " " << it->y << "\n";
   }
 
-  stream << "  }\n"
-         << "}\n"
-         << "\n";
+  stream << indentString << "  }\n"
+         << indentString << "}\n";
 }
 
 void LayoutSignal::connect(EndPointId endPointId, LayoutInstance *pLayoutInstance, Edge edge, int position)

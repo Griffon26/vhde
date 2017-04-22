@@ -25,9 +25,10 @@
 #include <string>
 
 class LayoutArchitecture;
-class LayoutComponent;
+class LayoutFile;
 class LayoutResolverActions;
 class VHDLArchitecture;
+class VHDLFile;
 class VHDLEntity;
 class VHDLInterface;
 
@@ -37,14 +38,16 @@ private:
   std::map<std::string, VHDLEntity *> m_entityMap;
 
   /* These maps use the base name of the VHDL file as key */
-  std::map<std::string, VHDLArchitecture *> m_fileToVHDLArchMap;
-  std::map<std::string, LayoutArchitecture *> m_fileToLayoutArchMap;
+  std::map<std::string, VHDLFile *> m_fileToVHDLFileMap;
+  std::map<std::string, LayoutFile *> m_fileToLayoutFileMap;
   std::map<std::string, LayoutResolverActions *> m_layoutResolverMap;
 
-  VHDLArchitecture *readVHDLFromFile(std::string fileName);
-  LayoutArchitecture *readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
+  static VHDLFile *readVHDLFromFile(std::string fileName, std::map<std::string, VHDLEntity *> &entityMap);
+
+  LayoutFile *readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
   void createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock);
   LayoutArchitecture *createDefaultArchitectureLayout(VHDLArchitecture *pArch);
+  LayoutFile *createDefaultFileLayout(VHDLFile *pVHDLFile);
 
 public:
   void addFile(std::string fileName);
@@ -52,7 +55,7 @@ public:
   void resolveLayoutReferences();
   void resolveLayoutComponentReferences();
 
-  LayoutArchitecture *getLayoutArchitecture(std::string fileName);
+  LayoutFile *getLayoutFile(std::string fileName);
 
   /* temporary method for testing if parsing and saving is done correctly */
   void save();

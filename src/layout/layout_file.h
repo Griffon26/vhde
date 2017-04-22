@@ -18,43 +18,37 @@
  *
  */
 
-#ifndef _LAYOUT_ARCHITECTURE_H
-#define _LAYOUT_ARCHITECTURE_H
+#ifndef _LAYOUT_FILE_H
+#define _LAYOUT_FILE_H
 
 #include <glibmm.h>
-#include <stdio.h>
 
-class INamedItem;
+class LayoutArchitecture;
 class LayoutComponent;
-class LayoutInstance;
-class LayoutSignal;
 
-class LayoutArchitecture
+/* The only purpose of this class is to group other layout objects belonging to
+ * one file so it is easy to write them all out in one go.
+ */
+class LayoutFile
 {
 private:
-  bool                          m_init;
-  std::vector<LayoutInstance *> m_instances;
-  std::vector<LayoutSignal *>   m_signals;
-  INamedItem                   *m_pVHDLArchitecture;
+  LayoutComponent *m_pComponent;
+  std::vector<LayoutArchitecture *> m_architectures;
 
 public:
-  LayoutArchitecture();
-  virtual ~LayoutArchitecture();
+  LayoutFile();
+  virtual ~LayoutFile() {}
 
-  /* These methods assume ownership of the component, instance and signal */
-  void init_addInstance(LayoutInstance *pInstance);
-  void init_addSignal(LayoutSignal *pSignal);
+  /* These methods assume ownership of the component and architectures */
+  void setComponent(LayoutComponent *pComponent);
+  LayoutComponent *getComponent() { return m_pComponent; }
+  void addArchitecture(LayoutArchitecture *pLayoutArch);
+  const std::vector<LayoutArchitecture *> &getArchitectures();
 
-  void init_done() { m_init = false; }
 
-  void associateVHDLArchitecture(INamedItem *pArch);
-
-  /* Accessors */
-  const std::vector<LayoutInstance *> &getInstances();
-  const std::vector<LayoutSignal *> &getSignals();
 
   void write(std::ostream &stream, int indent);
 };
 
-#endif /* _LAYOUT_ARCHITECTURE_H */
+#endif /* _LAYOUT_FILE_H */
 

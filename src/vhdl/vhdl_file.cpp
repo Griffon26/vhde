@@ -18,30 +18,51 @@
  *
  */
 
-#ifndef _LAYOUT_COMPONENT_H
-#define _LAYOUT_COMPONENT_H
+#include "vhdl_architecture.h"
+#include "vhdl_entity.h"
+#include "vhdl_file.h"
 
-#include "layout_block.h"
-#include "layout_types.h"
-
-class INamedItem;
-
-class LayoutComponent: public LayoutBlock
+VHDLFile::VHDLFile():
+  m_pEntity(nullptr)
 {
-private:
-  INamedItem       *m_pVHDLEntity;
+}
 
-public:
-  LayoutComponent();
+void VHDLFile::setName(const Glib::ustring &name)
+{
+  m_name = name;
+}
 
-  void associateEntity(INamedItem *pVHDLEntity);
-  INamedItem *getAssociatedVHDLEntity();
+void VHDLFile::setEntity(VHDLEntity *pEntity)
+{
+  g_assert(!m_pEntity);
+  m_pEntity = pEntity;
+}
 
-  /* This method retains ownership of the returned LayoutPort */
-  LayoutPort *createPort(Edge edge, int position, INamedItem *pVHDLPort);
-  void destroyPort(Edge edge, int position);
+void VHDLFile::addArchitecture(VHDLArchitecture *pArch)
+{
+  m_architectures.push_back(pArch);
+}
 
-  void write(std::ostream &stream, int indent);
-};
+const std::vector<VHDLArchitecture *> VHDLFile::getArchitectures()
+{
+  return m_architectures;
+}
 
-#endif /* _LAYOUT_COMPONENT_H */
+VHDLArchitecture *VHDLFile::findArchitectureByName(Glib::ustring name)
+{
+  for(auto pArch: m_architectures)
+  {
+    if(pArch->getName() == name)
+    {
+      return pArch;
+    }
+  }
+  return nullptr;
+}
+
+bool VHDLFile::write(std::ostream &outStream, int indent)
+{
+  g_assert(m_name != "");
+  outStream << m_name;
+  return true;
+}

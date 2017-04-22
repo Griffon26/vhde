@@ -48,7 +48,7 @@ public:
   void associateVHDLInstance(INamedItem *pVHDLInstance);
   INamedItem *getAssociatedVHDLInstance();
 
-  void write(std::ostream &stream);
+  void write(std::ostream &stream, int indent);
 
 private:
 #if 0

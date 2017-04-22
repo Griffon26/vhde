@@ -21,6 +21,7 @@
 #include <fstream>
 
 #include "layout_architecture.h"
+#include "layout_file.h"
 #include "layout_component.h"
 #include "layout_instance.h"
 #include "layout_port.h"
@@ -31,6 +32,7 @@
 #include "vhdl_architecture.h"
 #include "vhdl_component.h"
 #include "vhdl_entity.h"
+#include "vhdl_file.h"
 #include "vhdl_instance.h"
 #include "vhdl_port.h"
 #include "vhdl_signal.h"
@@ -41,73 +43,32 @@ static std::string getBaseName(std::string fileName)
   return fileName.substr(0, dotIndex);
 }
 
-VHDLArchitecture *Project::readVHDLFromFile(std::string fileName)
+VHDLFile *Project::readVHDLFromFile(std::string fileName, std::map<std::string, VHDLEntity *> &entityMap)
 {
+  std::cout << "Opening file " << fileName << "..." << std::endl;
   std::ifstream inFile(fileName);
-  VHDLUnitList *pUnitList = ::parseVHDL(inFile);
+  VHDLFile *pVHDLFile = ::parseVHDL(inFile);
 
-  VHDLEntity *pEntity = nullptr;
-  VHDLArchitecture *pArch = nullptr;
+  VHDLEntity *pEntity = pVHDLFile->getEntity();
+  entityMap[pEntity->getName()] = pEntity;
 
-  for(auto &unit: *pUnitList)
-  {
-    switch(unit.type())
-    {
-    case UnitType::ENTITY:
-      g_assert(!pEntity);
-      pEntity = unit.getEntity();
-      m_entityMap[pEntity->getName()] = pEntity;
-      std::cout << "Entity " << pEntity->getName() << " is at " << pEntity << std::endl;
-      break;
-    case UnitType::ARCHITECTURE:
-      g_assert(!pArch);
-      pArch = unit.getArch();
-      std::cout << "Architecture " << pArch->getName() << " is at " << pArch << std::endl;
-      break;
-    default:
-      std::cerr << "Unknown entry in unit list" << std::endl;
-      g_assert_not_reached();
-      break;
-    }
-  }
+  pVHDLFile->setName(fileName);
 
-  g_assert(pArch);
-  return pArch;
+  return pVHDLFile;
 }
 
-LayoutArchitecture *Project::readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions)
+LayoutFile *Project::readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions)
 {
-  LayoutArchitecture *pLayoutArch = nullptr;
+  std::cout << "Opening file " << fileName << "..." << std::endl;
+  LayoutFile *pLayoutFile = nullptr;
   std::ifstream inFile(fileName);
 
   if(inFile.good())
   {
-    LayoutList *pLayoutList = ::parseLayout(inFile, *pLayoutResolverActions);
-
-    pLayoutArch = new LayoutArchitecture();
-
-    for(auto &layoutPtr: *pLayoutList)
-    {
-      switch(layoutPtr.type())
-      {
-      case LayoutType::COMPONENT:
-        pLayoutArch->setComponent(layoutPtr.getComponent());
-        break;
-      case LayoutType::INSTANCE:
-        pLayoutArch->init_addInstance(layoutPtr.getInstance());
-        break;
-      case LayoutType::SIGNAL:
-        pLayoutArch->init_addSignal(layoutPtr.getSignal());
-        break;
-      default:
-        std::cerr << "Unknown entry in layout list" << std::endl;
-        g_assert_not_reached();
-        break;
-      }
-    }
+    pLayoutFile = ::parseLayout(inFile, *pLayoutResolverActions);
   }
 
-  return pLayoutArch;
+  return pLayoutFile;
 }
 
 void Project::createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock)
@@ -143,10 +104,7 @@ LayoutArchitecture *Project::createDefaultArchitectureLayout(VHDLArchitecture *p
 
   LayoutArchitecture *pLayoutArch = new LayoutArchitecture();
 
-  LayoutComponent *pLayoutComponent = new LayoutComponent();
-  createDefaultPorts(pArch->getEntity(), pLayoutComponent);
-
-  pLayoutArch->setComponent(pLayoutComponent);
+  pLayoutArch->associateVHDLArchitecture(pArch);
 
   std::map<VHDLSignal *, LayoutSignal *> vhdlToLayoutSignal;
   for(auto &pSignal: pArch->getSignals())
@@ -182,34 +140,56 @@ LayoutArchitecture *Project::createDefaultArchitectureLayout(VHDLArchitecture *p
   return pLayoutArch;
 }
 
+LayoutFile *Project::createDefaultFileLayout(VHDLFile *pVHDLFile)
+{
+  std::cout << "Creating default layout for new file" << std::endl;
+
+  LayoutFile *pLayoutFile = new LayoutFile();
+
+  LayoutComponent *pLayoutComponent = new LayoutComponent();
+  createDefaultPorts(pVHDLFile->getEntity(), pLayoutComponent);
+
+  pLayoutFile->setComponent(pLayoutComponent);
+
+  for(auto &pVHDLArch: pVHDLFile->getArchitectures())
+  {
+    pLayoutFile->addArchitecture(createDefaultArchitectureLayout(pVHDLArch));
+  }
+
+  return pLayoutFile;
+}
+
 void Project::addFile(std::string fileName)
 {
   auto baseName = getBaseName(fileName);
 
-  auto pArch = readVHDLFromFile(fileName);
-  m_fileToVHDLArchMap[baseName] = pArch;
+  auto pVHDLFile = readVHDLFromFile(fileName, m_entityMap);
+  m_fileToVHDLFileMap[baseName] = pVHDLFile;
 
   auto layoutFileName = baseName + ".layout";
 
   LayoutResolverActions *pResolver = new LayoutResolverActions();
-  auto pLayoutArch = readLayoutFromFile(layoutFileName, pResolver);
+  auto pLayoutFile = readLayoutFromFile(layoutFileName, pResolver);
 
   /* If we failed to read an architecture layout from file, we'll construct a suitable one here */
-  if(!pLayoutArch)
+  if(!pLayoutFile)
   {
-    pLayoutArch = createDefaultArchitectureLayout(pArch);
+    pLayoutFile = createDefaultFileLayout(pVHDLFile);
   }
+  m_fileToLayoutFileMap[baseName] = pLayoutFile;
 
   m_layoutResolverMap[baseName] = pResolver;
-  m_fileToLayoutArchMap[baseName] = pLayoutArch;
 }
 
 void Project::resolveEntityReferences()
 {
-  for(auto &kv: m_fileToVHDLArchMap)
+  for(auto &kv: m_fileToVHDLFileMap)
   {
-    std::cout << "Resolving vhdl entity references for vhdl architecture in file " << kv.first << std::endl;
-    kv.second->resolveEntityReferences(m_entityMap);
+    std::cout << "Resolving vhdl entity references for vhdl architectures in file " << kv.first << std::endl;
+    for(auto &pArch: kv.second->getArchitectures())
+    {
+      pArch->resolveEntityReferences(m_entityMap);
+    }
   }
 }
 
@@ -218,7 +198,7 @@ void Project::resolveLayoutReferences()
   for(auto &kv: m_layoutResolverMap)
   {
     std::cout << "Resolving layout references to VHDL objects in file " << kv.first << std::endl;
-    kv.second->run(m_fileToVHDLArchMap.at(kv.first));
+    kv.second->run(m_fileToVHDLFileMap.at(kv.first));
   }
 }
 
@@ -227,33 +207,36 @@ void Project::resolveLayoutComponentReferences()
   std::map<std::string, LayoutComponent *> componentMap;
 
   /* First create a map of names to components by getting the name from the associated VHDL entity */
-  for(auto &kv: m_fileToLayoutArchMap)
+  for(auto &kv: m_fileToLayoutFileMap)
   {
     LayoutComponent *pComponent = (LayoutComponent *)kv.second->getComponent();
     componentMap[pComponent->getAssociatedVHDLEntity()->getName()] = pComponent;
   }
 
   /* Now associate all layout instances with the appropriate layout components through the associated VHDL entity name */
-  for(auto &kvarch: m_fileToLayoutArchMap)
+  for(auto &kvfile: m_fileToLayoutFileMap)
   {
-    for(auto &pInstance: kvarch.second->getInstances())
+    for(auto pArch: kvfile.second->getArchitectures())
     {
-      auto instanceName = pInstance->getAssociatedVHDLInstance()->getName();
-      pInstance->associateLayoutComponent(componentMap.at(instanceName));
+      for(auto &pInstance: pArch->getInstances())
+      {
+        auto instanceName = pInstance->getAssociatedVHDLInstance()->getName();
+        pInstance->associateLayoutComponent(componentMap.at(instanceName));
+      }
     }
   }
 }
 
-LayoutArchitecture *Project::getLayoutArchitecture(std::string fileName)
+LayoutFile *Project::getLayoutFile(std::string fileName)
 {
-  return m_fileToLayoutArchMap.at(getBaseName(fileName));
+  return m_fileToLayoutFileMap.at(getBaseName(fileName));
 }
 
 void Project::save()
 {
-  for(auto &kv: m_fileToVHDLArchMap)
+  for(auto &kv: m_fileToVHDLFileMap)
   {
-    std::cout << "Saving architecture " << kv.second->getName() << " to file " << kv.first << "2.*" << std::endl;
+    std::cout << "Saving file " << kv.second->getName() << " to file " << kv.first << "2.*" << std::endl;
 
     std::ofstream outStream;
     
@@ -262,7 +245,7 @@ void Project::save()
     outStream.close();
 
     outStream.open(kv.first + "2.layout");
-    m_fileToLayoutArchMap.at(kv.first)->write(outStream);
+    m_fileToLayoutFileMap.at(kv.first)->write(outStream, 0);
     outStream.close();
   }
 }

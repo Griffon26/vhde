@@ -18,30 +18,38 @@
  *
  */
 
-#ifndef _LAYOUT_COMPONENT_H
-#define _LAYOUT_COMPONENT_H
+#ifndef _VHDL_FILE_H
+#define _VHDL_FILE_H
 
-#include "layout_block.h"
-#include "layout_types.h"
+#include <glibmm.h>
 
-class INamedItem;
+class VHDLArchitecture;
+class VHDLEntity;
 
-class LayoutComponent: public LayoutBlock
+class VHDLFile
 {
 private:
-  INamedItem       *m_pVHDLEntity;
+  Glib::ustring m_name;
+
+  VHDLEntity *m_pEntity;
+  std::vector<VHDLArchitecture *> m_architectures;
 
 public:
-  LayoutComponent();
+  VHDLFile();
+  
+  void setName(const Glib::ustring &name);
+  Glib::ustring getName() { return m_name; }
 
-  void associateEntity(INamedItem *pVHDLEntity);
-  INamedItem *getAssociatedVHDLEntity();
+  void setEntity(VHDLEntity *pEntity);
+  VHDLEntity *getEntity() { return m_pEntity; }
 
-  /* This method retains ownership of the returned LayoutPort */
-  LayoutPort *createPort(Edge edge, int position, INamedItem *pVHDLPort);
-  void destroyPort(Edge edge, int position);
+  void addArchitecture(VHDLArchitecture *pArch);
+  const std::vector<VHDLArchitecture *> getArchitectures();
 
-  void write(std::ostream &stream, int indent);
+  VHDLArchitecture *findArchitectureByName(Glib::ustring name);
+
+  bool write(std::ostream &outStream, int indent);
 };
 
-#endif /* _LAYOUT_COMPONENT_H */
+#endif /* _VHDL_FILE_H */
+

@@ -102,26 +102,27 @@ instance "blaat" {
 }
 
 */
-void LayoutInstance::write(std::ostream &stream)
+void LayoutInstance::write(std::ostream &stream, int indent)
 {
   int edge;
   std::map<int, LayoutPort *>::iterator it;
+  std::string indentString(indent, ' ');
 
-  stream << "instance \"" << m_pVHDLInstance->getName() << "\" {\n"
-         << "  position " << m_position.x << " " << m_position.y << "\n"
-         << "  size " << m_size.width << " " << m_size.height << "\n"
-         << "  ports {\n";
+  stream << indentString << "instance \"" << m_pVHDLInstance->getName() << "\" {\n"
+         << indentString << "  position " << m_position.x << " " << m_position.y << "\n"
+         << indentString << "  size " << m_size.width << " " << m_size.height << "\n"
+         << indentString << "  ports {\n";
 
   for(edge = 0; edge < NR_OF_EDGES; edge++)
   {
     for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
     {
-      stream << "    " << EDGE_TO_NAME(edge) << " " << it->first << " \"" << it->second->getAssociatedVHDLPort()->getName() << "\"\n";
+      stream << indentString << "    " << EDGE_TO_NAME(edge) << " " << it->first << " \"" << it->second->getAssociatedVHDLPort()->getName() << "\"\n";
     }
   }
 
-  stream << "  }\n"
-         << "}\n"
+  stream << indentString << "  }\n"
+         << indentString << "}\n"
          << "\n";
 }
 

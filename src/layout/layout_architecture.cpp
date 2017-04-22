@@ -18,6 +18,7 @@
  *
  */
 
+#include "i_named_item.h"
 #include "layout_architecture.h"
 #include "layout_component.h"
 #include "layout_instance.h"
@@ -25,19 +26,13 @@
 
 LayoutArchitecture::LayoutArchitecture():
   m_init(true),
-  m_pComponent(nullptr)
+  m_pVHDLArchitecture(nullptr)
 {
 }
 
 LayoutArchitecture::~LayoutArchitecture()
 {
   /* TODO: release all owned resources */
-}
-
-void LayoutArchitecture::setComponent(LayoutComponent *pComponent)
-{
-  g_assert(!m_pComponent);
-  m_pComponent = pComponent;
 }
 
 void LayoutArchitecture::init_addInstance(LayoutInstance *pInstance)
@@ -52,6 +47,13 @@ void LayoutArchitecture::init_addSignal(LayoutSignal *pSignal)
   m_signals.push_back(pSignal);
 }
 
+void LayoutArchitecture::associateVHDLArchitecture(INamedItem *pVHDLArchitecture)
+{
+  g_assert(!m_pVHDLArchitecture);
+  g_assert(pVHDLArchitecture);
+  m_pVHDLArchitecture = pVHDLArchitecture;
+}
+
 const std::vector<LayoutInstance *> &LayoutArchitecture::getInstances()
 {
   return m_instances;
@@ -62,18 +64,19 @@ const std::vector<LayoutSignal *> &LayoutArchitecture::getSignals()
   return m_signals;
 }
 
-void LayoutArchitecture::write(std::ostream &stream)
+void LayoutArchitecture::write(std::ostream &stream, int indent)
 {
-  g_assert(m_pComponent);
-  m_pComponent->write(stream);
+  stream << "architecture \"" << m_pVHDLArchitecture->getName() << "\" {\n";
 
   for(auto &pInstance: m_instances)
   {
-    pInstance->write(stream);
+    pInstance->write(stream, indent + 2);
   }
   for(auto &pSignal: m_signals)
   {
-    pSignal->write(stream);
+    pSignal->write(stream, indent + 2);
   }
+
+  stream << "}\n";
 }
 

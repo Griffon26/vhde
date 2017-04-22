@@ -83,7 +83,7 @@ public:
 
   void associateSignal(INamedItem *pSignal);
 
-  void write(std::ostream &stream);
+  void write(std::ostream &stream, int indent);
 
   void connect(EndPointId endPointId, LayoutInstance *pInstance, Edge edge, int position);
 

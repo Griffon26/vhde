@@ -26,6 +26,7 @@
 #include "gui_instance.h"
 #include "gui_signal.h"
 #include "layout_architecture.h"
+#include "layout_file.h"
 #include "layout_instance.h"
 #include "layout_signal.h"
 #include "project.h"
@@ -235,12 +236,12 @@ int main(int argc, char** argv)
   /*
    * Create GUI objects from some of the layout classes to show them on the screen
    */
-  auto pLayoutTopArch = project.getLayoutArchitecture("test/top_entity.vhd");
-  auto pLayoutUsedArch = project.getLayoutArchitecture("test/used_entity.vhd");
+  auto pLayoutTopArch = project.getLayoutFile("test/top_entity.vhd")->getArchitectures()[0];
+  auto pLayoutUsedFile = project.getLayoutFile("test/used_entity.vhd");
 
   GuiSignal guiSignal(stage, pLayoutTopArch->getSignals()[0]);
   GuiInstance guiInstance(stage, pLayoutTopArch->getInstances()[0]);
-  GuiComponent guiComponent(stage, pLayoutUsedArch->getComponent());
+  GuiComponent guiComponent(stage, pLayoutUsedFile->getComponent());
 
   /*
    * Allow the user to interact with the diagram

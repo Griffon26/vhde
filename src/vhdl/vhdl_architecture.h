@@ -24,12 +24,14 @@
 #include <glibmm.h>
 #include <stdio.h>
 
+#include "i_named_item.h"
+
 class VHDLComponent;
 class VHDLEntity;
 class VHDLInstance;
 class VHDLSignal;
 
-class VHDLArchitecture
+class VHDLArchitecture: public INamedItem
 {
 private:
   bool                          m_init;
@@ -64,7 +66,7 @@ public:
 
   bool write(std::ostream &outStream, int indent);
 
-  Glib::ustring getName() { return m_name; }
+  const Glib::ustring &getName() { return m_name; }
 
   void resolveEntityReferences(const std::map<std::string, VHDLEntity *> &entityMap);
 
