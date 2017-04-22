@@ -23,14 +23,14 @@
 
 #include <glibmm.h>
 
-class VHDLGeneric;
+class VHDLFragment;
 class VHDLPort;
 
 class VHDLInterface
 {
 protected:
   bool                      m_init;
-  std::list<VHDLGeneric *>  m_generics;
+  VHDLFragment             *m_pGenerics;
   std::list<VHDLPort *>     m_ports;
 
 public:
@@ -39,7 +39,8 @@ public:
 
   VHDLInterface();
 
-  /* This method assumes ownership of the port */
+  /* These methods assume ownership of the objects passed */
+  void init_addGenerics(VHDLFragment *pFragment);
   void init_addPort(VHDLPort *pPort);
   void init_done() { m_init = false; }
 

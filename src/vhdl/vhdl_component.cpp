@@ -20,6 +20,7 @@
 
 #include "vhdl_component.h"
 #include "vhdl_entity.h"
+#include "vhdl_fragment.h"
 #include "vhdl_port.h"
 
 /*
@@ -50,13 +51,17 @@ VHDLComponent::~VHDLComponent()
 */
 bool VHDLComponent::write(std::ostream &outStream, int indent)
 {
-  std::list<VHDLGeneric *>::iterator git;
   std::list<VHDLPort *>::iterator pit;
   std::string indentString(indent, ' ');
 
   g_assert(m_pEntity);
 
   outStream << indentString << "component " << m_pEntity->getName() << "\n";
+
+  if(m_pGenerics)
+  {
+    outStream << indentString << m_pGenerics->getText() << "\n";
+  }
 
   outStream << indentString << "  port (\n";
   for(pit = m_ports.begin(); pit != m_ports.end(); pit++)

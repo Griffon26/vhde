@@ -19,6 +19,7 @@
  */
 
 #include "vhdl_entity.h"
+#include "vhdl_fragment.h"
 #include "vhdl_port.h"
 
 VHDLEntity::VHDLEntity(Glib::ustring name):
@@ -66,11 +67,15 @@ void VHDLEntity::destroyPort(VHDLPort *pPort)
 */
 bool VHDLEntity::write(std::ostream &outStream, int indent)
 {
-  std::list<VHDLGeneric *>::iterator git;
   std::list<VHDLPort *>::iterator pit;
   std::string indentString(indent, ' ');
 
   outStream << indentString << "entity " << m_name << " is\n";
+
+  if(m_pGenerics)
+  {
+    outStream << indentString << m_pGenerics->getText() << "\n";
+  }
 
   if(m_ports.size() > 0)
   {

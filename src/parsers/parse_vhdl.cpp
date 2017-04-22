@@ -141,6 +141,12 @@ private:
     auto name = visit(ctx->identifier(0)).as<std::string>();
     auto pEntity = new VHDLEntity(name);
 
+    auto pGenericsClauseCtx = ctx->entity_header()->generic_clause();
+    if(pGenericsClauseCtx)
+    {
+      pEntity->init_addGenerics(visit(pGenericsClauseCtx));
+    }
+
     auto pPortClauseCtx = ctx->entity_header()->port_clause();
     if(pPortClauseCtx)
     {
@@ -320,12 +326,21 @@ private:
     return signals;
   }
 
+  virtual antlrcpp::Any visitGeneric_clause(vhdlParser::Generic_clauseContext *ctx) override {
+    return new VHDLFragment(getCurrentFragment(ctx));
+  }
+
   virtual antlrcpp::Any visitComponent_declaration(vhdlParser::Component_declarationContext *ctx) override {
     std::string entityName = visit(ctx->identifier(0));
     auto pComponent = new VHDLComponent(entityName);
 
     // Remember it so we can resolve all the entity references once we know all entities
     m_entityLessComponents[entityName].push_back(pComponent);
+
+    if(ctx->generic_clause())
+    {
+      pComponent->init_addGenerics(visit(ctx->generic_clause()));
+    }
 
     if(ctx->port_clause())
     {

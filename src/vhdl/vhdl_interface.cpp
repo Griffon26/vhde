@@ -20,6 +20,7 @@
 
 #include <algorithm>
 
+#include "vhdl_fragment.h"
 #include "vhdl_interface.h"
 #include "vhdl_port.h"
 
@@ -28,8 +29,17 @@
  */
 
 VHDLInterface::VHDLInterface():
-  m_init(true)
+  m_init(true),
+  m_pGenerics(nullptr)
 {
+}
+
+void VHDLInterface::init_addGenerics(VHDLFragment *pFragment)
+{
+  g_assert(m_init);
+  g_assert(!m_pGenerics);
+  g_assert(pFragment);
+  m_pGenerics = pFragment;
 }
 
 void VHDLInterface::init_addPort(VHDLPort *pPort)
