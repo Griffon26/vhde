@@ -73,8 +73,15 @@ private:
   {
     auto start = ctx->getStart()->getStartIndex();
     auto stop = ctx->getStop()->getStopIndex();
-    auto pStream = ctx->getStart()->getInputStream();
-    return pStream->getText(antlr4::misc::Interval(start, stop));
+    if(start < stop)
+    {
+      auto pStream = ctx->getStart()->getInputStream();
+      return pStream->getText(antlr4::misc::Interval(start, stop));
+    }
+    else
+    {
+      return "";
+    }
   }
 
   virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override {
@@ -87,7 +94,28 @@ private:
     return pVHDLFile;
   }
 
+  virtual antlrcpp::Any visitContext_clause(vhdlParser::Context_clauseContext *ctx) override {
+    auto text = getCurrentFragment(ctx);
+    if(text == "")
+    {
+      return (VHDLFragment *)nullptr;
+    }
+    else
+    {
+      return new VHDLFragment(text);
+    }
+  }
+
   virtual antlrcpp::Any visitDesign_unit(vhdlParser::Design_unitContext *ctx) override {
+
+    /* Since only one context clause can be stored in a VHDLFile object, only
+     * set it if it is a non-empty string */
+    VHDLFragment *pContext = visit(ctx->context_clause());
+    if(pContext)
+    {
+      m_pCurrentFile->setContext(pContext);
+    }
+
     auto library_unit = visit(ctx->library_unit());
 
     if(library_unit.is<VHDLEntity *>())

@@ -20,9 +20,11 @@
 
 #include "vhdl_architecture.h"
 #include "vhdl_entity.h"
+#include "vhdl_fragment.h"
 #include "vhdl_file.h"
 
 VHDLFile::VHDLFile():
+  m_pContext(nullptr),
   m_pEntity(nullptr)
 {
 }
@@ -30,6 +32,13 @@ VHDLFile::VHDLFile():
 void VHDLFile::setName(const Glib::ustring &name)
 {
   m_name = name;
+}
+
+void VHDLFile::setContext(VHDLFragment *pFragment)
+{
+  g_assert(!m_pContext);
+  g_assert(pFragment);
+  m_pContext = pFragment;
 }
 
 void VHDLFile::setEntity(VHDLEntity *pEntity)
@@ -64,6 +73,11 @@ bool VHDLFile::write(std::ostream &outStream, int indent)
 {
   g_assert(m_name != "");
   std::string indentString(indent, ' ');
+
+  if(m_pContext)
+  {
+    outStream << indentString << m_pContext->getText() << "\n";
+  }
 
   m_pEntity->write(outStream, indent);
 

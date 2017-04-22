@@ -25,12 +25,14 @@
 
 class VHDLArchitecture;
 class VHDLEntity;
+class VHDLFragment;
 
 class VHDLFile
 {
 private:
   Glib::ustring m_name;
 
+  VHDLFragment *m_pContext;
   VHDLEntity *m_pEntity;
   std::vector<VHDLArchitecture *> m_architectures;
 
@@ -39,6 +41,8 @@ public:
   
   void setName(const Glib::ustring &name);
   Glib::ustring getName() { return m_name; }
+
+  void setContext(VHDLFragment *pFragment);
 
   void setEntity(VHDLEntity *pEntity);
   VHDLEntity *getEntity() { return m_pEntity; }
