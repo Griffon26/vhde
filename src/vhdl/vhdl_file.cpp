@@ -63,6 +63,14 @@ VHDLArchitecture *VHDLFile::findArchitectureByName(Glib::ustring name)
 bool VHDLFile::write(std::ostream &outStream, int indent)
 {
   g_assert(m_name != "");
-  outStream << m_name;
+  std::string indentString(indent, ' ');
+
+  m_pEntity->write(outStream, indent);
+
+  for(auto pArch: m_architectures)
+  {
+    pArch->write(outStream, indent);
+  }
+
   return true;
 }
