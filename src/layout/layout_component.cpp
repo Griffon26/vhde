@@ -77,7 +77,7 @@ component {
 void LayoutComponent::write(std::ostream &stream, int indent)
 {
   std::map<int, LayoutPort *>::iterator it;
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   stream << indentString << "component {\n"
          << indentString << "  size " << m_size.width << " " << m_size.height << "\n"

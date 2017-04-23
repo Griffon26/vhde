@@ -30,7 +30,7 @@
  * Public methods
  */
 
-VHDLArchitecture::VHDLArchitecture(Glib::ustring name):
+VHDLArchitecture::VHDLArchitecture(const Glib::ustring &name):
   m_init(true),
   m_name(name),
   m_pEntity(NULL)
@@ -77,7 +77,7 @@ void VHDLArchitecture::setEntity(VHDLEntity *pEntity)
   m_pEntity = pEntity;
 }
 
-VHDLComponent *VHDLArchitecture::findComponentByName(Glib::ustring name)
+VHDLComponent *VHDLArchitecture::findComponentByName(const Glib::ustring &name)
 {
   for(auto it = m_components.begin(); it != m_components.end(); it++)
   {
@@ -89,7 +89,7 @@ VHDLComponent *VHDLArchitecture::findComponentByName(Glib::ustring name)
   return NULL;
 }
 
-VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)
+VHDLSignal *VHDLArchitecture::findSignalByName(const Glib::ustring &name)
 {
   for(auto it = m_signals.begin(); it != m_signals.end(); it++)
   {
@@ -101,7 +101,7 @@ VHDLSignal *VHDLArchitecture::findSignalByName(Glib::ustring name)
   return NULL;
 }
 
-VHDLInstance *VHDLArchitecture::findInstanceByName(Glib::ustring name)
+VHDLInstance *VHDLArchitecture::findInstanceByName(const Glib::ustring &name)
 {
   for(auto it = m_instances.begin(); it != m_instances.end(); it++)
   {
@@ -115,7 +115,7 @@ VHDLInstance *VHDLArchitecture::findInstanceByName(Glib::ustring name)
 
 bool VHDLArchitecture::write(std::ostream &outStream, int indent)
 {
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   outStream << indentString << "architecture " << m_name << " of " << m_pEntity->getName() << " is\n\n";
 
@@ -140,7 +140,7 @@ bool VHDLArchitecture::write(std::ostream &outStream, int indent)
   return true;
 }
 
-void VHDLArchitecture::resolveEntityReferences(const std::map<std::string, VHDLEntity *> &entityMap)
+void VHDLArchitecture::resolveEntityReferences(const std::map<const Glib::ustring, VHDLEntity *> &entityMap)
 {
   for(auto &pComp: m_components)
   {

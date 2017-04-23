@@ -105,7 +105,7 @@ instance "blaat" {
 void LayoutInstance::write(std::ostream &stream, int indent)
 {
   std::map<int, LayoutPort *>::iterator it;
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   stream << indentString << "instance \"" << m_pVHDLInstance->getName() << "\" {\n"
          << indentString << "  position " << m_position.x << " " << m_position.y << "\n"

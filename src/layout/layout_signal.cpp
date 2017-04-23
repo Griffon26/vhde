@@ -81,7 +81,7 @@ signal "mysignal" {
 void LayoutSignal::write(std::ostream &stream, int indent)
 {
   std::list<LayoutPosition>::iterator it;
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   stream << indentString << "signal \"" << m_pSignal->getName() << "\" {\n"
          << indentString << "  from ";

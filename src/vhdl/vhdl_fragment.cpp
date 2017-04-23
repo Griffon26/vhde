@@ -37,6 +37,6 @@ const Glib::ustring &VHDLFragment::getText()
 bool VHDLFragment::write(std::ostream &outStream, int indent)
 {
 
-  outStream << std::string(indent, ' ') << m_text << std::endl;
+  outStream << Glib::ustring(indent, ' ') << m_text << std::endl;
   return true;
 }

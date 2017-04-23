@@ -27,7 +27,7 @@
  * Public methods
  */
 
-VHDLInstance::VHDLInstance(Glib::ustring name, VHDLComponent *pComponent):
+VHDLInstance::VHDLInstance(const Glib::ustring &name, VHDLComponent *pComponent):
   m_name(name),
   m_pComponent(pComponent)
 {
@@ -88,7 +88,7 @@ bool VHDLInstance::write(std::ostream &outStream, int indent)
   std::list<VHDLPort *>::const_iterator pit;
   const std::list<VHDLPort *> *pPorts = m_pComponent->getPortList();
   std::map<VHDLPort *, MapEntry>::const_iterator mit;
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   outStream << indentString << m_name << ": " << m_pComponent->getName() << "\n"
             << indentString << "port map (\n";

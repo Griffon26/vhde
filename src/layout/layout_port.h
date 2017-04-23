@@ -53,7 +53,7 @@ public:
   void associateVHDLPort(INamedItem *pPort);
   INamedItem *getAssociatedVHDLPort();
 
-  Glib::ustring getName();
+  const Glib::ustring &getName();
 
   std::pair<Edge, int> getLocation();
 

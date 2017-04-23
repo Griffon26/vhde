@@ -51,7 +51,7 @@ public:
   Mode getMode() { return m_mode; }
   
   void setName(const Glib::ustring &name);
-  Glib::ustring getName() { return m_name; }
+  const Glib::ustring &getName() { return m_name; }
 
   void setContext(VHDLFragment *pFragment);
 
@@ -60,7 +60,7 @@ public:
 
   void addArchitecture(VHDLArchitecture *pArch);
   const std::vector<VHDLArchitecture *> &getArchitectures();
-  VHDLArchitecture *findArchitectureByName(Glib::ustring name);
+  VHDLArchitecture *findArchitectureByName(const Glib::ustring &name);
 
   void addOtherFragment(VHDLFragment *pFragment);
   const std::vector<VHDLFragment *> &getFragments();

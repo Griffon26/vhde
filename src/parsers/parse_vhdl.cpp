@@ -34,19 +34,19 @@
 #include "vhdl_port.h"
 #include "vhdl_signal.h"
 
-Direction directionFromSignalMode(std::string modeString)
+Direction directionFromSignalMode(const Glib::ustring &modeString)
 {
-  std::transform(std::begin(modeString), std::end(modeString), std::begin(modeString), ::toupper);
+  auto modeStringUpper = modeString.uppercase();
 
-  if(modeString == "IN")
+  if(modeStringUpper == "IN")
   {
     return DIR_IN;
   }
-  else if(modeString == "OUT")
+  else if(modeStringUpper == "OUT")
   {
     return DIR_OUT;
   }
-  else if(modeString == "INOUT")
+  else if(modeStringUpper == "INOUT")
   {
     return DIR_INOUT;
   }
@@ -60,8 +60,7 @@ class VhdlConstructingVisitor: public vhdlBaseVisitor
 {
 public:
   VHDLFile::Mode m_mode;
-  std::map<std::string, VHDLEntity *> m_entityMap;
-  std::map<std::string, std::vector<VHDLComponent *>> m_entityLessComponents;
+  std::map<const Glib::ustring, VHDLEntity *> m_entityMap;
 
   VHDLArchitecture *m_pCurrentArchitecture;
   VHDLFile *m_pCurrentFile;
@@ -73,10 +72,10 @@ public:
   }
 
 private:
-  typedef std::pair<std::string, std::string> stringpair;
+  typedef std::pair<Glib::ustring, Glib::ustring> stringpair;
 
   /* Return any parsed node as literal text */
-  std::string getCurrentFragment(antlr4::ParserRuleContext *ctx)
+  Glib::ustring getCurrentFragment(antlr4::ParserRuleContext *ctx)
   {
     auto start = ctx->getStart()->getStartIndex();
     auto stop = ctx->getStop()->getStopIndex();
@@ -189,7 +188,7 @@ private:
   }
 
   virtual antlrcpp::Any visitEntity_declaration(vhdlParser::Entity_declarationContext *ctx) override {
-    auto name = visit(ctx->identifier(0)).as<std::string>();
+    auto name = visit(ctx->identifier(0)).as<Glib::ustring>();
     auto pEntity = new VHDLEntity(name);
 
     auto pGenericsClauseCtx = ctx->entity_header()->generic_clause();
@@ -225,8 +224,8 @@ private:
   }
 
   virtual antlrcpp::Any visitArchitecture_body(vhdlParser::Architecture_bodyContext *ctx) override {
-    auto archName = visit(ctx->identifier(0)).as<std::string>();
-    auto entityName = visit(ctx->identifier(1)).as<std::string>();
+    auto archName = visit(ctx->identifier(0)).as<Glib::ustring>();
+    auto entityName = visit(ctx->identifier(1)).as<Glib::ustring>();
     auto pArch = new VHDLArchitecture(archName);
     pArch->setEntity(m_entityMap.at(entityName));
 
@@ -273,8 +272,8 @@ private:
   }
 
   virtual antlrcpp::Any visitComponent_instantiation_statement(vhdlParser::Component_instantiation_statementContext *ctx) override {
-    std::string instanceName = visit(ctx->label_colon()->identifier());
-    std::string componentName = visit(ctx->instantiated_unit()->name());
+    Glib::ustring instanceName = visit(ctx->label_colon()->identifier());
+    Glib::ustring componentName = visit(ctx->instantiated_unit()->name());
 
     auto pInstance = new VHDLInstance(instanceName, m_pCurrentArchitecture->findComponentByName(componentName));
     m_pCurrentArchitecture->init_addInstance(pInstance);
@@ -284,8 +283,7 @@ private:
     {
       auto pPort = pInstance->getComponent()->findPortByName(port_map.first);
 
-      auto signalNameUpper = port_map.second;
-      std::transform(std::begin(signalNameUpper), std::end(signalNameUpper), std::begin(signalNameUpper), ::toupper);
+      auto signalNameUpper = port_map.second.uppercase();
 
       if(signalNameUpper != "OPEN")
       {
@@ -323,25 +321,25 @@ private:
   }
 
   virtual antlrcpp::Any visitAssociation_element(vhdlParser::Association_elementContext *ctx) override {
-    std::string formalPart;
+    Glib::ustring formalPart;
     if(ctx->formal_part())
     {
-      formalPart = visit(ctx->formal_part()).as<std::string>();
+      formalPart = visit(ctx->formal_part()).as<Glib::ustring>();
     }
     else
     {
       formalPart = "";
     }
-    std::string actualPart = visit(ctx->actual_part()).as<std::string>();
+    Glib::ustring actualPart = visit(ctx->actual_part()).as<Glib::ustring>();
     return stringpair(formalPart, actualPart);
   }
 
   virtual antlrcpp::Any visitFormal_part(vhdlParser::Formal_partContext *ctx) override {
-    return ctx->getText();
+    return Glib::ustring(ctx->getText());
   }
 
   virtual antlrcpp::Any visitActual_part(vhdlParser::Actual_partContext *ctx) override {
-    return ctx->getText();
+    return Glib::ustring(ctx->getText());
   }
 
   virtual antlrcpp::Any visitBlock_declarative_item(vhdlParser::Block_declarative_itemContext *ctx) override {
@@ -369,12 +367,12 @@ private:
 
     for(auto &identctx: ctx->identifier_list()->identifier())
     {
-      auto pSignal = new VHDLSignal(visit(identctx).as<std::string>());
+      auto pSignal = new VHDLSignal(visit(identctx).as<Glib::ustring>());
 
       signals.push_back(pSignal);
     }
     auto type = visit(ctx->subtype_indication());
-    std::string defaultValue;
+    Glib::ustring defaultValue;
     if(ctx->expression())
     {
       defaultValue = getCurrentFragment(ctx->expression());
@@ -393,11 +391,8 @@ private:
   }
 
   virtual antlrcpp::Any visitComponent_declaration(vhdlParser::Component_declarationContext *ctx) override {
-    std::string entityName = visit(ctx->identifier(0));
+    Glib::ustring entityName = visit(ctx->identifier(0));
     auto pComponent = new VHDLComponent(entityName);
-
-    // Remember it so we can resolve all the entity references once we know all entities
-    m_entityLessComponents[entityName].push_back(pComponent);
 
     if(ctx->generic_clause())
     {
@@ -437,7 +432,7 @@ private:
 
     for(auto &identctx: ctx->identifier_list()->identifier())
     {
-      auto pPort = new VHDLPort(visit(identctx).as<std::string>());
+      auto pPort = new VHDLPort(visit(identctx).as<Glib::ustring>());
       Direction dir = visit(ctx->signal_mode());
       if(dir == DIR_INVALID)
       {
@@ -464,11 +459,11 @@ private:
   }
 
   virtual antlrcpp::Any visitIdentifier(vhdlParser::IdentifierContext *ctx) override {
-    return ctx->getText();
+    return Glib::ustring(ctx->getText());
   }
 
   virtual antlrcpp::Any visitName(vhdlParser::NameContext *ctx) override {
-    return ctx->getText();
+    return Glib::ustring(ctx->getText());
   }
 };
 
@@ -481,7 +476,7 @@ VHDLFile *parseVHDL(std::istream &stream, VHDLFile::Mode mode)
   vhdlParser parser(&tokens);
   antlr4::tree::ParseTree *tree = parser.design_file();
 
-  auto visitor = VhdlConstructingVisitor(mode);
+  VhdlConstructingVisitor visitor(mode);
   return visitor.visit(tree);
 }
 

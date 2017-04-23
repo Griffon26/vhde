@@ -48,7 +48,7 @@ public:
   /* signals */
   //sigc::signal<void, VHDLSignal *, VHDLPort *> signal_disassociated;
 
-  VHDLInstance(Glib::ustring name, VHDLComponent *pComponent);
+  VHDLInstance(const Glib::ustring &name, VHDLComponent *pComponent);
   virtual ~VHDLInstance();
 
   void connectSignalToPort(VHDLSignal *pSignal, VHDLPort *pPort);

@@ -42,7 +42,7 @@ private:
   std::vector<VHDLInstance *>   m_instances;
 
 public:
-  VHDLArchitecture(Glib::ustring name);
+  VHDLArchitecture(const Glib::ustring &name);
   virtual ~VHDLArchitecture();
 
   /* This method assumes ownership of the port */
@@ -60,15 +60,15 @@ public:
   void setEntity(VHDLEntity *pEntity);
   VHDLEntity *getEntity() { return m_pEntity; }
 
-  VHDLComponent *findComponentByName(Glib::ustring name);
-  VHDLSignal *findSignalByName(Glib::ustring name);
-  VHDLInstance *findInstanceByName(Glib::ustring name);
+  VHDLComponent *findComponentByName(const Glib::ustring &name);
+  VHDLSignal *findSignalByName(const Glib::ustring &name);
+  VHDLInstance *findInstanceByName(const Glib::ustring &name);
 
   bool write(std::ostream &outStream, int indent);
 
   const Glib::ustring &getName() { return m_name; }
 
-  void resolveEntityReferences(const std::map<std::string, VHDLEntity *> &entityMap);
+  void resolveEntityReferences(const std::map<const Glib::ustring, VHDLEntity *> &entityMap);
 
 };
 

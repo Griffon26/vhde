@@ -75,7 +75,7 @@ public:
   const PortPositionMap *getPortPositionMaps();
   void setPortPositionMaps(PortPositionMap *portPositionMap);
 
-  LayoutPort *findPortByName(Glib::ustring name, Edge *pEdge, int *pPosition);
+  LayoutPort *findPortByName(const Glib::ustring &name, Edge *pEdge, int *pPosition);
 
   bool findFreeSlotOnEdge(Edge edge, int preferredPosition, int *pFreePosition);
   bool findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition);

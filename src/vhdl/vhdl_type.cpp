@@ -24,7 +24,7 @@ VHDLType::VHDLType()
 {
 }
 
-VHDLType::VHDLType(Glib::ustring name):
+VHDLType::VHDLType(const Glib::ustring &name):
   m_name(name)
 {
 }

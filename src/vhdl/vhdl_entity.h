@@ -39,11 +39,11 @@ public:
   /* Signals */
   sigc::signal<void, Glib::ustring> name_changed;
 
-  VHDLEntity(Glib::ustring name);
+  VHDLEntity(const Glib::ustring &name);
 
   void init_setDeclarativePart(VHDLFragment *pFragment);
 
-  void                setName(Glib::ustring name);
+  void                setName(const Glib::ustring &name);
   const Glib::ustring &getName();
 
 

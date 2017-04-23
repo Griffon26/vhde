@@ -20,7 +20,7 @@
 
 #include "vhdl_port.h"
 
-VHDLPort::VHDLPort(Glib::ustring name):
+VHDLPort::VHDLPort(const Glib::ustring &name):
   m_name(name),
   m_direction(DIR_INVALID)
 {
@@ -45,7 +45,7 @@ void VHDLPort::setType(const VHDLType &type)
 bool VHDLPort::write(std::ostream &outStream, int indent)
 {
 
-  outStream << std::string(indent, ' ') << m_name << ": "
+  outStream << Glib::ustring(indent, ' ') << m_name << ": "
             << ((m_direction == DIR_IN)  ? "in" :
                 (m_direction == DIR_OUT) ? "out" :
                                            "inout")

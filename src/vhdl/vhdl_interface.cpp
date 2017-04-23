@@ -51,7 +51,7 @@ void VHDLInterface::init_addPort(VHDLPort *pPort)
   m_ports.push_back(pPort);
 }
 
-VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
+VHDLPort *VHDLInterface::findPortByName(const Glib::ustring &name)
 {
   std::list<VHDLPort *>::iterator it;
 

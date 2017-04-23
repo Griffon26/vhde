@@ -177,7 +177,7 @@ void LayoutBlock::setPortPositionMaps(PortPositionMap *portPositionMaps)
   g_assert(portToOldPositionMap.size() == 0);
 }
 
-LayoutPort *LayoutBlock::findPortByName(Glib::ustring name, Edge *pEdge, int *pPosition)
+LayoutPort *LayoutBlock::findPortByName(const Glib::ustring &name, Edge *pEdge, int *pPosition)
 {
   int edge;
   bool found = false;

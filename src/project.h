@@ -36,27 +36,27 @@ class VHDLInterface;
 class Project
 {
 private:
-  std::map<std::string, VHDLEntity *> m_entityMap;
+  std::map<const Glib::ustring, VHDLEntity *> m_entityMap;
 
   /* These maps use the base name of the VHDL file as key */
-  std::map<std::string, VHDLFile *> m_fileToVHDLFileMap;
-  std::map<std::string, LayoutFile *> m_fileToLayoutFileMap;
-  std::map<std::string, LayoutResolverActions *> m_layoutResolverMap;
+  std::map<const Glib::ustring, VHDLFile *> m_fileToVHDLFileMap;
+  std::map<const Glib::ustring, LayoutFile *> m_fileToLayoutFileMap;
+  std::map<const Glib::ustring, LayoutResolverActions *> m_layoutResolverMap;
 
-  static VHDLFile *readVHDLFromFile(std::string fileName, VHDLFile::Mode mode, std::map<std::string, VHDLEntity *> &entityMap);
+  static VHDLFile *readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap);
 
-  LayoutFile *readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
+  LayoutFile *readLayoutFromFile(const Glib::ustring &fileName, LayoutResolverActions *pLayoutResolverActions);
   void createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock);
   LayoutArchitecture *createDefaultArchitectureLayout(VHDLArchitecture *pArch);
   LayoutFile *createDefaultFileLayout(VHDLFile *pVHDLFile);
 
 public:
-  void addFile(std::string fileName, VHDLFile::Mode mode);
+  void addFile(const Glib::ustring &fileName, VHDLFile::Mode mode);
   void resolveEntityReferences();
   void resolveLayoutReferences();
   void resolveLayoutComponentReferences();
 
-  LayoutFile *getLayoutFile(std::string fileName);
+  LayoutFile *getLayoutFile(const Glib::ustring &fileName);
 
   /* temporary method for testing if parsing and saving is done correctly */
   void save();

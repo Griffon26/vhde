@@ -45,8 +45,6 @@ public:
   void addArchitecture(LayoutArchitecture *pLayoutArch);
   const std::vector<LayoutArchitecture *> &getArchitectures();
 
-
-
   void write(std::ostream &stream, int indent);
 };
 

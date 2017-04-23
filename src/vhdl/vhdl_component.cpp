@@ -27,7 +27,7 @@
  * Public methods
  */
 
-VHDLComponent::VHDLComponent(Glib::ustring entityName):
+VHDLComponent::VHDLComponent(const Glib::ustring &entityName):
   m_pEntity(NULL),
   m_unresolvedName(entityName)
 {
@@ -52,7 +52,7 @@ VHDLComponent::~VHDLComponent()
 bool VHDLComponent::write(std::ostream &outStream, int indent)
 {
   std::list<VHDLPort *>::iterator pit;
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   g_assert(m_pEntity);
 

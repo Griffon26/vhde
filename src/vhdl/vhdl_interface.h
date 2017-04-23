@@ -44,7 +44,7 @@ public:
   void init_addPort(VHDLPort *pPort);
   void init_done() { m_init = false; }
 
-  VHDLPort *findPortByName(Glib::ustring name);
+  VHDLPort *findPortByName(const Glib::ustring &name);
 
   virtual bool write(std::ostream &outStream, int indent) = 0;
 

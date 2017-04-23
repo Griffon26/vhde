@@ -37,13 +37,13 @@
 #include "vhdl_port.h"
 #include "vhdl_signal.h"
 
-static std::string getBaseName(std::string fileName)
+static Glib::ustring getBaseName(const Glib::ustring &fileName)
 {
   auto dotIndex = fileName.rfind(".");
   return fileName.substr(0, dotIndex);
 }
 
-VHDLFile *Project::readVHDLFromFile(std::string fileName, VHDLFile::Mode mode, std::map<std::string, VHDLEntity *> &entityMap)
+VHDLFile *Project::readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap)
 {
   std::cout << "Opening file " << fileName << "..." << std::endl;
   std::ifstream inFile(fileName);
@@ -57,7 +57,7 @@ VHDLFile *Project::readVHDLFromFile(std::string fileName, VHDLFile::Mode mode, s
   return pVHDLFile;
 }
 
-LayoutFile *Project::readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions)
+LayoutFile *Project::readLayoutFromFile(const Glib::ustring &fileName, LayoutResolverActions *pLayoutResolverActions)
 {
   std::cout << "Opening file " << fileName << "..." << std::endl;
   LayoutFile *pLayoutFile = nullptr;
@@ -162,7 +162,7 @@ LayoutFile *Project::createDefaultFileLayout(VHDLFile *pVHDLFile)
   return pLayoutFile;
 }
 
-void Project::addFile(std::string fileName, VHDLFile::Mode mode)
+void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
 {
   auto baseName = getBaseName(fileName);
 
@@ -210,7 +210,7 @@ void Project::resolveLayoutReferences()
 
 void Project::resolveLayoutComponentReferences()
 {
-  std::map<std::string, LayoutComponent *> componentMap;
+  std::map<const Glib::ustring, LayoutComponent *> componentMap;
 
   /* First create a map of names to components by getting the name from the associated VHDL entity */
   for(auto &kv: m_fileToLayoutFileMap)
@@ -233,7 +233,7 @@ void Project::resolveLayoutComponentReferences()
   }
 }
 
-LayoutFile *Project::getLayoutFile(std::string fileName)
+LayoutFile *Project::getLayoutFile(const Glib::ustring &fileName)
 {
   return m_fileToLayoutFileMap.at(getBaseName(fileName));
 }

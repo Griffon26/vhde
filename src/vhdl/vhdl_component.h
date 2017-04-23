@@ -36,7 +36,7 @@ private:
   Glib::ustring m_unresolvedName;
 
 public:
-  VHDLComponent(Glib::ustring entityName);
+  VHDLComponent(const Glib::ustring &entityName);
   ~VHDLComponent();
 
   /* Inherited methods */

@@ -53,7 +53,7 @@ INamedItem *LayoutPort::getAssociatedVHDLPort()
   return m_pPort;
 }
 
-Glib::ustring LayoutPort::getName()
+const Glib::ustring &LayoutPort::getName()
 {
   g_assert(m_pPort != NULL);
   return m_pPort->getName();

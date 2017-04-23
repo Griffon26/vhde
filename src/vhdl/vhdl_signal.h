@@ -37,11 +37,11 @@ private:
 public:
   sigc::signal<void, VHDLSignal *> removed;
 
-  VHDLSignal(Glib::ustring name);
+  VHDLSignal(const Glib::ustring &name);
   ~VHDLSignal();
 
   void setType(const VHDLType &type);
-  void setDefaultValue(const std::string &defaultValue);
+  void setDefaultValue(const Glib::ustring &defaultValue);
 
   bool write(std::ostream &outStream, int indent);
 

@@ -30,7 +30,7 @@ private:
 
 public:
   VHDLType();
-  VHDLType(Glib::ustring name);
+  VHDLType(const Glib::ustring &name);
   bool write(std::ostream &outStream, int indent);
 
 };

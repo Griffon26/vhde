@@ -36,16 +36,17 @@
 #include "vhdl_port.h"
 #include "vhdl_signal.h"
 
-std::string stripQuotes(std::string s)
+Glib::ustring stripQuotes(const Glib::ustring &s)
 {
-  g_assert(*s.begin() == '"');
-  g_assert(*(s.end() - 1) == '"');
-  return std::string(s.begin() + 1, s.end() - 1);
+  g_assert(s[0] == '"');
+  g_assert(s[s.length() - 1] == '"');
+
+  return s.substr(1, s.length() - 2);
 }
 
 std::pair<int, int> parsePosition(std::istream &stream)
 {
-  std::string position;
+  Glib::ustring position;
   int x, y;
   stream >> position >> x >> y;
   g_assert(position == "position");
@@ -54,7 +55,7 @@ std::pair<int, int> parsePosition(std::istream &stream)
 
 std::pair<int, int> parseSize(std::istream &stream)
 {
-  std::string size;
+  Glib::ustring size;
   int width, height;
   stream >> size >> width >> height;
   g_assert(size == "size");
@@ -63,7 +64,7 @@ std::pair<int, int> parseSize(std::istream &stream)
 
 void parsePortsHeader(std::istream &stream)
 {
-  std::string ports, brace;
+  Glib::ustring ports, brace;
   stream >> ports >> brace;
   g_assert(ports == "ports");
   g_assert(brace == "{");
@@ -71,7 +72,7 @@ void parsePortsHeader(std::istream &stream)
 
 auto parsePort(std::istream &stream, LayoutBlock *pLayoutBlock)
 {
-  std::string first, edgeName;
+  Glib::ustring first, edgeName;
   int index;
   stream >> first;
 
@@ -89,13 +90,13 @@ auto parsePort(std::istream &stream, LayoutBlock *pLayoutBlock)
   }
   else
   {
-    return std::make_pair(static_cast<LayoutPort *>(nullptr), std::string(""));
+    return std::make_pair(static_cast<LayoutPort *>(nullptr), Glib::ustring(""));
   }
 }
 
 LayoutComponent *parseComponent(std::istream &stream, LayoutResolverActions &resolver)
 {
-  std::string brace;
+  Glib::ustring brace;
 
   stream >> brace;
   g_assert(brace == "{");
@@ -107,7 +108,7 @@ LayoutComponent *parseComponent(std::istream &stream, LayoutResolverActions &res
 
   parsePortsHeader(stream);
 
-  std::pair<LayoutPort *, std::string> portAndName;
+  std::pair<LayoutPort *, Glib::ustring> portAndName;
   do
   {
     portAndName = parsePort(stream, pLayoutComponent);
@@ -125,9 +126,9 @@ LayoutComponent *parseComponent(std::istream &stream, LayoutResolverActions &res
   return pLayoutComponent;
 }
 
-LayoutInstance *parseInstance(std::istream &stream, const std::string &archName, std::map<std::string, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
+LayoutInstance *parseInstance(std::istream &stream, const Glib::ustring &archName, std::map<const Glib::ustring, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
 {
-  std::string instanceName, brace;
+  Glib::ustring instanceName, brace;
 
   stream >> instanceName >> brace;
   g_assert(brace == "{");
@@ -141,7 +142,7 @@ LayoutInstance *parseInstance(std::istream &stream, const std::string &archName,
 
   parsePortsHeader(stream);
 
-  std::pair<LayoutPort *, std::string> portAndName;
+  std::pair<LayoutPort *, Glib::ustring> portAndName;
   do
   {
     portAndName = parsePort(stream, pLayoutInstance);
@@ -167,9 +168,9 @@ LayoutInstance *parseInstance(std::istream &stream, const std::string &archName,
   return pLayoutInstance;
 }
 
-void parseEndPoint(std::istream &stream, LayoutSignal::EndPointId expectedEndPointId, std::map<std::string, LayoutInstance *> &layoutInstanceMap, LayoutSignal *pLayoutSignal)
+void parseEndPoint(std::istream &stream, LayoutSignal::EndPointId expectedEndPointId, std::map<const Glib::ustring, LayoutInstance *> &layoutInstanceMap, LayoutSignal *pLayoutSignal)
 {
-  std::string from_or_to, port_or_signal, instance, side;
+  Glib::ustring from_or_to, port_or_signal, instance, side;
   int index;
 
   stream >> from_or_to;
@@ -217,9 +218,9 @@ void parseEndPoint(std::istream &stream, LayoutSignal::EndPointId expectedEndPoi
   }
 }
 
-LayoutSignal *parseSignal(std::istream &stream, const std::string &archName, std::map<std::string, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
+LayoutSignal *parseSignal(std::istream &stream, const Glib::ustring &archName, std::map<const Glib::ustring, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
 {
-  std::string name, brace;
+  Glib::ustring name, brace;
   stream >> name >> brace;
 
   name = stripQuotes(name);
@@ -231,11 +232,11 @@ LayoutSignal *parseSignal(std::istream &stream, const std::string &archName, std
 
   resolver.add([=](VHDLFile *pVHDLFile) { pLayoutSignal->associateSignal(pVHDLFile->findArchitectureByName(archName)->findSignalByName(name)); });
 
-  std::string corners;
+  Glib::ustring corners;
   stream >> corners >> brace;
   g_assert(corners == "corners");
 
-  std::string x, y;
+  Glib::ustring x, y;
   do
   {
     stream >> x;
@@ -253,15 +254,15 @@ LayoutSignal *parseSignal(std::istream &stream, const std::string &archName, std
 
 LayoutArchitecture *parseArchitecture(std::istream &stream, LayoutResolverActions &layoutResolverActions)
 {
-  std::string name, brace;
+  Glib::ustring name, brace;
   stream >> name >> brace;
 
   name = stripQuotes(name);
   auto pLayoutArchitecture = new LayoutArchitecture();
   layoutResolverActions.add([=](VHDLFile *pVHDLFile) { pLayoutArchitecture->associateVHDLArchitecture(pVHDLFile->findArchitectureByName(name)); });
 
-  std::map<std::string, LayoutInstance *> layoutInstanceMap;
-  std::string nextToken;
+  std::map<const Glib::ustring, LayoutInstance *> layoutInstanceMap;
+  Glib::ustring nextToken;
   while(stream >> nextToken)
   {
     if(nextToken == "instance")
@@ -285,7 +286,7 @@ LayoutFile *parseLayout(std::istream &stream, LayoutResolverActions &layoutResol
 {
   LayoutFile *pLayoutFile = new LayoutFile();
 
-  std::string nextToken;
+  Glib::ustring nextToken;
   while(stream >> nextToken)
   {
     if(nextToken == "component")

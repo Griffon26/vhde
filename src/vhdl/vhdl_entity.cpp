@@ -22,7 +22,7 @@
 #include "vhdl_fragment.h"
 #include "vhdl_port.h"
 
-VHDLEntity::VHDLEntity(Glib::ustring name):
+VHDLEntity::VHDLEntity(const Glib::ustring &name):
   m_name(name),
   m_pDeclarativePart(nullptr)
 {
@@ -38,7 +38,7 @@ void VHDLEntity::init_setDeclarativePart(VHDLFragment *pFragment)
   m_pDeclarativePart = pFragment;
 }
 
-void VHDLEntity::setName(Glib::ustring name)
+void VHDLEntity::setName(const Glib::ustring &name)
 {
   m_name = name;
   name_changed.emit(name);
@@ -77,7 +77,7 @@ void VHDLEntity::destroyPort(VHDLPort *pPort)
 bool VHDLEntity::write(std::ostream &outStream, int indent)
 {
   std::list<VHDLPort *>::iterator pit;
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   outStream << indentString << "entity " << m_name << " is\n";
 

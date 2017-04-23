@@ -60,7 +60,7 @@ const std::vector<VHDLArchitecture *> &VHDLFile::getArchitectures()
   return m_architectures;
 }
 
-VHDLArchitecture *VHDLFile::findArchitectureByName(Glib::ustring name)
+VHDLArchitecture *VHDLFile::findArchitectureByName(const Glib::ustring &name)
 {
   g_assert(m_mode == GRAPHICAL);
   for(auto pArch: m_architectures)
@@ -88,7 +88,7 @@ const std::vector<VHDLFragment *> &VHDLFile::getFragments()
 bool VHDLFile::write(std::ostream &outStream, int indent)
 {
   g_assert(m_name != "");
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   if(m_pContext)
   {
