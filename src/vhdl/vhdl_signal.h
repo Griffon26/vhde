@@ -32,6 +32,7 @@ class VHDLSignal: public INamedItem
 private:
   Glib::ustring           m_name;
   VHDLType                m_type;
+  Glib::ustring           m_defaultValue;
 
 public:
   sigc::signal<void, VHDLSignal *> removed;
@@ -40,6 +41,7 @@ public:
   ~VHDLSignal();
 
   void setType(const VHDLType &type);
+  void setDefaultValue(const std::string &defaultValue);
 
   bool write(std::ostream &outStream, int indent);
 

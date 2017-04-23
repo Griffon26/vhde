@@ -374,10 +374,16 @@ private:
       signals.push_back(pSignal);
     }
     auto type = visit(ctx->subtype_indication());
+    std::string defaultValue;
+    if(ctx->expression())
+    {
+      defaultValue = getCurrentFragment(ctx->expression());
+    }
     for(auto &pSignal: signals)
     {
       pSignal->setType(type);
-      // TODO: also parse and store signal_kind and expression
+      pSignal->setDefaultValue(defaultValue);
+      // TODO: also parse and store signal_kind
     }
     return signals;
   }

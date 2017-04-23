@@ -35,10 +35,19 @@ void VHDLSignal::setType(const VHDLType &type)
   m_type = type;
 }
 
+void VHDLSignal::setDefaultValue(const std::string &defaultValue)
+{
+  m_defaultValue = defaultValue;
+}
+
 bool VHDLSignal::write(std::ostream &outStream, int indent)
 {
   outStream << std::string(indent, ' ') << "signal " << m_name << ": ";
   m_type.write(outStream, indent);
+  if(m_defaultValue != "")
+  {
+    outStream << " := " << m_defaultValue;
+  }
   outStream << ";\n";
   return true;
 }
