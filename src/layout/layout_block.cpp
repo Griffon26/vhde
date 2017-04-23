@@ -201,7 +201,8 @@ LayoutPort *LayoutBlock::findPortByName(Glib::ustring name, Edge *pEdge, int *pP
 
 bool LayoutBlock::findFreeSlotOnEdge(Edge edge, int preferredPosition, int *pFreePosition)
 {
-  int i, bestFreePosition, bestDistance;
+  int i, bestFreePosition = -1;
+  int bestDistance;
   int maxNrOfPorts;
 
   maxNrOfPorts = calculateMaxNrOfPorts( (edge == EDGE_LEFT || edge == EDGE_RIGHT) ? m_size.height : m_size.width );

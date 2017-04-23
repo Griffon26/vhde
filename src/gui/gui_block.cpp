@@ -143,8 +143,11 @@ bool GuiBlock::getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *p
     }
   }
 
-  *pEdge = (Edge)bestMatchEdge;
-  *pPosition = bestMatchPosition;
+  if(minDistanceSquared != -1)
+  {
+    *pEdge = (Edge)bestMatchEdge;
+    *pPosition = bestMatchPosition;
+  }
 
   return (minDistanceSquared != -1);
 }
