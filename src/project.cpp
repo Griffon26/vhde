@@ -242,15 +242,15 @@ void Project::save()
 {
   for(auto &kv: m_fileToVHDLFileMap)
   {
-    std::cout << "Saving file " << kv.second->getName() << " to file " << kv.first << "2.*" << std::endl;
+    std::cout << "Saving file " << kv.second->getName() << " to file " << kv.first << ".*" << std::endl;
 
     std::ofstream outStream;
     
-    outStream.open(kv.first + "2.vhd");
+    outStream.open(kv.first + ".vhd");
     kv.second->write(outStream, 0);
     outStream.close();
 
-    outStream.open(kv.first + "2.layout");
+    outStream.open(kv.first + ".layout");
     m_fileToLayoutFileMap.at(kv.first)->write(outStream, 0);
     outStream.close();
   }
