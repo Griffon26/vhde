@@ -210,6 +210,11 @@ private:
       }
     }
 
+    if(ctx->entity_declarative_part()->entity_declarative_item().size() > 0)
+    {
+      pEntity->init_setDeclarativePart(new VHDLFragment(getCurrentFragment(ctx->entity_declarative_part())));
+    }
+
     m_entityMap[name] = pEntity;
 
     return pEntity;

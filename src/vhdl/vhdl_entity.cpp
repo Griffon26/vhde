@@ -23,10 +23,19 @@
 #include "vhdl_port.h"
 
 VHDLEntity::VHDLEntity(Glib::ustring name):
-  m_name(name)
+  m_name(name),
+  m_pDeclarativePart(nullptr)
 {
   printf("VHDLEntity(%p)::VHDLEntity(%s)\n", this, name.c_str());
 
+}
+
+void VHDLEntity::init_setDeclarativePart(VHDLFragment *pFragment)
+{
+  g_assert(m_init);
+  g_assert(!m_pDeclarativePart);
+  g_assert(pFragment);
+  m_pDeclarativePart = pFragment;
 }
 
 void VHDLEntity::setName(Glib::ustring name)
@@ -74,7 +83,7 @@ bool VHDLEntity::write(std::ostream &outStream, int indent)
 
   if(m_pGenerics)
   {
-    outStream << indentString << m_pGenerics->getText() << "\n";
+    outStream << indentString << "  " << m_pGenerics->getText() << "\n";
   }
 
   if(m_ports.size() > 0)
@@ -90,6 +99,8 @@ bool VHDLEntity::write(std::ostream &outStream, int indent)
     }
     outStream << "\n" << indentString << "  );\n";
   }
+
+  outStream << indentString << "  " << m_pDeclarativePart->getText() << "\n";
 
   outStream << indentString << "end " << m_name << ";\n\n";
 
