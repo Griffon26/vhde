@@ -224,8 +224,8 @@ int main(int argc, char** argv)
    * Read in some example files to create a model
    */
   Project project;
-  project.addFile("test/top_entity.vhd");
-  project.addFile("test/used_entity.vhd");
+  project.addFile("test/top_entity.vhd", VHDLFile::GRAPHICAL);
+  project.addFile("test/used_entity.vhd", VHDLFile::TEXT);
   project.resolveEntityReferences();
   project.resolveLayoutReferences();
 

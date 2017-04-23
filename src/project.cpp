@@ -43,11 +43,11 @@ static std::string getBaseName(std::string fileName)
   return fileName.substr(0, dotIndex);
 }
 
-VHDLFile *Project::readVHDLFromFile(std::string fileName, std::map<std::string, VHDLEntity *> &entityMap)
+VHDLFile *Project::readVHDLFromFile(std::string fileName, VHDLFile::Mode mode, std::map<std::string, VHDLEntity *> &entityMap)
 {
   std::cout << "Opening file " << fileName << "..." << std::endl;
   std::ifstream inFile(fileName);
-  VHDLFile *pVHDLFile = ::parseVHDL(inFile);
+  VHDLFile *pVHDLFile = ::parseVHDL(inFile, mode);
 
   VHDLEntity *pEntity = pVHDLFile->getEntity();
   entityMap[pEntity->getName()] = pEntity;
@@ -151,19 +151,22 @@ LayoutFile *Project::createDefaultFileLayout(VHDLFile *pVHDLFile)
 
   pLayoutFile->setComponent(pLayoutComponent);
 
-  for(auto &pVHDLArch: pVHDLFile->getArchitectures())
+  if(pVHDLFile->getMode() == VHDLFile::GRAPHICAL)
   {
-    pLayoutFile->addArchitecture(createDefaultArchitectureLayout(pVHDLArch));
+    for(auto &pVHDLArch: pVHDLFile->getArchitectures())
+    {
+      pLayoutFile->addArchitecture(createDefaultArchitectureLayout(pVHDLArch));
+    }
   }
 
   return pLayoutFile;
 }
 
-void Project::addFile(std::string fileName)
+void Project::addFile(std::string fileName, VHDLFile::Mode mode)
 {
   auto baseName = getBaseName(fileName);
 
-  auto pVHDLFile = readVHDLFromFile(fileName, m_entityMap);
+  auto pVHDLFile = readVHDLFromFile(fileName, mode, m_entityMap);
   m_fileToVHDLFileMap[baseName] = pVHDLFile;
 
   auto layoutFileName = baseName + ".layout";
@@ -185,10 +188,13 @@ void Project::resolveEntityReferences()
 {
   for(auto &kv: m_fileToVHDLFileMap)
   {
-    std::cout << "Resolving vhdl entity references for vhdl architectures in file " << kv.first << std::endl;
-    for(auto &pArch: kv.second->getArchitectures())
+    if(kv.second->getMode() == VHDLFile::GRAPHICAL)
     {
-      pArch->resolveEntityReferences(m_entityMap);
+      std::cout << "Resolving vhdl entity references for vhdl architectures in file " << kv.first << std::endl;
+      for(auto &pArch: kv.second->getArchitectures())
+      {
+        pArch->resolveEntityReferences(m_entityMap);
+      }
     }
   }
 }

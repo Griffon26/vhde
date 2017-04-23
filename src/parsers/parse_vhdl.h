@@ -25,8 +25,8 @@
 #include <iostream>
 #include <vector>
 
+#include "vhdl_file.h"
 
-class VHDLFile;
 class VHDLEntity;
 class VHDLArchitecture;
 
@@ -81,7 +81,7 @@ public:
 
 typedef std::vector<VHDLUnitPtr> VHDLUnitList;
 
-VHDLFile *parseVHDL(std::istream &stream);
+VHDLFile *parseVHDL(std::istream &stream, VHDLFile::Mode mode);
 
 #endif
 

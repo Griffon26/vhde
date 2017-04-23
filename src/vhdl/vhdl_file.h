@@ -29,15 +29,26 @@ class VHDLFragment;
 
 class VHDLFile
 {
+public:
+  typedef enum
+  {
+    GRAPHICAL,
+    TEXT
+  } Mode;
+
 private:
   Glib::ustring m_name;
+  Mode m_mode;
 
   VHDLFragment *m_pContext;
   VHDLEntity *m_pEntity;
   std::vector<VHDLArchitecture *> m_architectures;
+  std::vector<VHDLFragment *> m_otherFragments;
 
 public:
-  VHDLFile();
+  VHDLFile(Mode mode);
+
+  Mode getMode() { return m_mode; }
   
   void setName(const Glib::ustring &name);
   Glib::ustring getName() { return m_name; }
@@ -48,9 +59,11 @@ public:
   VHDLEntity *getEntity() { return m_pEntity; }
 
   void addArchitecture(VHDLArchitecture *pArch);
-  const std::vector<VHDLArchitecture *> getArchitectures();
-
+  const std::vector<VHDLArchitecture *> &getArchitectures();
   VHDLArchitecture *findArchitectureByName(Glib::ustring name);
+
+  void addOtherFragment(VHDLFragment *pFragment);
+  const std::vector<VHDLFragment *> &getFragments();
 
   bool write(std::ostream &outStream, int indent);
 };

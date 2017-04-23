@@ -59,11 +59,18 @@ Direction directionFromSignalMode(std::string modeString)
 class VhdlConstructingVisitor: public vhdlBaseVisitor
 {
 public:
+  VHDLFile::Mode m_mode;
   std::map<std::string, VHDLEntity *> m_entityMap;
   std::map<std::string, std::vector<VHDLComponent *>> m_entityLessComponents;
 
   VHDLArchitecture *m_pCurrentArchitecture;
   VHDLFile *m_pCurrentFile;
+
+  VhdlConstructingVisitor(VHDLFile::Mode mode):
+    vhdlBaseVisitor(),
+    m_mode(mode)
+  {
+  }
 
 private:
   typedef std::pair<std::string, std::string> stringpair;
@@ -85,7 +92,7 @@ private:
   }
 
   virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override {
-    VHDLFile *pVHDLFile = new VHDLFile();
+    VHDLFile *pVHDLFile = new VHDLFile(m_mode);
     m_pCurrentFile = pVHDLFile;
     for(auto &el: ctx->design_unit())
     {
@@ -95,14 +102,16 @@ private:
   }
 
   virtual antlrcpp::Any visitContext_clause(vhdlParser::Context_clauseContext *ctx) override {
-    auto text = getCurrentFragment(ctx);
-    if(text == "")
+    std::cout << "Visiting context clause...\n" << std::endl;
+    if(ctx->context_item().size() > 0)
     {
-      return (VHDLFragment *)nullptr;
+      auto text = getCurrentFragment(ctx);
+      g_assert(text != "");
+      return new VHDLFragment(text);
     }
     else
     {
-      return new VHDLFragment(text);
+      return (VHDLFragment *)nullptr;
     }
   }
 
@@ -132,7 +141,7 @@ private:
     }
     else
     {
-      g_assert(false);
+      m_pCurrentFile->addOtherFragment(new VHDLFragment(getCurrentFragment(ctx)));
     }
     return nullptr;
   }
@@ -144,7 +153,7 @@ private:
     }
     else
     {
-      assert(ctx->secondary_unit());
+      g_assert(ctx->secondary_unit());
       return visit(ctx->secondary_unit());
     }
   }
@@ -156,13 +165,27 @@ private:
     }
     else
     {
-      throw antlr4::RuntimeException("Parsing of primary units other than entity declarations is not implemented");
+      if(m_pCurrentFile->getMode() == VHDLFile::TEXT)
+      {
+        return new VHDLFragment(getCurrentFragment(ctx));
+      }
+      else
+      {
+        throw antlr4::RuntimeException("Parsing of primary units other than entity declarations is not implemented for files read in graphical mode");
+      }
     }
   }
 
   virtual antlrcpp::Any visitSecondary_unit(vhdlParser::Secondary_unitContext *ctx) override {
-    assert(ctx->architecture_body());
-    return visit(ctx->architecture_body());
+    if(m_pCurrentFile->getMode() == VHDLFile::GRAPHICAL)
+    {
+      assert(ctx->architecture_body());
+      return visit(ctx->architecture_body());
+    }
+    else
+    {
+      return new VHDLFragment(getCurrentFragment(ctx));
+    }
   }
 
   virtual antlrcpp::Any visitEntity_declaration(vhdlParser::Entity_declarationContext *ctx) override {
@@ -439,7 +462,7 @@ private:
 };
 
 
-VHDLFile *parseVHDL(std::istream &stream)
+VHDLFile *parseVHDL(std::istream &stream, VHDLFile::Mode mode)
 {
   antlr4::ANTLRInputStream input(stream);
   vhdlLexer lexer(&input);
@@ -447,7 +470,7 @@ VHDLFile *parseVHDL(std::istream &stream)
   vhdlParser parser(&tokens);
   antlr4::tree::ParseTree *tree = parser.design_file();
 
-  auto visitor = VhdlConstructingVisitor();
+  auto visitor = VhdlConstructingVisitor(mode);
   return visitor.visit(tree);
 }
 

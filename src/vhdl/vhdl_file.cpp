@@ -23,7 +23,8 @@
 #include "vhdl_fragment.h"
 #include "vhdl_file.h"
 
-VHDLFile::VHDLFile():
+VHDLFile::VHDLFile(VHDLFile::Mode mode):
+  m_mode(mode),
   m_pContext(nullptr),
   m_pEntity(nullptr)
 {
@@ -49,16 +50,19 @@ void VHDLFile::setEntity(VHDLEntity *pEntity)
 
 void VHDLFile::addArchitecture(VHDLArchitecture *pArch)
 {
+  g_assert(m_mode == GRAPHICAL);
   m_architectures.push_back(pArch);
 }
 
-const std::vector<VHDLArchitecture *> VHDLFile::getArchitectures()
+const std::vector<VHDLArchitecture *> &VHDLFile::getArchitectures()
 {
+  g_assert(m_mode == GRAPHICAL);
   return m_architectures;
 }
 
 VHDLArchitecture *VHDLFile::findArchitectureByName(Glib::ustring name)
 {
+  g_assert(m_mode == GRAPHICAL);
   for(auto pArch: m_architectures)
   {
     if(pArch->getName() == name)
@@ -67,6 +71,18 @@ VHDLArchitecture *VHDLFile::findArchitectureByName(Glib::ustring name)
     }
   }
   return nullptr;
+}
+
+void VHDLFile::addOtherFragment(VHDLFragment *pFragment)
+{
+  g_assert(m_mode == TEXT);
+  m_otherFragments.push_back(pFragment);
+}
+
+const std::vector<VHDLFragment *> &VHDLFile::getFragments()
+{
+  g_assert(m_mode == TEXT);
+  return m_otherFragments;
 }
 
 bool VHDLFile::write(std::ostream &outStream, int indent)
@@ -81,9 +97,19 @@ bool VHDLFile::write(std::ostream &outStream, int indent)
 
   m_pEntity->write(outStream, indent);
 
-  for(auto pArch: m_architectures)
+  if(m_mode == GRAPHICAL)
   {
-    pArch->write(outStream, indent);
+    for(auto pArch: m_architectures)
+    {
+      pArch->write(outStream, indent);
+    }
+  }
+  else
+  {
+    for(auto pFragment: m_otherFragments)
+    {
+      pFragment->write(outStream, indent);
+    }
   }
 
   return true;

@@ -24,11 +24,12 @@
 #include <map>
 #include <string>
 
+#include "vhdl_file.h"
+
 class LayoutArchitecture;
 class LayoutFile;
 class LayoutResolverActions;
 class VHDLArchitecture;
-class VHDLFile;
 class VHDLEntity;
 class VHDLInterface;
 
@@ -42,7 +43,7 @@ private:
   std::map<std::string, LayoutFile *> m_fileToLayoutFileMap;
   std::map<std::string, LayoutResolverActions *> m_layoutResolverMap;
 
-  static VHDLFile *readVHDLFromFile(std::string fileName, std::map<std::string, VHDLEntity *> &entityMap);
+  static VHDLFile *readVHDLFromFile(std::string fileName, VHDLFile::Mode mode, std::map<std::string, VHDLEntity *> &entityMap);
 
   LayoutFile *readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
   void createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock);
@@ -50,7 +51,7 @@ private:
   LayoutFile *createDefaultFileLayout(VHDLFile *pVHDLFile);
 
 public:
-  void addFile(std::string fileName);
+  void addFile(std::string fileName, VHDLFile::Mode mode);
   void resolveEntityReferences();
   void resolveLayoutReferences();
   void resolveLayoutComponentReferences();
