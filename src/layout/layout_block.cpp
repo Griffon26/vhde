@@ -34,6 +34,7 @@ void LayoutBlock::init_addPort(Edge edge, int position, LayoutPort *pLayoutPort)
   printf("LayoutBlock(%p)::init_addPort(%s, %d, %p)\n", this, EDGE_TO_NAME(edge), position, pLayoutPort);
   pLayoutPort->setLocation(edge, position);
   m_ports[edge][position] = pLayoutPort;
+  m_portOrder.push_back(pLayoutPort);
 }
 
 void LayoutBlock::init_done()
@@ -322,6 +323,7 @@ void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
   printf("LayoutBlock(%p)::addPort(%s %d) -> layoutPort = %p\n", this, EDGE_TO_NAME(edge), position, pPort);
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
   m_ports[edge][position] = pPort;
+  m_portOrder.push_back(pPort);
   pPort->setLocation(edge, position);
 
   port_added.emit(edge, position, pPort);
@@ -347,6 +349,12 @@ void LayoutBlock::removePort(LayoutPort *pPort)
       }
     }
   }
+  auto foundIt = std::find(std::begin(m_portOrder),
+                           std::end(m_portOrder),
+                           pPort);
+  g_assert(foundIt != std::end(m_portOrder));
+  m_portOrder.erase(foundIt);
+
   g_assert(found);
 }
 

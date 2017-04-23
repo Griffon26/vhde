@@ -59,6 +59,11 @@ Glib::ustring LayoutPort::getName()
   return m_pPort->getName();
 }
 
+std::pair<Edge, int> LayoutPort::getLocation()
+{
+  return std::make_pair(m_edge, m_position);
+}
+
 /*
  * Protected methods
  */
@@ -72,3 +77,5 @@ void LayoutPort::setLocation(Edge edge, int position)
     moved.emit(edge, position, this);
   }
 }
+
+

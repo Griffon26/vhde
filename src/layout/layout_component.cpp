@@ -76,7 +76,6 @@ component {
 */
 void LayoutComponent::write(std::ostream &stream, int indent)
 {
-  int edge;
   std::map<int, LayoutPort *>::iterator it;
   std::string indentString(indent, ' ');
 
@@ -84,12 +83,10 @@ void LayoutComponent::write(std::ostream &stream, int indent)
          << indentString << "  size " << m_size.width << " " << m_size.height << "\n"
          << indentString << "  ports {\n";
 
-  for(edge = 0; edge < NR_OF_EDGES; edge++)
+  for(auto pPort: m_portOrder)
   {
-    for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
-    {
-      stream << indentString << "    " << EDGE_TO_NAME(edge) << " " << it->first << " \"" << it->second->getAssociatedVHDLPort()->getName() << "\"\n";
-    }
+    auto edgeAndPosition = pPort->getLocation();
+    stream << indentString << "    \"" << pPort->getAssociatedVHDLPort()->getName() << "\" " << EDGE_TO_NAME(edgeAndPosition.first) << " " << edgeAndPosition.second << "\n";
   }
 
   stream << indentString << "  }\n"

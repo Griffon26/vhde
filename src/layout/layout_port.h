@@ -55,6 +55,8 @@ public:
 
   Glib::ustring getName();
 
+  std::pair<Edge, int> getLocation();
+
 protected:
   friend class LayoutBlock;
 

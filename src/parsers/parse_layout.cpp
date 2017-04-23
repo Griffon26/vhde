@@ -71,20 +71,21 @@ void parsePortsHeader(std::istream &stream)
 
 auto parsePort(std::istream &stream, LayoutBlock *pLayoutBlock)
 {
-  std::string first, name;
+  std::string first, edgeName;
   int index;
   stream >> first;
 
   if(first != "}")
   {
-    Edge edge = NAME_TO_EDGE(first);
+    first = stripQuotes(first);
+
+    stream >> edgeName >> index;
+    Edge edge = NAME_TO_EDGE(edgeName);
     g_assert(edge != NR_OF_EDGES);
-    stream >> index >> name;
-    name = stripQuotes(name);
 
     auto pLayoutPort = new LayoutPort();
     pLayoutBlock->init_addPort(edge, index, pLayoutPort);
-    return std::make_pair(pLayoutPort, name);
+    return std::make_pair(pLayoutPort, first);
   }
   else
   {

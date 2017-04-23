@@ -45,6 +45,13 @@ protected:
   LayoutSize                  m_size;
   PortPositionMap             m_ports[NR_OF_EDGES];
 
+  /* This vector holds ports in the order they were added to the block and is
+   * only used to remember this order, regardless of where ports are physically
+   * located. The purpose of this is to minimize the diff between .layout files
+   * when ports are renamed or moved.
+   */
+  std::vector<LayoutPort *>   m_portOrder;
+
 public:
   /* Signals */
   sigc::signal<void, const LayoutSize &>       resized;
