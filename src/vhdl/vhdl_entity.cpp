@@ -100,7 +100,10 @@ bool VHDLEntity::write(std::ostream &outStream, int indent)
     outStream << "\n" << indentString << "  );\n";
   }
 
-  outStream << indentString << "  " << m_pDeclarativePart->getText() << "\n";
+  if(m_pDeclarativePart)
+  {
+    outStream << indentString << "  " << m_pDeclarativePart->getText() << "\n";
+  }
 
   outStream << indentString << "end " << m_name << ";\n\n";
 
