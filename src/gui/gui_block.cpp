@@ -335,7 +335,7 @@ bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
   m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiBlock::onBodyDragged));
 
   m_dragIsResize = (pEvent->button == 3) &&
-                   (pEvent->modifier_state == CLUTTER_CONTROL_MASK);
+                   ((pEvent->modifier_state & ALL_MODIFIERS_MASK) == CLUTTER_CONTROL_MASK);
 
   if(m_dragIsResize)
   {
