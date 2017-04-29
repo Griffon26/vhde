@@ -55,6 +55,7 @@ VHDLPort *VHDLEntity::createPort(Direction dir, const Glib::ustring &name)
   printf("VHDLEntity::createPort(%s, %s)\n", DIR_TO_NAME(dir), name.c_str());
   VHDLPort *pVHDLPort = new VHDLPort(name);
   pVHDLPort->setDirection(dir);
+  pVHDLPort->setType(VHDLType("std_logic"));
   addPort(pVHDLPort);
   return pVHDLPort;
 }
