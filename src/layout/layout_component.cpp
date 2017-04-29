@@ -49,10 +49,11 @@ INamedItem *LayoutComponent::getAssociatedVHDLEntity()
 LayoutPort *LayoutComponent::createPort(Edge edge, int position, INamedItem *pVHDLPort)
 {
   printf("LayoutComponent::createPort\n");
-  LayoutPort *pLayoutPort = new LayoutPort();
+  auto pLayoutPort = std::make_unique<LayoutPort>();
+  auto pRawLayoutPort = pLayoutPort.get();
   pLayoutPort->associateVHDLPort(pVHDLPort);
-  addPort(edge, position, pLayoutPort);
-  return pLayoutPort;
+  addPort(edge, position, std::move(pLayoutPort));
+  return pRawLayoutPort;
 }
 
 void LayoutComponent::destroyPort(Edge edge, int position)

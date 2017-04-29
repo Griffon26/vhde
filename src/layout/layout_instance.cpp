@@ -172,9 +172,9 @@ void LayoutInstance::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPor
 
   printf("LayoutInstance::onPortAdded\n");
 
-  LayoutPort *pOurLayoutPort = new LayoutPort();
+  auto pOurLayoutPort = std::make_unique<LayoutPort>();
 
-  pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurLayoutPort));
+  pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurLayoutPort.get()));
 
   if(!findFreeSlot(edge, position, &freeEdge, &freePosition))
   {
@@ -188,7 +188,7 @@ void LayoutInstance::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPor
 
   if(findFreeSlot(edge, position, &freeEdge, &freePosition))
   {
-    addPort(freeEdge, freePosition, pOurLayoutPort);
+    addPort(freeEdge, freePosition, std::move(pOurLayoutPort));
   }
 }
 
@@ -196,5 +196,4 @@ void LayoutInstance::onPortRemoved(Edge edge, int position, LayoutPort *pCompone
 {
   printf("LayoutInstance(%p)::onPortRemoved(%p)\n", this, pOurLayoutPort);
   removePort(pOurLayoutPort);
-  delete pOurLayoutPort;
 }

@@ -37,7 +37,7 @@ public:
     LayoutPort *pLayoutPort;
   } PortData;
 
-  typedef std::map<int, LayoutPort *> PortPositionMap;
+  typedef std::map<int, std::unique_ptr<LayoutPort>> PortPositionMap;
 
 protected:
   bool                        m_init;
@@ -58,7 +58,7 @@ public:
   sigc::signal<void, Edge, int, LayoutPort *>  port_added;
 
   /* This method assumes ownership of the port */
-  void init_addPort(Edge edge, int position, LayoutPort *pPort);
+  void init_addPort(Edge edge, int position, std::unique_ptr<LayoutPort> pPort);
   void init_done();
 
   void getPosition(LayoutPosition *pLayoutPosition);
@@ -86,7 +86,7 @@ public:
 protected:
   LayoutBlock();
 
-  void addPort(Edge edge, int position, LayoutPort *pPort);
+  void addPort(Edge edge, int position, std::unique_ptr<LayoutPort> pPort);
   void removePort(LayoutPort *pPort);
 };
 

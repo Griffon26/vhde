@@ -29,14 +29,14 @@
  * Public methods
  */
 
-void LayoutBlock::init_addPort(Edge edge, int position, LayoutPort *pLayoutPort)
+void LayoutBlock::init_addPort(Edge edge, int position, std::unique_ptr<LayoutPort> pLayoutPort)
 {
   g_assert(m_init);
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
-  printf("LayoutBlock(%p)::init_addPort(%s, %d, %p)\n", this, EDGE_TO_NAME(edge), position, pLayoutPort);
+  printf("LayoutBlock(%p)::init_addPort(%s, %d, %p)\n", this, EDGE_TO_NAME(edge), position, pLayoutPort.get());
   pLayoutPort->setLocation(edge, position);
-  m_ports[edge][position] = pLayoutPort;
-  m_portOrder.push_back(pLayoutPort);
+  m_portOrder.push_back(pLayoutPort.get());
+  m_ports[edge][position] = std::move(pLayoutPort);
 }
 
 void LayoutBlock::init_done()
@@ -92,7 +92,7 @@ void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newP
     g_assert(m_ports[oldEdge].find(oldPosition) != m_ports[oldEdge].end());
     g_assert(m_ports[newEdge].find(newPosition) == m_ports[newEdge].end());
 
-    m_ports[newEdge][newPosition] = m_ports[oldEdge][oldPosition];
+    m_ports[newEdge][newPosition] = std::move(m_ports[oldEdge][oldPosition]);
     m_ports[oldEdge].erase(oldPosition);
 
     m_ports[newEdge][newPosition]->setLocation(newEdge, newPosition);
@@ -101,27 +101,24 @@ void LayoutBlock::movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newP
 
 LayoutPort *LayoutBlock::getPort(Edge edge, int position)
 {
-  std::map<int, LayoutPort *>::iterator it;
+  auto it = m_ports[edge].find(position);
 
-  it = m_ports[edge].find(position);
-
-  return (it == m_ports[edge].end()) ? NULL : it->second;
+  return (it == m_ports[edge].end()) ? NULL : it->second.get();
 }
 
 std::list<LayoutBlock::PortData> *LayoutBlock::getPortList()
 {
   PortData portData;
-  std::map<int, LayoutPort *>::iterator it;
 
   std::list<PortData> *pPortList = new std::list<PortData>();
 
   for(int edge = 0; edge < NR_OF_EDGES; edge++)
   {
-    for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
+    for(auto it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
     {
       portData.edge = (Edge)edge;
       portData.position = it->first;
-      portData.pLayoutPort = it->second;
+      portData.pLayoutPort = it->second.get();
 
       pPortList->push_back(portData);
     }
@@ -155,11 +152,11 @@ void LayoutBlock::setPortPositions(Edge edge, const std::vector<int> &newPortPos
       newPosition = lastFreePosition--;
     }
 
-    newMap[newPosition] = m_ports[edge][oldPortPositions[posIndex]];
+    newMap[newPosition] = std::move(m_ports[edge][oldPortPositions[posIndex]]);
     newMap[newPosition]->setLocation(edge, newPosition);
   }
 
-  m_ports[edge] = newMap;
+  m_ports[edge] = std::move(newMap);
 }
 
 LayoutPort *LayoutBlock::findPortByName(const Glib::ustring &name, Edge *pEdge, int *pPosition)
@@ -177,7 +174,7 @@ LayoutPort *LayoutBlock::findPortByName(const Glib::ustring &name, Edge *pEdge, 
       {
         *pEdge = (Edge)edge;
         *pPosition = it->first;
-        pLayoutPort = it->second;
+        pLayoutPort = it->second.get();
         found = true;
       }
     }
@@ -303,15 +300,17 @@ LayoutBlock::LayoutBlock():
 {
 }
 
-void LayoutBlock::addPort(Edge edge, int position, LayoutPort *pPort)
+void LayoutBlock::addPort(Edge edge, int position, std::unique_ptr<LayoutPort> pPort)
 {
-  printf("LayoutBlock(%p)::addPort(%s %d) -> layoutPort = %p\n", this, EDGE_TO_NAME(edge), position, pPort);
+  printf("LayoutBlock(%p)::addPort(%s %d) -> layoutPort = %p\n", this, EDGE_TO_NAME(edge), position, pPort.get());
   g_assert(m_ports[edge].find(position) == m_ports[edge].end());
-  m_ports[edge][position] = pPort;
-  m_portOrder.push_back(pPort);
+
+  auto pRawPort = pPort.get();
+  m_portOrder.push_back(pRawPort);
+  m_ports[edge][position] = std::move(pPort);
   pPort->setLocation(edge, position);
 
-  port_added.emit(edge, position, pPort);
+  port_added.emit(edge, position, pRawPort);
 }
 
 void LayoutBlock::removePort(LayoutPort *pPort)
@@ -322,24 +321,24 @@ void LayoutBlock::removePort(LayoutPort *pPort)
 
   printf("LayoutBlock(%p)::removePort(%p)\n", this, pPort);
 
-  for(edge = 0; !found && edge < NR_OF_EDGES; edge++)
-  {
-    for(it = m_ports[edge].begin(); !found && it != m_ports[edge].end(); it++)
-    {
-      if(it->second == pPort)
-      {
-        fprintf(stderr, "found at edge %s pos %d (map = %p, it = (%d,%p))\n", EDGE_TO_NAME(edge), it->first, &m_ports[edge], it->first, it->second);
-        m_ports[edge].erase(it);
-        found = true;
-      }
-    }
-  }
   auto foundIt = std::find(std::begin(m_portOrder),
                            std::end(m_portOrder),
                            pPort);
   g_assert(foundIt != std::end(m_portOrder));
   m_portOrder.erase(foundIt);
 
+  for(edge = 0; !found && edge < NR_OF_EDGES; edge++)
+  {
+    for(it = m_ports[edge].begin(); !found && it != m_ports[edge].end(); it++)
+    {
+      if(it->second.get() == pPort)
+      {
+        fprintf(stderr, "found at edge %s pos %d (map = %p, it = (%d,%p))\n", EDGE_TO_NAME(edge), it->first, &m_ports[edge], it->first, it->second.get());
+        m_ports[edge].erase(it);
+        found = true;
+      }
+    }
+  }
   g_assert(found);
 }
 

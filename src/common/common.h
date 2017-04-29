@@ -36,7 +36,7 @@ typedef enum {
   DIR_INVALID
 } Direction;
 
-template<typename T, typename U> std::vector<T> getKeysFromMap(std::map<T,U> map)
+template<typename T, typename U> std::vector<T> getKeysFromMap(const std::map<T,U> &map)
 {
   std::vector<T> keys;
   

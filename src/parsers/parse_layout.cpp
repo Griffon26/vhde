@@ -84,9 +84,10 @@ auto parsePort(std::istream &stream, LayoutBlock *pLayoutBlock)
     Edge edge = NAME_TO_EDGE(edgeName);
     g_assert(edge != NR_OF_EDGES);
 
-    auto pLayoutPort = new LayoutPort();
-    pLayoutBlock->init_addPort(edge, index, pLayoutPort);
-    return std::make_pair(pLayoutPort, first);
+    auto pLayoutPort = std::make_unique<LayoutPort>();
+    auto portAndName = std::make_pair(pLayoutPort.get(), first);
+    pLayoutBlock->init_addPort(edge, index, std::move(pLayoutPort));
+    return portAndName;
   }
   else
   {

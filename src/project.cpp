@@ -79,15 +79,15 @@ void Project::createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLa
 
   for(auto &pPort: *portList)
   {
-    LayoutPort *pLayoutPort = new LayoutPort();
+    auto pLayoutPort = std::make_unique<LayoutPort>();
     pLayoutPort->associateVHDLPort(pPort);
     if(portIndex < nrOfPortsToAddOnLeft)
     {
-      pLayoutBlock->init_addPort(EDGE_LEFT, portIndex, pLayoutPort);
+      pLayoutBlock->init_addPort(EDGE_LEFT, portIndex, std::move(pLayoutPort));
     }
     else
     {
-      pLayoutBlock->init_addPort(EDGE_RIGHT, portIndex - nrOfPortsToAddOnLeft, pLayoutPort);
+      pLayoutBlock->init_addPort(EDGE_RIGHT, portIndex - nrOfPortsToAddOnLeft, std::move(pLayoutPort));
     }
     portIndex++;
   }
