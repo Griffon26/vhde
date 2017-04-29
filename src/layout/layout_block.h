@@ -88,9 +88,6 @@ protected:
 
   void addPort(Edge edge, int position, LayoutPort *pPort);
   void removePort(LayoutPort *pPort);
-
-private:
-  void resizeEdge(Edge edge, int newSize);
 };
 
 #endif /* _LAYOUT_BLOCK_H */

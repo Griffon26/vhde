@@ -78,7 +78,6 @@ public:
 private:
   bool getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition,
                       bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
-  void resizeEdge(const LayoutBlock::PortPositionMap &oldPortPositionMap, LayoutBlock::PortPositionMap *pNewPortPositionMap, int newSize);
 
   bool onPortDragged(Clutter::Event *pEvent, GuiPort *pGuiPort);
   bool onPortButtonPress(Clutter::ButtonEvent *pEvent, GuiPort *pGuiPort);

@@ -316,7 +316,6 @@ bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
 
   if(pEvent->type == CLUTTER_MOTION && m_dragIsResize)
   {
-    LayoutBlock::PortPositionMap newPortPositionMaps[NR_OF_EDGES];
     LayoutSize size;
     m_pLayoutBlock->getSize(&size);
 
