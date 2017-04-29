@@ -152,49 +152,6 @@ bool GuiBlock::getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *p
   return (minDistanceSquared != -1);
 }
 
-void GuiBlock::resizeEdge(const LayoutBlock::PortPositionMap &oldPortPositionMap, LayoutBlock::PortPositionMap *pNewPortPositionMap, int newSize)
-{
-  LayoutBlock::PortPositionMap::const_iterator it;
-
-  int nrOfUnusedSpotsAllowed = m_pLayoutBlock->calculateMaxNrOfPorts(newSize) - oldPortPositionMap.size();
-  g_assert(nrOfUnusedSpotsAllowed >= 0);
-
-  int previousUsedSpot = -1;
-  int nrOfSkippedSpots;
-  int currentSpot;
-  for(it = oldPortPositionMap.begin(); it != oldPortPositionMap.end(); it++)
-  {
-    currentSpot = it->first;
-    nrOfSkippedSpots = (currentSpot - previousUsedSpot) - 1;
-    nrOfUnusedSpotsAllowed -= nrOfSkippedSpots;
-
-    /* Break out of the loop if the current port is at or beyond the furthest
-     * position it is allowed to occupy.
-     */
-    if(nrOfUnusedSpotsAllowed <= 0)
-    {
-      break;
-    }
-
-    /* Copy this port as is, because it doesn't need to be moved */
-    (*pNewPortPositionMap)[it->first] = it->second;
-
-    previousUsedSpot = currentSpot;
-  }
-
-  /* If nrOfUnusedSpotsAllowed is negative, we need to move the current port
-   * back by (-nrOfUnusedSpotsAllowed) places and put all following ports
-   * adjacent to this one.
-   */
-  currentSpot -= -nrOfUnusedSpotsAllowed;
-
-  for(;it != oldPortPositionMap.end(); it++)
-  {
-    (*pNewPortPositionMap)[currentSpot] = it->second;
-    currentSpot++;
-  }
-}
-
 bool GuiBlock::onPortButtonPress(Clutter::ButtonEvent* pEvent, GuiPort *pGuiPort)
 {
   /* Register for motion and button release events from the stage */
@@ -339,8 +296,6 @@ bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 
   if(m_dragIsResize)
   {
-    const LayoutBlock::PortPositionMap *pPortPositionMaps = m_pLayoutBlock->getPortPositionMaps();
-
     /* Make a copy of the initial port position maps, because as we resize the
      * component we always want to keep the ports as close as possible to their
      * original position. So if we resize down first shifting ports closer
@@ -348,7 +303,7 @@ bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
      */
     for(int edge = 0; edge < NR_OF_EDGES; edge++)
     {
-      m_initialPortPositionMaps[edge] = pPortPositionMaps[edge];
+      m_initialPortPositions[edge] = m_pLayoutBlock->getPortPositions((Edge)edge);
     }
   }
 
@@ -370,16 +325,13 @@ bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
     size.width  = MAX(m_minimumSize.width, m_initialSize.width  + (handleX - m_initialHandleX));
     size.height = MAX(m_minimumSize.height, m_initialSize.height + (handleY - m_initialHandleY));
 
-    resizeEdge(m_initialPortPositionMaps[EDGE_TOP],    &newPortPositionMaps[EDGE_TOP], size.width);
-    resizeEdge(m_initialPortPositionMaps[EDGE_BOTTOM], &newPortPositionMaps[EDGE_BOTTOM], size.width);
-
-    resizeEdge(m_initialPortPositionMaps[EDGE_LEFT],  &newPortPositionMaps[EDGE_LEFT], size.height);
-    resizeEdge(m_initialPortPositionMaps[EDGE_RIGHT], &newPortPositionMaps[EDGE_RIGHT], size.height);
-
-    m_pLayoutBlock->setPortPositionMaps(newPortPositionMaps);
-
     m_pLayoutBlock->setSize(size);
 
+    for(int edge = 0; edge < NR_OF_EDGES; edge++)
+    {
+      m_pLayoutBlock->setPortPositions((Edge)edge, m_initialPortPositions[edge]);
+    }
+ 
     return HANDLED;
   }
   else if(pEvent->type == CLUTTER_BUTTON_RELEASE)

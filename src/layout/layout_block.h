@@ -72,8 +72,8 @@ public:
 
   std::list<PortData> *getPortList();
 
-  const PortPositionMap *getPortPositionMaps();
-  void setPortPositionMaps(PortPositionMap *portPositionMap);
+  const std::vector<int> getPortPositions(Edge edge);
+  void setPortPositions(Edge edge, const std::vector<int> &portPositions);
 
   LayoutPort *findPortByName(const Glib::ustring &name, Edge *pEdge, int *pPosition);
 

@@ -66,7 +66,7 @@ protected:
   float                         m_initialHandleY;
   LayoutSize                    m_initialSize;
   LayoutSize                    m_minimumSize;
-  LayoutBlock::PortPositionMap  m_initialPortPositionMaps[NR_OF_EDGES];
+  std::vector<int>              m_initialPortPositions[NR_OF_EDGES];
 
 
 public:
