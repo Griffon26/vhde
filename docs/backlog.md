@@ -15,7 +15,6 @@ and do not indicate priority.
 1. `VHDE-13`: Resolve conflicts between .layout and .vhd files
 1. `VHDE-12`: Remove restriction of 1 architecture per file
 1. `VHDE-05`: Add a comment for each class describing its reponsibility
-1. `VHDE-15`: Add support for library and use clauses
 1. `VHDE-16`: Add support for configuration declaration
 1. `VHDE-17`: Add support for package declaration and body
 1. `VHDE-06`: Port from clutter to GTK+ Scene Graph Kit (GSK), once broadly available
