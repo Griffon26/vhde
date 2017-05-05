@@ -42,32 +42,32 @@ void VHDLFile::setContext(std::unique_ptr<VHDLFragment> pFragment)
   m_pContext = std::move(pFragment);
 }
 
-void VHDLFile::setEntity(VHDLEntity *pEntity)
+void VHDLFile::setEntity(std::unique_ptr<VHDLEntity> pEntity)
 {
   g_assert(!m_pEntity);
-  m_pEntity = pEntity;
+  m_pEntity = std::move(pEntity);
 }
 
-void VHDLFile::addArchitecture(VHDLArchitecture *pArch)
+void VHDLFile::addArchitecture(std::unique_ptr<VHDLArchitecture> pArch)
 {
   g_assert(m_mode == GRAPHICAL);
-  m_architectures.push_back(pArch);
+  m_architectures.push_back(std::move(pArch));
 }
 
-const std::vector<VHDLArchitecture *> &VHDLFile::getArchitectures()
+const std::vector<VHDLArchitecture *> VHDLFile::getArchitectures()
 {
   g_assert(m_mode == GRAPHICAL);
-  return m_architectures;
+  return stripOwnership(m_architectures);
 }
 
 VHDLArchitecture *VHDLFile::findArchitectureByName(const Glib::ustring &name)
 {
   g_assert(m_mode == GRAPHICAL);
-  for(auto pArch: m_architectures)
+  for(auto &pArch: m_architectures)
   {
     if(pArch->getName() == name)
     {
-      return pArch;
+      return pArch.get();
     }
   }
   return nullptr;
@@ -99,7 +99,7 @@ bool VHDLFile::write(std::ostream &outStream, int indent)
 
   if(m_mode == GRAPHICAL)
   {
-    for(auto pArch: m_architectures)
+    for(auto &pArch: m_architectures)
     {
       pArch->write(outStream, indent);
     }

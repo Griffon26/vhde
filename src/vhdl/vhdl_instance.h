@@ -32,12 +32,19 @@ class VHDLSignal;
 class VHDLInstance: public INamedItem
 {
 private:
-  typedef struct
+  class MapEntry
   {
+  public:
     sigc::connection onPortRemovedConnection;
     sigc::connection onSignalRemovedConnection;
     VHDLSignal *pSignal;
-  } MapEntry;
+
+    ~MapEntry()
+    {
+      onPortRemovedConnection.disconnect();
+      onSignalRemovedConnection.disconnect();
+    }
+  };
 
   Glib::ustring                             m_name;
   VHDLComponent                            *m_pComponent;

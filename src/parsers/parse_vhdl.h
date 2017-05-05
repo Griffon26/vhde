@@ -81,7 +81,7 @@ public:
 
 typedef std::vector<VHDLUnitPtr> VHDLUnitList;
 
-VHDLFile *parseVHDL(std::istream &stream, VHDLFile::Mode mode);
+std::unique_ptr<VHDLFile> parseVHDL(std::istream &stream, VHDLFile::Mode mode);
 
 #endif
 

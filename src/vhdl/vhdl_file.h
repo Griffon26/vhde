@@ -23,9 +23,10 @@
 
 #include <glibmm.h>
 
+#include "vhdl_entity.h"
+#include "vhdl_fragment.h"
+
 class VHDLArchitecture;
-class VHDLEntity;
-class VHDLFragment;
 
 class VHDLFile
 {
@@ -41,8 +42,8 @@ private:
   Mode m_mode;
 
   std::unique_ptr<VHDLFragment> m_pContext;
-  VHDLEntity *m_pEntity;
-  std::vector<VHDLArchitecture *> m_architectures;
+  std::vector<std::unique_ptr<VHDLArchitecture>> m_architectures;
+  std::unique_ptr<VHDLEntity> m_pEntity;
   std::vector<std::unique_ptr<VHDLFragment>> m_otherFragments;
 
 public:
@@ -55,11 +56,11 @@ public:
 
   void setContext(std::unique_ptr<VHDLFragment> pFragment);
 
-  void setEntity(VHDLEntity *pEntity);
-  VHDLEntity *getEntity() { return m_pEntity; }
+  void setEntity(std::unique_ptr<VHDLEntity> pEntity);
+  VHDLEntity *getEntity() { return m_pEntity.get(); }
 
-  void addArchitecture(VHDLArchitecture *pArch);
-  const std::vector<VHDLArchitecture *> &getArchitectures();
+  void addArchitecture(std::unique_ptr<VHDLArchitecture> pArch);
+  const std::vector<VHDLArchitecture *> getArchitectures();
   VHDLArchitecture *findArchitectureByName(const Glib::ustring &name);
 
   void addOtherFragment(std::unique_ptr<VHDLFragment> pFragment);

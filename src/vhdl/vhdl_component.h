@@ -33,6 +33,7 @@ class VHDLComponent: public VHDLInterface, public INamedItem
 private:
   VHDLEntity *m_pEntity;
   sigc::connection m_onPortAddedConnection;
+  std::map<VHDLPort *, sigc::connection> m_onPortRemovedConnections;
   Glib::ustring m_unresolvedName;
 
 public:

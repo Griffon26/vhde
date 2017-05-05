@@ -91,13 +91,13 @@ private:
   }
 
   virtual antlrcpp::Any visitDesign_file(vhdlParser::Design_fileContext *ctx) override {
-    VHDLFile *pVHDLFile = new VHDLFile(m_mode);
-    m_pCurrentFile = pVHDLFile;
+    auto pVHDLFile = std::make_unique<VHDLFile>(m_mode);
+    m_pCurrentFile = pVHDLFile.get();
     for(auto &el: ctx->design_unit())
     {
       visit(el);
     }
-    return pVHDLFile;
+    return std::move(pVHDLFile);
   }
 
   virtual antlrcpp::Any visitContext_clause(vhdlParser::Context_clauseContext *ctx) override {
@@ -126,15 +126,15 @@ private:
 
     auto library_unit = visit(ctx->library_unit());
 
-    if(library_unit.is<VHDLEntity *>())
+    if(library_unit.is<std::unique_ptr<VHDLEntity>>())
     {
       if(m_pCurrentFile->getEntity())
       {
         throw antlr4::RuntimeException("Only one entity is supported per VHDL file");
       }
-      m_pCurrentFile->setEntity(library_unit);
+      m_pCurrentFile->setEntity(std::move(library_unit));
     }
-    else if(library_unit.is<VHDLArchitecture *>())
+    else if(library_unit.is<std::unique_ptr<VHDLArchitecture>>())
     {
       m_pCurrentFile->addArchitecture(library_unit);
     }
@@ -189,7 +189,7 @@ private:
 
   virtual antlrcpp::Any visitEntity_declaration(vhdlParser::Entity_declarationContext *ctx) override {
     auto name = visit(ctx->identifier(0)).as<Glib::ustring>();
-    auto pEntity = new VHDLEntity(name);
+    auto pEntity = std::make_unique<VHDLEntity>(name);
 
     auto pGenericsClauseCtx = ctx->entity_header()->generic_clause();
     if(pGenericsClauseCtx)
@@ -214,9 +214,9 @@ private:
       pEntity->init_setDeclarativePart(std::make_unique<VHDLFragment>(getCurrentFragment(ctx->entity_declarative_part())));
     }
 
-    m_entityMap[name] = pEntity;
+    m_entityMap[name] = pEntity.get();
 
-    return pEntity;
+    return std::move(pEntity);
   }
 
   virtual antlrcpp::Any visitEntity_header(vhdlParser::Entity_headerContext *ctx) override {
@@ -226,22 +226,22 @@ private:
   virtual antlrcpp::Any visitArchitecture_body(vhdlParser::Architecture_bodyContext *ctx) override {
     auto archName = visit(ctx->identifier(0)).as<Glib::ustring>();
     auto entityName = visit(ctx->identifier(1)).as<Glib::ustring>();
-    auto pArch = new VHDLArchitecture(archName);
+    auto pArch = std::make_unique<VHDLArchitecture>(archName);
     pArch->setEntity(m_entityMap.at(entityName));
 
-    m_pCurrentArchitecture = pArch;
+    m_pCurrentArchitecture = pArch.get();
     visit(ctx->architecture_declarative_part());
     visit(ctx->architecture_statement_part());
-    return pArch;
+    return std::move(pArch);
   }
 
   virtual antlrcpp::Any visitArchitecture_declarative_part(vhdlParser::Architecture_declarative_partContext *ctx) override {
     for(auto &el: ctx->block_declarative_item())
     {
       auto value = visit(el);
-      if(value.is<VHDLComponent *>())
+      if(value.is<std::unique_ptr<VHDLComponent>>())
       {
-        m_pCurrentArchitecture->init_addComponent(value);
+        m_pCurrentArchitecture->init_addComponent(std::move(value));
       }
       else if(value.is<std::vector<std::unique_ptr<VHDLSignal>>>())
       {
@@ -473,7 +473,7 @@ private:
 };
 
 
-VHDLFile *parseVHDL(std::istream &stream, VHDLFile::Mode mode)
+std::unique_ptr<VHDLFile> parseVHDL(std::istream &stream, VHDLFile::Mode mode)
 {
   antlr4::ANTLRInputStream input(stream);
   vhdlLexer lexer(&input);

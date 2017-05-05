@@ -43,11 +43,11 @@ static Glib::ustring getBaseName(const Glib::ustring &fileName)
   return fileName.substr(0, dotIndex);
 }
 
-VHDLFile *Project::readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap)
+std::unique_ptr<VHDLFile> Project::readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap)
 {
   std::cout << "Opening file " << fileName << "..." << std::endl;
   std::ifstream inFile(fileName);
-  VHDLFile *pVHDLFile = ::parseVHDL(inFile, mode);
+  auto pVHDLFile = ::parseVHDL(inFile, mode);
 
   VHDLEntity *pEntity = pVHDLFile->getEntity();
   entityMap[pEntity->getName()] = pEntity;
@@ -167,7 +167,6 @@ void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
   auto baseName = getBaseName(fileName);
 
   auto pVHDLFile = readVHDLFromFile(fileName, mode, m_entityMap);
-  m_fileToVHDLFileMap[baseName] = pVHDLFile;
 
   auto layoutFileName = baseName + ".layout";
 
@@ -177,8 +176,10 @@ void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
   /* If we failed to read an architecture layout from file, we'll construct a suitable one here */
   if(!pLayoutFile)
   {
-    pLayoutFile = createDefaultFileLayout(pVHDLFile);
+    pLayoutFile = createDefaultFileLayout(pVHDLFile.get());
   }
+
+  m_fileToVHDLFileMap[baseName] = std::move(pVHDLFile);
   m_fileToLayoutFileMap[baseName] = pLayoutFile;
 
   m_layoutResolverMap[baseName] = pResolver;
@@ -204,7 +205,7 @@ void Project::resolveLayoutReferences()
   for(auto &kv: m_layoutResolverMap)
   {
     std::cout << "Resolving layout references to VHDL objects in file " << kv.first << std::endl;
-    kv.second->run(m_fileToVHDLFileMap.at(kv.first));
+    kv.second->run(m_fileToVHDLFileMap.at(kv.first).get());
   }
 }
 

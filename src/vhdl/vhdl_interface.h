@@ -23,8 +23,9 @@
 
 #include <glibmm.h>
 
+#include "vhdl_port.h"
+
 class VHDLFragment;
-class VHDLPort;
 
 class VHDLInterface
 {

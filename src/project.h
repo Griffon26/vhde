@@ -39,11 +39,11 @@ private:
   std::map<const Glib::ustring, VHDLEntity *> m_entityMap;
 
   /* These maps use the base name of the VHDL file as key */
-  std::map<const Glib::ustring, VHDLFile *> m_fileToVHDLFileMap;
+  std::map<const Glib::ustring, std::unique_ptr<VHDLFile>> m_fileToVHDLFileMap;
   std::map<const Glib::ustring, LayoutFile *> m_fileToLayoutFileMap;
   std::map<const Glib::ustring, LayoutResolverActions *> m_layoutResolverMap;
 
-  static VHDLFile *readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap);
+  static std::unique_ptr<VHDLFile> readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap);
 
   LayoutFile *readLayoutFromFile(const Glib::ustring &fileName, LayoutResolverActions *pLayoutResolverActions);
   void createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock);

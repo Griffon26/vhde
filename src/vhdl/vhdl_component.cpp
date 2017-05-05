@@ -40,6 +40,11 @@ VHDLComponent::~VHDLComponent()
   {
     m_onPortAddedConnection.disconnect();
   }
+
+  for(auto &kv: m_onPortRemovedConnections)
+  {
+    kv.second.disconnect();
+  }
 }
 
 /*
@@ -96,11 +101,7 @@ void VHDLComponent::associateEntity(VHDLEntity *pEntity)
     /* Surely there's a matching port in this component */
     g_assert(pOurPort != NULL);
 
-    /* No need to remember the connection for "removed" signals, because the
-     * only reason we would no longer want to receive them is when the
-     * corresponding port is destroyed (so it won't emit any further signals).
-     */
-    (*it)->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLComponent::onPortRemoved), pOurPort));
+    m_onPortRemovedConnections[pOurPort] = (*it)->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLComponent::onPortRemoved), pOurPort));
   }
 
   m_onPortAddedConnection = m_pEntity->port_added.connect(sigc::mem_fun(this, &VHDLComponent::onPortAdded));
@@ -133,12 +134,13 @@ void VHDLComponent::onPortAdded(VHDLPort *pEntityPort)
   printf("VHDLComponent::onPortAdded\n");
   auto pOurPort = std::make_unique<VHDLPort>(*pEntityPort);
 
-  pEntityPort->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLComponent::onPortRemoved), pOurPort.get()));
+  m_onPortRemovedConnections[pOurPort.get()] = pEntityPort->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLComponent::onPortRemoved), pOurPort.get()));
   addPort(std::move(pOurPort));
 }
 
 void VHDLComponent::onPortRemoved(VHDLPort *pEntityPort, VHDLPort *pOurPort)
 {
   printf("VHDLComponent(%p)::onPortRemoved(%s(%p))\n", this, pOurPort->getName().c_str(), pOurPort);
+  m_onPortRemovedConnections.erase(pOurPort);
   removePort(pOurPort);
 }
