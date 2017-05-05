@@ -27,10 +27,10 @@ LayoutFile::LayoutFile():
 {
 }
 
-void LayoutFile::setComponent(LayoutComponent *pComponent)
+void LayoutFile::setComponent(std::unique_ptr<LayoutComponent> pComponent)
 {
   g_assert(!m_pComponent);
-  m_pComponent = pComponent;
+  m_pComponent = std::move(pComponent);
 }
 
 void LayoutFile::addArchitecture(LayoutArchitecture *pLayoutArch)

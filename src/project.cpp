@@ -146,10 +146,10 @@ LayoutFile *Project::createDefaultFileLayout(VHDLFile *pVHDLFile)
 
   LayoutFile *pLayoutFile = new LayoutFile();
 
-  LayoutComponent *pLayoutComponent = new LayoutComponent();
-  createDefaultPorts(pVHDLFile->getEntity(), pLayoutComponent);
+  auto pLayoutComponent = std::make_unique<LayoutComponent>();
+  createDefaultPorts(pVHDLFile->getEntity(), pLayoutComponent.get());
 
-  pLayoutFile->setComponent(pLayoutComponent);
+  pLayoutFile->setComponent(std::move(pLayoutComponent));
 
   if(pVHDLFile->getMode() == VHDLFile::GRAPHICAL)
   {

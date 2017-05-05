@@ -23,8 +23,9 @@
 
 #include <glibmm.h>
 
+#include "layout_component.h"
+
 class LayoutArchitecture;
-class LayoutComponent;
 
 /* The only purpose of this class is to group other layout objects belonging to
  * one file so it is easy to write them all out in one go.
@@ -32,7 +33,7 @@ class LayoutComponent;
 class LayoutFile
 {
 private:
-  LayoutComponent *m_pComponent;
+  std::unique_ptr<LayoutComponent> m_pComponent;
   std::vector<LayoutArchitecture *> m_architectures;
 
 public:
@@ -40,8 +41,8 @@ public:
   virtual ~LayoutFile() {}
 
   /* These methods assume ownership of the component and architectures */
-  void setComponent(LayoutComponent *pComponent);
-  LayoutComponent *getComponent() { return m_pComponent; }
+  void setComponent(std::unique_ptr<LayoutComponent> pComponent);
+  LayoutComponent *getComponent() { return m_pComponent.get(); }
   void addArchitecture(LayoutArchitecture *pLayoutArch);
   const std::vector<LayoutArchitecture *> &getArchitectures();
 

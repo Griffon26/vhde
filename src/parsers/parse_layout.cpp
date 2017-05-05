@@ -95,24 +95,27 @@ auto parsePort(std::istream &stream, LayoutBlock *pLayoutBlock)
   }
 }
 
-LayoutComponent *parseComponent(std::istream &stream, LayoutResolverActions &resolver)
+std::unique_ptr<LayoutComponent> parseComponent(std::istream &stream, LayoutResolverActions &resolver)
 {
   Glib::ustring brace;
 
   stream >> brace;
   g_assert(brace == "{");
 
-  auto pLayoutComponent = new LayoutComponent();
+  auto pLayoutComponent = std::make_unique<LayoutComponent>();
   auto wh = parseSize(stream);
   pLayoutComponent->setSize(LayoutSize(wh.first, wh.second));
-  resolver.add([=](VHDLFile *pVHDLFile) { pLayoutComponent->associateEntity(pVHDLFile->getEntity()); });
+
+  /* Use a raw pointer here so it can be captured by value */
+  auto pRawLayoutComponent = pLayoutComponent.get();
+  resolver.add([=](VHDLFile *pVHDLFile) { pRawLayoutComponent->associateEntity(pVHDLFile->getEntity()); });
 
   parsePortsHeader(stream);
 
   std::pair<LayoutPort *, Glib::ustring> portAndName;
   do
   {
-    portAndName = parsePort(stream, pLayoutComponent);
+    portAndName = parsePort(stream, pLayoutComponent.get());
     if(portAndName.first != nullptr)
     {
       resolver.add([portAndName](VHDLFile *pVHDLFile) { portAndName.first->associateVHDLPort(pVHDLFile->getEntity()->findPortByName(portAndName.second)); });
