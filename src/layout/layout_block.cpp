@@ -307,7 +307,7 @@ void LayoutBlock::addPort(Edge edge, int position, std::unique_ptr<LayoutPort> p
   auto pRawPort = pPort.get();
   m_portOrder.push_back(pRawPort);
   m_ports[edge][position] = std::move(pPort);
-  pPort->setLocation(edge, position);
+  pRawPort->setLocation(edge, position);
 
   port_added.emit(edge, position, pRawPort);
 }
