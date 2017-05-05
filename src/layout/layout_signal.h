@@ -74,6 +74,7 @@ public:
   sigc::signal<void, EndPointId>                          endpoint_disconnected;
 
   LayoutSignal();
+  virtual ~LayoutSignal();
 
   /* This function is only used when constructing an arbitrary layout for a given signal.
    * Because I do not want to expose which endpoint is already connected, this function

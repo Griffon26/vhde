@@ -42,6 +42,19 @@ LayoutSignal::LayoutSignal():
   m_endPoints[END].connected = false;
 }
 
+LayoutSignal::~LayoutSignal()
+{
+  m_endPoints[BEGINNING].onInstanceMovedConnection.disconnect();
+  m_endPoints[BEGINNING].onInstanceResizedConnection.disconnect();
+  m_endPoints[BEGINNING].onPortMovedConnection.disconnect();
+  m_endPoints[BEGINNING].onPortRemovedConnection.disconnect();
+
+  m_endPoints[END].onInstanceMovedConnection.disconnect();
+  m_endPoints[END].onInstanceResizedConnection.disconnect();
+  m_endPoints[END].onPortMovedConnection.disconnect();
+  m_endPoints[END].onPortRemovedConnection.disconnect();
+}
+
 void LayoutSignal::init_connect(LayoutInstance *pInstance, Edge edge, int position)
 {
   EndPointId endPoint;

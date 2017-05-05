@@ -57,10 +57,10 @@ std::unique_ptr<VHDLFile> Project::readVHDLFromFile(const Glib::ustring &fileNam
   return pVHDLFile;
 }
 
-LayoutFile *Project::readLayoutFromFile(const Glib::ustring &fileName, LayoutResolverActions *pLayoutResolverActions)
+std::unique_ptr<LayoutFile> Project::readLayoutFromFile(const Glib::ustring &fileName, LayoutResolverActions *pLayoutResolverActions)
 {
   std::cout << "Opening file " << fileName << "..." << std::endl;
-  LayoutFile *pLayoutFile = nullptr;
+  std::unique_ptr<LayoutFile> pLayoutFile;
   std::ifstream inFile(fileName);
 
   if(inFile.good())
@@ -98,11 +98,11 @@ void Project::createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLa
   pLayoutBlock->setSize(size);
 }
 
-LayoutArchitecture *Project::createDefaultArchitectureLayout(VHDLArchitecture *pArch)
+std::unique_ptr<LayoutArchitecture> Project::createDefaultArchitectureLayout(VHDLArchitecture *pArch)
 {
   std::cout << "Creating default layout for architecture " << pArch->getName() << std::endl;
 
-  LayoutArchitecture *pLayoutArch = new LayoutArchitecture();
+  auto pLayoutArch = std::make_unique<LayoutArchitecture>();
 
   pLayoutArch->associateVHDLArchitecture(pArch);
 
@@ -140,11 +140,11 @@ LayoutArchitecture *Project::createDefaultArchitectureLayout(VHDLArchitecture *p
   return pLayoutArch;
 }
 
-LayoutFile *Project::createDefaultFileLayout(VHDLFile *pVHDLFile)
+std::unique_ptr<LayoutFile> Project::createDefaultFileLayout(VHDLFile *pVHDLFile)
 {
   std::cout << "Creating default layout for new file" << std::endl;
 
-  LayoutFile *pLayoutFile = new LayoutFile();
+  auto pLayoutFile = std::make_unique<LayoutFile>();
 
   auto pLayoutComponent = std::make_unique<LayoutComponent>();
   createDefaultPorts(pVHDLFile->getEntity(), pLayoutComponent.get());
@@ -180,7 +180,7 @@ void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
   }
 
   m_fileToVHDLFileMap[baseName] = std::move(pVHDLFile);
-  m_fileToLayoutFileMap[baseName] = pLayoutFile;
+  m_fileToLayoutFileMap[baseName] = std::move(pLayoutFile);
 
   m_layoutResolverMap[baseName] = pResolver;
 }
@@ -236,7 +236,7 @@ void Project::resolveLayoutComponentReferences()
 
 LayoutFile *Project::getLayoutFile(const Glib::ustring &fileName)
 {
-  return m_fileToLayoutFileMap.at(getBaseName(fileName));
+  return m_fileToLayoutFileMap.at(getBaseName(fileName)).get();
 }
 
 void Project::save()

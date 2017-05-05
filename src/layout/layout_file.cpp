@@ -18,6 +18,7 @@
  *
  */
 
+#include "common.h"
 #include "layout_architecture.h"
 #include "layout_component.h"
 #include "layout_file.h"
@@ -33,14 +34,14 @@ void LayoutFile::setComponent(std::unique_ptr<LayoutComponent> pComponent)
   m_pComponent = std::move(pComponent);
 }
 
-void LayoutFile::addArchitecture(LayoutArchitecture *pLayoutArch)
+void LayoutFile::addArchitecture(std::unique_ptr<LayoutArchitecture> pLayoutArch)
 {
-  m_architectures.push_back(pLayoutArch);
+  m_architectures.push_back(std::move(pLayoutArch));
 }
 
-const std::vector<LayoutArchitecture *> &LayoutFile::getArchitectures()
+const std::vector<LayoutArchitecture *> LayoutFile::getArchitectures()
 {
-  return m_architectures;
+  return stripOwnership(m_architectures);
 }
 
 void LayoutFile::write(std::ostream &stream, int indent)

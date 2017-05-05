@@ -34,7 +34,7 @@ class LayoutFile
 {
 private:
   std::unique_ptr<LayoutComponent> m_pComponent;
-  std::vector<LayoutArchitecture *> m_architectures;
+  std::vector<std::unique_ptr<LayoutArchitecture>> m_architectures;
 
 public:
   LayoutFile();
@@ -43,8 +43,8 @@ public:
   /* These methods assume ownership of the component and architectures */
   void setComponent(std::unique_ptr<LayoutComponent> pComponent);
   LayoutComponent *getComponent() { return m_pComponent.get(); }
-  void addArchitecture(LayoutArchitecture *pLayoutArch);
-  const std::vector<LayoutArchitecture *> &getArchitectures();
+  void addArchitecture(std::unique_ptr<LayoutArchitecture> pLayoutArch);
+  const std::vector<LayoutArchitecture *> getArchitectures();
 
   void write(std::ostream &stream, int indent);
 };

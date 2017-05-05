@@ -110,7 +110,7 @@ public:
 
 typedef std::vector<LayoutPtr> LayoutList;
 
-LayoutFile *parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions);
+std::unique_ptr<LayoutFile> parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions);
 
 #endif
 

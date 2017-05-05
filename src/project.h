@@ -40,15 +40,15 @@ private:
 
   /* These maps use the base name of the VHDL file as key */
   std::map<const Glib::ustring, std::unique_ptr<VHDLFile>> m_fileToVHDLFileMap;
-  std::map<const Glib::ustring, LayoutFile *> m_fileToLayoutFileMap;
+  std::map<const Glib::ustring, std::unique_ptr<LayoutFile>> m_fileToLayoutFileMap;
   std::map<const Glib::ustring, LayoutResolverActions *> m_layoutResolverMap;
 
   static std::unique_ptr<VHDLFile> readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap);
 
-  LayoutFile *readLayoutFromFile(const Glib::ustring &fileName, LayoutResolverActions *pLayoutResolverActions);
+  std::unique_ptr<LayoutFile> readLayoutFromFile(const Glib::ustring &fileName, LayoutResolverActions *pLayoutResolverActions);
   void createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock);
-  LayoutArchitecture *createDefaultArchitectureLayout(VHDLArchitecture *pArch);
-  LayoutFile *createDefaultFileLayout(VHDLFile *pVHDLFile);
+  std::unique_ptr<LayoutArchitecture> createDefaultArchitectureLayout(VHDLArchitecture *pArch);
+  std::unique_ptr<LayoutFile> createDefaultFileLayout(VHDLFile *pVHDLFile);
 
 public:
   void addFile(const Glib::ustring &fileName, VHDLFile::Mode mode);

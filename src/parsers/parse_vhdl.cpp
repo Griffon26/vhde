@@ -101,7 +101,6 @@ private:
   }
 
   virtual antlrcpp::Any visitContext_clause(vhdlParser::Context_clauseContext *ctx) override {
-    std::cout << "Visiting context clause...\n" << std::endl;
     if(ctx->context_item().size() > 0)
     {
       auto text = getCurrentFragment(ctx);

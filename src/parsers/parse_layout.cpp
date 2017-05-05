@@ -258,14 +258,15 @@ std::unique_ptr<LayoutSignal> parseSignal(std::istream &stream, const Glib::ustr
   return pLayoutSignal;
 }
 
-LayoutArchitecture *parseArchitecture(std::istream &stream, LayoutResolverActions &layoutResolverActions)
+std::unique_ptr<LayoutArchitecture> parseArchitecture(std::istream &stream, LayoutResolverActions &layoutResolverActions)
 {
   Glib::ustring name, brace;
   stream >> name >> brace;
 
   name = stripQuotes(name);
-  auto pLayoutArchitecture = new LayoutArchitecture();
-  layoutResolverActions.add([=](VHDLFile *pVHDLFile) { pLayoutArchitecture->associateVHDLArchitecture(pVHDLFile->findArchitectureByName(name)); });
+  auto pLayoutArchitecture = std::make_unique<LayoutArchitecture>();
+  auto pRawLayoutArchitecture = pLayoutArchitecture.get();
+  layoutResolverActions.add([=](VHDLFile *pVHDLFile) { pRawLayoutArchitecture->associateVHDLArchitecture(pVHDLFile->findArchitectureByName(name)); });
 
   std::map<const Glib::ustring, LayoutInstance *> layoutInstanceMap;
   Glib::ustring nextToken;
@@ -288,9 +289,9 @@ LayoutArchitecture *parseArchitecture(std::istream &stream, LayoutResolverAction
   return pLayoutArchitecture;
 }
 
-LayoutFile *parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions)
+std::unique_ptr<LayoutFile> parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions)
 {
-  LayoutFile *pLayoutFile = new LayoutFile();
+  auto pLayoutFile = std::make_unique<LayoutFile>();
 
   Glib::ustring nextToken;
   while(stream >> nextToken)
