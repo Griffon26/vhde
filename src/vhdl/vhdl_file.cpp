@@ -82,12 +82,7 @@ void VHDLFile::addOtherFragment(std::unique_ptr<VHDLFragment> pFragment)
 const std::vector<VHDLFragment *> VHDLFile::getFragments()
 {
   g_assert(m_mode == TEXT);
-  std::vector<VHDLFragment *> result;
-  for(auto &pFragment: m_otherFragments)
-  {
-    result.push_back(pFragment.get());
-  }
-  return result;
+  return stripOwnership(m_otherFragments);
 }
 
 bool VHDLFile::write(std::ostream &outStream, int indent)

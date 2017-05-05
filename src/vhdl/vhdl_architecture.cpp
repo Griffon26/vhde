@@ -43,37 +43,32 @@ VHDLArchitecture::~VHDLArchitecture()
   std::cout << "Destroying architecture with name " << m_name << " at address " << this << std::endl;
 }
 
+void VHDLArchitecture::init_addComponent(std::unique_ptr<VHDLComponent> pComponent)
+{
+  g_assert(m_init);
+  m_components.push_back(std::move(pComponent));
+}
+
 void VHDLArchitecture::init_addSignal(std::unique_ptr<VHDLSignal> pSignal)
 {
   g_assert(m_init);
   m_signals.push_back(std::move(pSignal));
 }
 
-void VHDLArchitecture::init_addInstance(VHDLInstance *pInstance)
+void VHDLArchitecture::init_addInstance(std::unique_ptr<VHDLInstance> pInstance)
 {
   g_assert(m_init);
-  m_instances.push_back(pInstance);
+  m_instances.push_back(std::move(pInstance));
 }
 
-void VHDLArchitecture::init_addComponent(VHDLComponent *pComponent)
+const std::vector<VHDLInstance *> VHDLArchitecture::getInstances()
 {
-  g_assert(m_init);
-  m_components.push_back(pComponent);
-}
-
-const std::vector<VHDLInstance *> &VHDLArchitecture::getInstances()
-{
-  return m_instances;
+  return stripOwnership(m_instances);
 }
 
 const std::vector<VHDLSignal *> VHDLArchitecture::getSignals()
 {
-  std::vector<VHDLSignal *> result;
-  for(auto &pSignal: m_signals)
-  {
-    result.push_back(pSignal.get());
-  }
-  return result;
+  return stripOwnership(m_signals);
 }
 
 void VHDLArchitecture::setEntity(VHDLEntity *pEntity)
@@ -84,11 +79,11 @@ void VHDLArchitecture::setEntity(VHDLEntity *pEntity)
 
 VHDLComponent *VHDLArchitecture::findComponentByName(const Glib::ustring &name)
 {
-  for(auto it = m_components.begin(); it != m_components.end(); it++)
+  for(auto &pComponent: m_components)
   {
-    if((*it)->getName() == name)
+    if(pComponent->getName() == name)
     {
-      return *it;
+      return pComponent.get();
     }
   }
   return NULL;
@@ -108,11 +103,11 @@ VHDLSignal *VHDLArchitecture::findSignalByName(const Glib::ustring &name)
 
 VHDLInstance *VHDLArchitecture::findInstanceByName(const Glib::ustring &name)
 {
-  for(auto it = m_instances.begin(); it != m_instances.end(); it++)
+  for(auto &pInstance: m_instances)
   {
-    if((*it)->getName() == name)
+    if(pInstance->getName() == name)
     {
-      return *it;
+      return pInstance.get();
     }
   }
   return NULL;

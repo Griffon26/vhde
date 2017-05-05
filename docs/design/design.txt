@@ -63,5 +63,9 @@ The following design choices were made:
    duplicate these values in the object itself and make the container
    responsible for keeping them consistent.
 
+5) Ownership is managed using std::unique_ptr. Objects should be created using
+   make_unique, so the new operator should not be used often or at all.
+   When not transferring ownership, use regular pointers.
 
 The sequence diagrams illustrate some of these design choices.
+

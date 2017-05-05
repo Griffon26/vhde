@@ -276,13 +276,14 @@ private:
     Glib::ustring instanceName = visit(ctx->label_colon()->identifier());
     Glib::ustring componentName = visit(ctx->instantiated_unit()->name());
 
-    auto pInstance = new VHDLInstance(instanceName, m_pCurrentArchitecture->findComponentByName(componentName));
-    m_pCurrentArchitecture->init_addInstance(pInstance);
+    auto pInstance = std::make_unique<VHDLInstance>(instanceName, m_pCurrentArchitecture->findComponentByName(componentName));
+    auto pRawInstance = pInstance.get();
+    m_pCurrentArchitecture->init_addInstance(std::move(pInstance));
 
     std::vector<stringpair> port_maps = visit(ctx->port_map_aspect()->association_list());
     for(auto port_map: port_maps)
     {
-      auto pPort = pInstance->getComponent()->findPortByName(port_map.first);
+      auto pPort = pRawInstance->getComponent()->findPortByName(port_map.first);
 
       auto signalNameUpper = port_map.second.uppercase();
 
@@ -290,7 +291,7 @@ private:
       {
         auto pSignal = m_pCurrentArchitecture->findSignalByName(port_map.second);
         std::cout << "connecting signal " << port_map.second << " to port " << port_map.first << std::endl;
-        pInstance->connectSignalToPort(pSignal, pPort);
+        pRawInstance->connectSignalToPort(pSignal, pPort);
       }
     }
 
@@ -393,7 +394,7 @@ private:
 
   virtual antlrcpp::Any visitComponent_declaration(vhdlParser::Component_declarationContext *ctx) override {
     Glib::ustring entityName = visit(ctx->identifier(0));
-    auto pComponent = new VHDLComponent(entityName);
+    auto pComponent = std::make_unique<VHDLComponent>(entityName);
 
     if(ctx->generic_clause())
     {
@@ -413,7 +414,7 @@ private:
 
     pComponent->init_done();
 
-    return pComponent;
+    return std::move(pComponent);
   }
 
   virtual antlrcpp::Any visitPort_clause(vhdlParser::Port_clauseContext *ctx) override {
@@ -428,7 +429,7 @@ private:
                     std::make_move_iterator(std::begin(ports)),
                     std::make_move_iterator(std::end(ports)));
     }
-    return antlrcpp::Any(std::move(result));
+    return std::move(result);
   }
 
   virtual antlrcpp::Any visitInterface_port_declaration(vhdlParser::Interface_port_declarationContext *ctx) override {
@@ -455,7 +456,7 @@ private:
       // TODO: also parse and store expression
     }
 
-    return antlrcpp::Any(std::move(ports));
+    return std::move(ports);
   }
 
   virtual antlrcpp::Any visitSignal_mode(vhdlParser::Signal_modeContext *ctx) override {

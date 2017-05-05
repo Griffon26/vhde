@@ -37,24 +37,21 @@ private:
   bool                          m_init;
   Glib::ustring                 m_name;
   VHDLEntity                   *m_pEntity;
-  std::vector<VHDLComponent *>  m_components;
+  std::vector<std::unique_ptr<VHDLComponent>> m_components;
   std::vector<std::unique_ptr<VHDLSignal>> m_signals;
-  std::vector<VHDLInstance *>   m_instances;
+  std::vector<std::unique_ptr<VHDLInstance>> m_instances;
 
 public:
   VHDLArchitecture(const Glib::ustring &name);
   virtual ~VHDLArchitecture();
 
-  /* This method assumes ownership of the port */
+  void init_addComponent(std::unique_ptr<VHDLComponent> pComponent);
   void init_addSignal(std::unique_ptr<VHDLSignal> pSignal);
-  /* This method assumes ownership of the component */
-  void init_addComponent(VHDLComponent *pComponent);
-  /* This method assumes ownership of the instance */
-  void init_addInstance(VHDLInstance *pInstance);
+  void init_addInstance(std::unique_ptr<VHDLInstance> pInstance);
   void init_done() { m_init = false; }
 
   /* Accessors */
-  const std::vector<VHDLInstance *> &getInstances();
+  const std::vector<VHDLInstance *> getInstances();
   const std::vector<VHDLSignal *> getSignals();
 
   void setEntity(VHDLEntity *pEntity);

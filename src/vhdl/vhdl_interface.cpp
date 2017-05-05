@@ -68,11 +68,7 @@ VHDLPort *VHDLInterface::findPortByName(const Glib::ustring &name)
 
 const std::vector<VHDLPort *> VHDLInterface::getPortList()
 {
-  std::vector<VHDLPort *> ports;
-  for(auto &pPort: m_ports) {
-    ports.push_back(pPort.get());
-  }
-  return ports;
+  return stripOwnership(m_ports);
 }
 
 void VHDLInterface::addPort(std::unique_ptr<VHDLPort> pPort)

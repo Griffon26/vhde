@@ -21,8 +21,10 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
-#include <vector>
+#include <algorithm>
 #include <map>
+#include <memory>
+#include <vector>
 
 #define DIR_TO_NAME(d) ((d == DIR_IN) ? "IN" : \
                         (d == DIR_OUT) ? "OUT" : \
@@ -45,6 +47,16 @@ template<typename T, typename U> std::vector<T> getKeysFromMap(const std::map<T,
     keys.push_back(kv.first);
   }
   return keys;
+}
+
+template<typename T> std::vector<T *> stripOwnership(const std::vector<std::unique_ptr<T>> &owningVector)
+{
+  std::vector<T *> borrowingVector;
+  std::transform(owningVector.begin(),
+                 owningVector.end(),
+                 std::back_inserter(borrowingVector),
+                 [](const std::unique_ptr<T> &pT) { return pT.get(); });
+  return borrowingVector;
 }
 
 #endif /* _COMMON_H */
