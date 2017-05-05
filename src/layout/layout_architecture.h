@@ -33,8 +33,8 @@ class LayoutArchitecture
 {
 private:
   bool                          m_init;
-  std::vector<LayoutInstance *> m_instances;
-  std::vector<LayoutSignal *>   m_signals;
+  std::vector<std::unique_ptr<LayoutInstance>> m_instances;
+  std::vector<std::unique_ptr<LayoutSignal>> m_signals;
   INamedItem                   *m_pVHDLArchitecture;
 
 public:
@@ -42,16 +42,16 @@ public:
   virtual ~LayoutArchitecture();
 
   /* These methods assume ownership of the component, instance and signal */
-  void init_addInstance(LayoutInstance *pInstance);
-  void init_addSignal(LayoutSignal *pSignal);
+  void init_addInstance(std::unique_ptr<LayoutInstance> pInstance);
+  void init_addSignal(std::unique_ptr<LayoutSignal> pSignal);
 
   void init_done() { m_init = false; }
 
   void associateVHDLArchitecture(INamedItem *pArch);
 
   /* Accessors */
-  const std::vector<LayoutInstance *> &getInstances();
-  const std::vector<LayoutSignal *> &getSignals();
+  const std::vector<LayoutInstance *> getInstances();
+  const std::vector<LayoutSignal *> getSignals();
 
   void write(std::ostream &stream, int indent);
 };

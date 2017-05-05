@@ -109,16 +109,16 @@ LayoutArchitecture *Project::createDefaultArchitectureLayout(VHDLArchitecture *p
   std::map<VHDLSignal *, LayoutSignal *> vhdlToLayoutSignal;
   for(auto &pSignal: pArch->getSignals())
   {
-    LayoutSignal *pLayoutSignal = new LayoutSignal();
+    auto pLayoutSignal = std::make_unique<LayoutSignal>();
     pLayoutSignal->associateSignal(pSignal);
-    pLayoutArch->init_addSignal(pLayoutSignal);
-    vhdlToLayoutSignal[pSignal] = pLayoutSignal;
+    vhdlToLayoutSignal[pSignal] = pLayoutSignal.get();
+    pLayoutArch->init_addSignal(std::move(pLayoutSignal));
   }
 
   for(auto &pInstance: pArch->getInstances())
   {
-    LayoutInstance *pLayoutInstance = new LayoutInstance();
-    createDefaultPorts(pInstance->getComponent(), pLayoutInstance);
+    auto pLayoutInstance = std::make_unique<LayoutInstance>();
+    createDefaultPorts(pInstance->getComponent(), pLayoutInstance.get());
 
     auto pPortsAndSignals = pInstance->getPortsAndSignals();
 		for(auto &portAndSignal: *pPortsAndSignals)
@@ -128,13 +128,13 @@ LayoutArchitecture *Project::createDefaultArchitectureLayout(VHDLArchitecture *p
       LayoutSignal *pLayoutSignal = vhdlToLayoutSignal.at(portAndSignal.second);
       pLayoutInstance->findPortByName(portAndSignal.first->getName(), &edge, &position);
       std::cout << "Connecting port " << portAndSignal.first->getName() << " to instance at edge " << edge << " position " << position << std::endl;
-      pLayoutSignal->init_connect(pLayoutInstance, edge, position);
+      pLayoutSignal->init_connect(pLayoutInstance.get(), edge, position);
     }
     delete pPortsAndSignals;
 
     pLayoutInstance->init_done();
     pLayoutInstance->associateVHDLInstance(pInstance);
-    pLayoutArch->init_addInstance(pLayoutInstance);
+    pLayoutArch->init_addInstance(std::move(pLayoutInstance));
   }
 
   return pLayoutArch;

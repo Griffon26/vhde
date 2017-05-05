@@ -18,6 +18,7 @@
  *
  */
 
+#include "common.h"
 #include "i_named_item.h"
 #include "layout_architecture.h"
 #include "layout_component.h"
@@ -35,16 +36,16 @@ LayoutArchitecture::~LayoutArchitecture()
   /* TODO: release all owned resources */
 }
 
-void LayoutArchitecture::init_addInstance(LayoutInstance *pInstance)
+void LayoutArchitecture::init_addInstance(std::unique_ptr<LayoutInstance> pInstance)
 {
   g_assert(m_init);
-  m_instances.push_back(pInstance);
+  m_instances.push_back(std::move(pInstance));
 }
 
-void LayoutArchitecture::init_addSignal(LayoutSignal *pSignal)
+void LayoutArchitecture::init_addSignal(std::unique_ptr<LayoutSignal> pSignal)
 {
   g_assert(m_init);
-  m_signals.push_back(pSignal);
+  m_signals.push_back(std::move(pSignal));
 }
 
 void LayoutArchitecture::associateVHDLArchitecture(INamedItem *pVHDLArchitecture)
@@ -54,14 +55,14 @@ void LayoutArchitecture::associateVHDLArchitecture(INamedItem *pVHDLArchitecture
   m_pVHDLArchitecture = pVHDLArchitecture;
 }
 
-const std::vector<LayoutInstance *> &LayoutArchitecture::getInstances()
+const std::vector<LayoutInstance *> LayoutArchitecture::getInstances()
 {
-  return m_instances;
+  return stripOwnership(m_instances);
 }
 
-const std::vector<LayoutSignal *> &LayoutArchitecture::getSignals()
+const std::vector<LayoutSignal *> LayoutArchitecture::getSignals()
 {
-  return m_signals;
+  return stripOwnership(m_signals);
 }
 
 void LayoutArchitecture::write(std::ostream &stream, int indent)
