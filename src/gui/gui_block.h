@@ -49,7 +49,7 @@ private:
   sigc::connection        m_onResizedConnection;
 
 protected:
-  std::list<GuiPort *>   m_portList;
+  std::vector<std::unique_ptr<GuiPort>> m_ports;
 
   LayoutBlock            *m_pLayoutBlock;
 

@@ -38,17 +38,16 @@ GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pL
   pComponent = static_cast<VHDLInstance *>(pLayoutInstance->getAssociatedVHDLInstance())->getComponent();
   m_onVHDLPortAddedConnection = pComponent->port_added.connect(sigc::mem_fun(this, &GuiInstance::onVHDLPortAdded));
 
-
   /* Subscribe to "removed" signal of all layoutports for which there is a guiport.
    * I would have done this in GuiBlock where the ports are first added, but GuiComponent
    * is not interested in these signals
    */
-  for(it = m_portList.begin(); it != m_portList.end(); it++)
+  for(auto &pPort: m_ports)
   {
-    g_assert((*it)->getAssociatedLayoutPort());
-    (*it)->getAssociatedLayoutPort()->removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
+    auto pLayoutPort = pPort->getAssociatedLayoutPort();
+    g_assert(pLayoutPort);
+    m_onLayoutPortRemovedConnections[pLayoutPort] = pLayoutPort->removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
   }
-
 
   m_eventData.layoutEventReceived = false;
   m_eventData.vhdlEventReceived = false;
@@ -58,6 +57,10 @@ GuiInstance::~GuiInstance()
 {
   m_onLayoutPortAddedConnection.disconnect();
   m_onVHDLPortAddedConnection.disconnect();
+  for(auto &kv: m_onLayoutPortRemovedConnections)
+  {
+    kv.second.disconnect();
+  }
 }
 
 bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
@@ -121,7 +124,7 @@ void GuiInstance::onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayout
 {
   printf("GuiInstance::OnLayoutPortAdded\n");
 
-  pLayoutPort->removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
+  m_onLayoutPortRemovedConnections[pLayoutPort] = pLayoutPort->removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
 
   m_eventData.layoutEventReceived = true;
   m_eventData.edge = edge;
@@ -148,5 +151,8 @@ void GuiInstance::onLayoutPortRemoved(Edge edge, int position, LayoutPort *pLayo
   m_eventData.edge = edge;
   m_eventData.position = position;
 
+  m_onLayoutPortRemovedConnections[pLayoutPort].disconnect();
+
   removePort(m_eventData.edge, m_eventData.position);
 }
+

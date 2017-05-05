@@ -82,13 +82,6 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
 
 GuiBlock::~GuiBlock()
 {
-  std::list<GuiPort *>::iterator it;
-  for(it = m_portList.begin(); it != m_portList.end(); it++)
-  {
-    delete *it;
-  }
-  m_portList.clear();
-
   m_onBodyButtonPressConnection.disconnect();
   m_onTextButtonPressConnection.disconnect();
 
@@ -228,9 +221,9 @@ void GuiBlock::onResized(LayoutSize layoutSize)
   m_pBody->set_size(layoutSize.width, layoutSize.height);
 
   /* Update port positions */
-  for(it = m_portList.begin(); it != m_portList.end(); it++)
+  for(auto &pPort: m_ports)
   {
-    (*it)->updatePosition();
+    pPort->updatePosition();
   }
 }
 
@@ -240,30 +233,27 @@ void GuiBlock::onResized(LayoutSize layoutSize)
 
 void GuiBlock::addPort(Edge edge, int position, LayoutPort *pLayoutPort)
 {
-  GuiPort *pGuiPort = new GuiPort(m_pGroup, edge, position, m_pLayoutBlock, pLayoutPort);
+  std::unique_ptr<GuiPort> pGuiPort = std::make_unique<GuiPort>(m_pGroup, edge, position, m_pLayoutBlock, pLayoutPort);
 
-  printf("GuiBlock(%p)::addPort -> %p\n", this, pGuiPort);
+  printf("GuiBlock(%p)::addPort -> %p\n", this, pGuiPort.get());
 
   /* No need to remember the connections, because deleting GuiPort will make sure no more signals will be delivered */
   pGuiPort->button_pressed.connect(sigc::mem_fun(*this, &GuiBlock::onPortButtonPress));
 
-  m_portList.push_back(pGuiPort);
+  m_ports.push_back(std::move(pGuiPort));
 }
 
 void GuiBlock::removePort(Edge edge, int position)
 {
-  std::list<GuiPort *>::iterator it;
-
-  for(it = m_portList.begin(); it != m_portList.end(); it++)
+  for(auto it = m_ports.begin(); it != m_ports.end(); it++)
   {
-    GuiPort *pGuiPort = *it;
+    auto &pGuiPort = *it;
 
     if( (pGuiPort->getEdge() == edge) &&
         (pGuiPort->getPosition() == position) )
     {
-      printf("GuiBlock(%p)::removePort: %p\n", this, pGuiPort);
-      delete pGuiPort;
-      m_portList.erase(it);
+      printf("GuiBlock(%p)::removePort: %p\n", this, pGuiPort.get());
+      m_ports.erase(it);
       break;
     }
   }
