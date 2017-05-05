@@ -10,7 +10,6 @@ and do not indicate priority.
 1. `VHDE-02`: Complete support for the currently implemented VHDL items (remove shortcuts)
 1. `VHDE-01`: Get TravisCI builds to work
 1. `VHDE-11`: Add coverity static analysis to Travis build (deps on `VHDE-01`)
-1. `VHDE-08`: Improve exception safety (deps on `VHDE-03`)
 1. `VHDE-13`: Resolve conflicts between .layout and .vhd files
 1. `VHDE-12`: Remove restriction of 1 architecture per file
 1. `VHDE-05`: Add a comment for each class describing its reponsibility
