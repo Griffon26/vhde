@@ -43,10 +43,10 @@ VHDLArchitecture::~VHDLArchitecture()
   std::cout << "Destroying architecture with name " << m_name << " at address " << this << std::endl;
 }
 
-void VHDLArchitecture::init_addSignal(VHDLSignal *pSignal)
+void VHDLArchitecture::init_addSignal(std::unique_ptr<VHDLSignal> pSignal)
 {
   g_assert(m_init);
-  m_signals.push_back(pSignal);
+  m_signals.push_back(std::move(pSignal));
 }
 
 void VHDLArchitecture::init_addInstance(VHDLInstance *pInstance)
@@ -66,9 +66,14 @@ const std::vector<VHDLInstance *> &VHDLArchitecture::getInstances()
   return m_instances;
 }
 
-const std::vector<VHDLSignal *> &VHDLArchitecture::getSignals()
+const std::vector<VHDLSignal *> VHDLArchitecture::getSignals()
 {
-  return m_signals;
+  std::vector<VHDLSignal *> result;
+  for(auto &pSignal: m_signals)
+  {
+    result.push_back(pSignal.get());
+  }
+  return result;
 }
 
 void VHDLArchitecture::setEntity(VHDLEntity *pEntity)
@@ -91,11 +96,11 @@ VHDLComponent *VHDLArchitecture::findComponentByName(const Glib::ustring &name)
 
 VHDLSignal *VHDLArchitecture::findSignalByName(const Glib::ustring &name)
 {
-  for(auto it = m_signals.begin(); it != m_signals.end(); it++)
+  for(auto &pSignal: m_signals)
   {
-    if((*it)->getName() == name)
+    if(pSignal->getName() == name)
     {
-      return *it;
+      return pSignal.get();
     }
   }
   return NULL;

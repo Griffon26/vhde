@@ -243,12 +243,12 @@ private:
       {
         m_pCurrentArchitecture->init_addComponent(value);
       }
-      else if(value.is<std::vector<VHDLSignal *>>())
+      else if(value.is<std::vector<std::unique_ptr<VHDLSignal>>>())
       {
-        std::vector<VHDLSignal *> signals = value;
-        for(auto pSignal: signals)
+        std::vector<std::unique_ptr<VHDLSignal>> signals = value;
+        for(auto &pSignal: signals)
         {
-          m_pCurrentArchitecture->init_addSignal(pSignal);
+          m_pCurrentArchitecture->init_addSignal(std::move(pSignal));
         }
       }
       else if(value.is<std::unique_ptr<VHDLFragment>>())
@@ -364,13 +364,13 @@ private:
   }
 
   virtual antlrcpp::Any visitSignal_declaration(vhdlParser::Signal_declarationContext *ctx) override {
-    std::vector<VHDLSignal *> signals;
+    std::vector<std::unique_ptr<VHDLSignal>> signals;
 
     for(auto &identctx: ctx->identifier_list()->identifier())
     {
-      auto pSignal = new VHDLSignal(visit(identctx).as<Glib::ustring>());
+      auto pSignal = std::make_unique<VHDLSignal>(visit(identctx).as<Glib::ustring>());
 
-      signals.push_back(pSignal);
+      signals.push_back(std::move(pSignal));
     }
     auto type = visit(ctx->subtype_indication());
     Glib::ustring defaultValue;
@@ -384,7 +384,7 @@ private:
       pSignal->setDefaultValue(defaultValue);
       // TODO: also parse and store signal_kind
     }
-    return signals;
+    return std::move(signals);
   }
 
   virtual antlrcpp::Any visitGeneric_clause(vhdlParser::Generic_clauseContext *ctx) override {

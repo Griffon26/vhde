@@ -38,7 +38,7 @@ private:
   Glib::ustring                 m_name;
   VHDLEntity                   *m_pEntity;
   std::vector<VHDLComponent *>  m_components;
-  std::vector<VHDLSignal *>     m_signals;
+  std::vector<std::unique_ptr<VHDLSignal>> m_signals;
   std::vector<VHDLInstance *>   m_instances;
 
 public:
@@ -46,7 +46,7 @@ public:
   virtual ~VHDLArchitecture();
 
   /* This method assumes ownership of the port */
-  void init_addSignal(VHDLSignal *pSignal);
+  void init_addSignal(std::unique_ptr<VHDLSignal> pSignal);
   /* This method assumes ownership of the component */
   void init_addComponent(VHDLComponent *pComponent);
   /* This method assumes ownership of the instance */
@@ -55,7 +55,7 @@ public:
 
   /* Accessors */
   const std::vector<VHDLInstance *> &getInstances();
-  const std::vector<VHDLSignal *> &getSignals();
+  const std::vector<VHDLSignal *> getSignals();
 
   void setEntity(VHDLEntity *pEntity);
   VHDLEntity *getEntity() { return m_pEntity; }
