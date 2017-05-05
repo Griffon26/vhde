@@ -62,7 +62,6 @@ void LayoutComponent::destroyPort(Edge edge, int position)
   printf("LayoutComponent(%p)::destroyPort(%p)\n", this, pLayoutPort);
   g_assert(pLayoutPort != NULL);
   removePort(pLayoutPort);
-  delete pLayoutPort;
 }
 
 /*

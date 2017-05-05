@@ -112,15 +112,15 @@ bool VHDLInstance::write(std::ostream &outStream, int indent)
   return true;
 }
 
-std::vector<std::pair<VHDLPort *, VHDLSignal *>> *VHDLInstance::getPortsAndSignals()
+std::vector<std::pair<VHDLPort *, VHDLSignal *>> VHDLInstance::getPortsAndSignals()
 {
-  auto pPortsAndSignals = new std::vector<std::pair<VHDLPort *, VHDLSignal *>>();
+  std::vector<std::pair<VHDLPort *, VHDLSignal *>> portsAndSignals;
 
   for(auto &kv: m_portMap)
   {
-    pPortsAndSignals->push_back(std::make_pair(kv.first, kv.second.pSignal));
+    portsAndSignals.push_back(std::make_pair(kv.first, kv.second.pSignal));
   }
-  return pPortsAndSignals;
+  return portsAndSignals;
 }
 
 /*

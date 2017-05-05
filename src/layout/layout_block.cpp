@@ -106,25 +106,24 @@ LayoutPort *LayoutBlock::getPort(Edge edge, int position)
   return (it == m_ports[edge].end()) ? NULL : it->second.get();
 }
 
-std::list<LayoutBlock::PortData> *LayoutBlock::getPortList()
+std::vector<LayoutBlock::PortData> LayoutBlock::getPortList()
 {
-  PortData portData;
-
-  std::list<PortData> *pPortList = new std::list<PortData>();
+  std::vector<PortData> portList;
 
   for(int edge = 0; edge < NR_OF_EDGES; edge++)
   {
-    for(auto it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
+    for(auto &kv: m_ports[edge])
     {
+      PortData portData;
       portData.edge = (Edge)edge;
-      portData.position = it->first;
-      portData.pLayoutPort = it->second.get();
+      portData.position = kv.first;
+      portData.pLayoutPort = kv.second.get();
 
-      pPortList->push_back(portData);
+      portList.push_back(portData);
     }
   }
 
-  return pPortList;
+  return portList;
 }
 
 const std::vector<int> LayoutBlock::getPortPositions(Edge edge)

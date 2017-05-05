@@ -24,11 +24,11 @@
 #include <map>
 #include <string>
 
+#include "parse_layout.h"
 #include "vhdl_file.h"
 
 class LayoutArchitecture;
 class LayoutFile;
-class LayoutResolverActions;
 class VHDLArchitecture;
 class VHDLEntity;
 class VHDLInterface;
@@ -41,7 +41,7 @@ private:
   /* These maps use the base name of the VHDL file as key */
   std::map<const Glib::ustring, std::unique_ptr<VHDLFile>> m_fileToVHDLFileMap;
   std::map<const Glib::ustring, std::unique_ptr<LayoutFile>> m_fileToLayoutFileMap;
-  std::map<const Glib::ustring, LayoutResolverActions *> m_layoutResolverMap;
+  std::map<const Glib::ustring, std::unique_ptr<LayoutResolverActions>> m_layoutResolverMap;
 
   static std::unique_ptr<VHDLFile> readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap);
 

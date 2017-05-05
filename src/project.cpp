@@ -120,8 +120,8 @@ std::unique_ptr<LayoutArchitecture> Project::createDefaultArchitectureLayout(VHD
     auto pLayoutInstance = std::make_unique<LayoutInstance>();
     createDefaultPorts(pInstance->getComponent(), pLayoutInstance.get());
 
-    auto pPortsAndSignals = pInstance->getPortsAndSignals();
-		for(auto &portAndSignal: *pPortsAndSignals)
+    auto portsAndSignals = pInstance->getPortsAndSignals();
+		for(auto &portAndSignal: portsAndSignals)
 		{
       Edge edge;
       int position;
@@ -130,7 +130,6 @@ std::unique_ptr<LayoutArchitecture> Project::createDefaultArchitectureLayout(VHD
       std::cout << "Connecting port " << portAndSignal.first->getName() << " to instance at edge " << edge << " position " << position << std::endl;
       pLayoutSignal->init_connect(pLayoutInstance.get(), edge, position);
     }
-    delete pPortsAndSignals;
 
     pLayoutInstance->init_done();
     pLayoutInstance->associateVHDLInstance(pInstance);
@@ -170,8 +169,8 @@ void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
 
   auto layoutFileName = baseName + ".layout";
 
-  LayoutResolverActions *pResolver = new LayoutResolverActions();
-  auto pLayoutFile = readLayoutFromFile(layoutFileName, pResolver);
+  std::unique_ptr<LayoutResolverActions> pResolver = std::make_unique<LayoutResolverActions>();
+  auto pLayoutFile = readLayoutFromFile(layoutFileName, pResolver.get());
 
   /* If we failed to read an architecture layout from file, we'll construct a suitable one here */
   if(!pLayoutFile)
@@ -182,7 +181,7 @@ void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
   m_fileToVHDLFileMap[baseName] = std::move(pVHDLFile);
   m_fileToLayoutFileMap[baseName] = std::move(pLayoutFile);
 
-  m_layoutResolverMap[baseName] = pResolver;
+  m_layoutResolverMap[baseName] = std::move(pResolver);
 }
 
 void Project::resolveEntityReferences()

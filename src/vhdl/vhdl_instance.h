@@ -67,7 +67,7 @@ public:
   const Glib::ustring &getName() { return m_name; }
   VHDLComponent *getComponent() { return m_pComponent; }
 
-  std::vector<std::pair<VHDLPort *, VHDLSignal *>> *getPortsAndSignals();
+  std::vector<std::pair<VHDLPort *, VHDLSignal *>> getPortsAndSignals();
 
 private:
   void onPortRemoved(VHDLPort *pPort);

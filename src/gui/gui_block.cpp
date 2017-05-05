@@ -29,8 +29,6 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   m_pLayoutBlock(pLayoutBlock),
   m_pStage(pStage)
 {
-  std::list<LayoutBlock::PortData> *pPortList;
-  std::list<LayoutBlock::PortData>::iterator it;
   LayoutPosition position;
   LayoutSize size;
 
@@ -51,11 +49,11 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   m_pGroup->add_actor(m_pBody);
 
   /* Add the ports */
-  pPortList = m_pLayoutBlock->getPortList();
-  for(it = pPortList->begin(); it != pPortList->end(); it++)
+  auto portList = m_pLayoutBlock->getPortList();
+  for(auto &portData: portList)
   {
-    printf("GuiBlock    (%p): adding layout port %p at edge %s position %d\n", this, it->pLayoutPort, EDGE_TO_NAME(it->edge), it->position);
-    addPort(it->edge, it->position, it->pLayoutPort);
+    printf("GuiBlock    (%p): adding layout port %p at edge %s position %d\n", this, portData.pLayoutPort, EDGE_TO_NAME(portData.edge), portData.position);
+    addPort(portData.edge, portData.position, portData.pLayoutPort);
   }
 
   /* Add text */

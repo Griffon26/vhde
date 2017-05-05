@@ -47,23 +47,20 @@ void LayoutInstance::setPosition(const LayoutPosition &pos)
 
 void LayoutInstance::associateLayoutComponent(LayoutComponent *pComponent)
 {
-  const std::list<PortData> *pPortList;
-  std::list<PortData>::const_iterator it;
-
   g_assert(m_pComponent == NULL);
   m_pComponent = pComponent;
 
-  pPortList = m_pComponent->getPortList();
-  g_assert(pPortList->size() == (m_ports[EDGE_LEFT].size() +
-                                 m_ports[EDGE_RIGHT].size() +
-                                 m_ports[EDGE_TOP].size() +
-                                 m_ports[EDGE_BOTTOM].size()));
+  auto portList = m_pComponent->getPortList();
+  g_assert(portList.size() == (m_ports[EDGE_LEFT].size() +
+                               m_ports[EDGE_RIGHT].size() +
+                               m_ports[EDGE_TOP].size() +
+                               m_ports[EDGE_BOTTOM].size()));
 
-  for(it = pPortList->begin(); it != pPortList->end(); it++)
+  for(auto portData: portList)
   {
     Edge edge;
     int position;
-    LayoutPort *pOurPort = findPortByName(it->pLayoutPort->getName(), &edge, &position);
+    LayoutPort *pOurPort = findPortByName(portData.pLayoutPort->getName(), &edge, &position);
 
     /* Surely there's a matching port in this instance */
     g_assert(pOurPort != NULL);
@@ -72,7 +69,7 @@ void LayoutInstance::associateLayoutComponent(LayoutComponent *pComponent)
      * only reason we would no longer want to receive them is when the
      * corresponding port is destroyed (so it won't emit any further signals).
      */
-    it->pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurPort));
+    portData.pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurPort));
   }
 
   m_onPortAddedConnection = m_pComponent->port_added.connect(sigc::mem_fun(this, &LayoutInstance::onPortAdded));

@@ -69,7 +69,7 @@ public:
   void movePort(Edge oldEdge, int oldPosition, Edge newEdge, int newPosition);
   LayoutPort *getPort(Edge edge, int position);
 
-  std::list<PortData> *getPortList();
+  std::vector<PortData> getPortList();
 
   const std::vector<int> getPortPositions(Edge edge);
   void setPortPositions(Edge edge, const std::vector<int> &portPositions);
