@@ -51,7 +51,6 @@ VHDLComponent::~VHDLComponent()
 */
 bool VHDLComponent::write(std::ostream &outStream, int indent)
 {
-  std::list<VHDLPort *>::iterator pit;
   Glib::ustring indentString(indent, ' ');
 
   g_assert(m_pEntity);
@@ -64,7 +63,7 @@ bool VHDLComponent::write(std::ostream &outStream, int indent)
   }
 
   outStream << indentString << "  port (\n";
-  for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
+  for(auto pit = m_ports.begin(); pit != m_ports.end(); pit++)
   {
     if(pit != m_ports.begin())
     {
@@ -81,19 +80,16 @@ bool VHDLComponent::write(std::ostream &outStream, int indent)
 
 void VHDLComponent::associateEntity(VHDLEntity *pEntity)
 {
-  const std::list<VHDLPort *> *pPortList;
-  std::list<VHDLPort *>::const_iterator it;
-
   g_assert(!m_init);
   g_assert(m_pEntity == NULL);
   m_pEntity = pEntity;
 
   g_assert(m_unresolvedName == m_pEntity->getName());
 
-  pPortList = m_pEntity->getPortList();
-  g_assert(pPortList->size() == m_ports.size());
+  auto portList = m_pEntity->getPortList();
+  g_assert(portList.size() == m_ports.size());
 
-  for(it = pPortList->begin(); it != pPortList->end(); it++)
+  for(auto it = portList.begin(); it != portList.end(); it++)
   {
     VHDLPort *pOurPort = findPortByName((*it)->getName());
 
@@ -135,15 +131,14 @@ const Glib::ustring &VHDLComponent::getName()
 void VHDLComponent::onPortAdded(VHDLPort *pEntityPort)
 {
   printf("VHDLComponent::onPortAdded\n");
-  VHDLPort *pOurPort = new VHDLPort(*pEntityPort);
+  auto pOurPort = std::make_unique<VHDLPort>(*pEntityPort);
 
-  pEntityPort->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLComponent::onPortRemoved), pOurPort));
-  addPort(pOurPort);
+  pEntityPort->removed.connect(sigc::bind<VHDLPort *>(sigc::mem_fun(this, &VHDLComponent::onPortRemoved), pOurPort.get()));
+  addPort(std::move(pOurPort));
 }
 
 void VHDLComponent::onPortRemoved(VHDLPort *pEntityPort, VHDLPort *pOurPort)
 {
   printf("VHDLComponent(%p)::onPortRemoved(%s(%p))\n", this, pOurPort->getName().c_str(), pOurPort);
   removePort(pOurPort);
-  delete pOurPort;
 }

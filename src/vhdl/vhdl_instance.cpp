@@ -85,18 +85,17 @@ void VHDLInstance::disconnectSignal(VHDLSignal *pSignal)
 
 bool VHDLInstance::write(std::ostream &outStream, int indent)
 {
-  std::list<VHDLPort *>::const_iterator pit;
-  const std::list<VHDLPort *> *pPorts = m_pComponent->getPortList();
+  auto ports = m_pComponent->getPortList();
   std::map<VHDLPort *, MapEntry>::const_iterator mit;
   Glib::ustring indentString(indent, ' ');
 
   outStream << indentString << m_name << ": " << m_pComponent->getName() << "\n"
             << indentString << "port map (\n";
 
-  for(pit = pPorts->begin(); pit != pPorts->end(); pit++)
+  for(auto pit = ports.begin(); pit != ports.end(); pit++)
   {
     mit = m_portMap.find(*pit);
-    if(pit != pPorts->begin()) outStream << ",\n";
+    if(pit != ports.begin()) outStream << ",\n";
     outStream << indentString << "  " << (*pit)->getName() << " => ";
     if(mit == m_portMap.end())
     {

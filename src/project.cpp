@@ -74,10 +74,10 @@ LayoutFile *Project::readLayoutFromFile(const Glib::ustring &fileName, LayoutRes
 void Project::createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock)
 {
   auto portList = pVHDLInterface->getPortList();
-  int nrOfPortsToAddOnLeft = portList->size() / 2;
+  int nrOfPortsToAddOnLeft = portList.size() / 2;
   int portIndex = 0;
 
-  for(auto &pPort: *portList)
+  for(auto &pPort: portList)
   {
     auto pLayoutPort = std::make_unique<LayoutPort>();
     pLayoutPort->associateVHDLPort(pPort);

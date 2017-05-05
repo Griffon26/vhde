@@ -31,7 +31,7 @@ class VHDLInterface
 protected:
   bool                      m_init;
   VHDLFragment             *m_pGenerics;
-  std::list<VHDLPort *>     m_ports;
+  std::vector<std::unique_ptr<VHDLPort>> m_ports;
 
 public:
   /* Signals */
@@ -41,17 +41,17 @@ public:
 
   /* These methods assume ownership of the objects passed */
   void init_addGenerics(VHDLFragment *pFragment);
-  void init_addPort(VHDLPort *pPort);
+  void init_addPort(std::unique_ptr<VHDLPort> pPort);
   void init_done() { m_init = false; }
 
   VHDLPort *findPortByName(const Glib::ustring &name);
 
   virtual bool write(std::ostream &outStream, int indent) = 0;
 
-  const std::list<VHDLPort *> *getPortList() { return &m_ports; }
+  const std::vector<VHDLPort *> getPortList();
 
 protected:
-  void addPort(VHDLPort *pPort);
+  void addPort(std::unique_ptr<VHDLPort> pPort);
   void removePort(VHDLPort *pPort);
 };
 

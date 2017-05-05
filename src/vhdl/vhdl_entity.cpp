@@ -53,18 +53,18 @@ const Glib::ustring &VHDLEntity::getName()
 VHDLPort *VHDLEntity::createPort(Direction dir, const Glib::ustring &name)
 {
   printf("VHDLEntity::createPort(%s, %s)\n", DIR_TO_NAME(dir), name.c_str());
-  VHDLPort *pVHDLPort = new VHDLPort(name);
+  auto pVHDLPort = std::make_unique<VHDLPort>(name);
+  auto pRawVHDLPort = pVHDLPort.get();
   pVHDLPort->setDirection(dir);
   pVHDLPort->setType(VHDLType("std_logic"));
-  addPort(pVHDLPort);
-  return pVHDLPort;
+  addPort(std::move(pVHDLPort));
+  return pRawVHDLPort;
 }
 
 void VHDLEntity::destroyPort(VHDLPort *pPort)
 {
   printf("VHDLEntity(%p)::destroyPort(%s)\n", this, pPort->getName().c_str());
   removePort(pPort);
-  delete pPort;
 }
 
 /*
@@ -77,7 +77,6 @@ void VHDLEntity::destroyPort(VHDLPort *pPort)
 */
 bool VHDLEntity::write(std::ostream &outStream, int indent)
 {
-  std::list<VHDLPort *>::iterator pit;
   Glib::ustring indentString(indent, ' ');
 
   outStream << indentString << "entity " << m_name << " is\n";
@@ -90,7 +89,7 @@ bool VHDLEntity::write(std::ostream &outStream, int indent)
   if(m_ports.size() > 0)
   {
     outStream << indentString << "  port (\n";
-    for(pit = m_ports.begin(); pit != m_ports.end(); pit++)
+    for(auto pit = m_ports.begin(); pit != m_ports.end(); pit++)
     {
       if(pit != m_ports.begin())
       {

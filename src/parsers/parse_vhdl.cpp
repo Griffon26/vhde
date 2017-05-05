@@ -200,12 +200,12 @@ private:
     auto pPortClauseCtx = ctx->entity_header()->port_clause();
     if(pPortClauseCtx)
     {
-      std::vector<VHDLPort *> ports = visit(pPortClauseCtx);
+      auto ports = std::move(visit(pPortClauseCtx).as<std::vector<std::unique_ptr<VHDLPort>>>());
 
-      for(auto pPort: ports)
+      for(auto &pPort: ports)
       {
         std::cout << "Adding port " << pPort->getName() << " to entity " << name << std::endl;
-        pEntity->init_addPort(pPort);
+        pEntity->init_addPort(std::move(pPort));
       }
     }
 
@@ -401,12 +401,12 @@ private:
 
     if(ctx->port_clause())
     {
-      std::vector<VHDLPort *> ports = visit(ctx->port_clause());
+      auto ports = std::move(visit(ctx->port_clause()).as<std::vector<std::unique_ptr<VHDLPort>>>());
 
-      for(auto pPort: ports)
+      for(auto &pPort: ports)
       {
         std::cout << "Adding port " << pPort->getName() << " to component " << entityName << std::endl;
-        pComponent->init_addPort(pPort);
+        pComponent->init_addPort(std::move(pPort));
       }
     }
 
@@ -416,23 +416,26 @@ private:
   }
 
   virtual antlrcpp::Any visitPort_clause(vhdlParser::Port_clauseContext *ctx) override {
-    std::vector<VHDLPort *> result;
+    std::vector<std::unique_ptr<VHDLPort>> result;
+
     auto portCtxs = ctx->port_list()->interface_port_list()->interface_port_declaration();
 
     for(auto &portCtx: portCtxs)
     {
-      auto ports = visit(portCtx).as<std::vector<VHDLPort *>>();
-      result.insert(std::end(result), std::begin(ports), std::end(ports));
+      auto ports = std::move(visit(portCtx).as<std::vector<std::unique_ptr<VHDLPort>>>());
+      result.insert(std::end(result),
+                    std::make_move_iterator(std::begin(ports)),
+                    std::make_move_iterator(std::end(ports)));
     }
-    return result;
+    return antlrcpp::Any(std::move(result));
   }
 
   virtual antlrcpp::Any visitInterface_port_declaration(vhdlParser::Interface_port_declarationContext *ctx) override {
-    std::vector<VHDLPort *> ports;
+    std::vector<std::unique_ptr<VHDLPort>> ports;
 
     for(auto &identctx: ctx->identifier_list()->identifier())
     {
-      auto pPort = new VHDLPort(visit(identctx).as<Glib::ustring>());
+      auto pPort = std::make_unique<VHDLPort>(visit(identctx).as<Glib::ustring>());
       Direction dir = visit(ctx->signal_mode());
       if(dir == DIR_INVALID)
       {
@@ -441,7 +444,7 @@ private:
 
       pPort->setDirection(dir);
 
-      ports.push_back(pPort);
+      ports.push_back(std::move(pPort));
     }
 
     auto type = visit(ctx->subtype_indication());
@@ -451,7 +454,7 @@ private:
       // TODO: also parse and store expression
     }
 
-    return ports;
+    return antlrcpp::Any(std::move(ports));
   }
 
   virtual antlrcpp::Any visitSignal_mode(vhdlParser::Signal_modeContext *ctx) override {
