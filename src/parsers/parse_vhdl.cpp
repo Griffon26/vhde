@@ -106,11 +106,11 @@ private:
     {
       auto text = getCurrentFragment(ctx);
       g_assert(text != "");
-      return new VHDLFragment(text);
+      return std::make_unique<VHDLFragment>(text);
     }
     else
     {
-      return (VHDLFragment *)nullptr;
+      return std::unique_ptr<VHDLFragment>(nullptr);
     }
   }
 
@@ -118,10 +118,10 @@ private:
 
     /* Since only one context clause can be stored in a VHDLFile object, only
      * set it if it is a non-empty string */
-    VHDLFragment *pContext = visit(ctx->context_clause());
+    std::unique_ptr<VHDLFragment> pContext = std::move(visit(ctx->context_clause()));
     if(pContext)
     {
-      m_pCurrentFile->setContext(pContext);
+      m_pCurrentFile->setContext(std::move(pContext));
     }
 
     auto library_unit = visit(ctx->library_unit());
@@ -140,7 +140,7 @@ private:
     }
     else
     {
-      m_pCurrentFile->addOtherFragment(new VHDLFragment(getCurrentFragment(ctx)));
+      m_pCurrentFile->addOtherFragment(std::make_unique<VHDLFragment>(getCurrentFragment(ctx)));
     }
     return nullptr;
   }
@@ -166,7 +166,7 @@ private:
     {
       if(m_pCurrentFile->getMode() == VHDLFile::TEXT)
       {
-        return new VHDLFragment(getCurrentFragment(ctx));
+        return std::make_unique<VHDLFragment>(getCurrentFragment(ctx));
       }
       else
       {
@@ -183,7 +183,7 @@ private:
     }
     else
     {
-      return new VHDLFragment(getCurrentFragment(ctx));
+      return std::make_unique<VHDLFragment>(getCurrentFragment(ctx));
     }
   }
 
@@ -194,7 +194,7 @@ private:
     auto pGenericsClauseCtx = ctx->entity_header()->generic_clause();
     if(pGenericsClauseCtx)
     {
-      pEntity->init_addGenerics(visit(pGenericsClauseCtx));
+      pEntity->init_addGenerics(std::move(visit(pGenericsClauseCtx)));
     }
 
     auto pPortClauseCtx = ctx->entity_header()->port_clause();
@@ -211,7 +211,7 @@ private:
 
     if(ctx->entity_declarative_part()->entity_declarative_item().size() > 0)
     {
-      pEntity->init_setDeclarativePart(new VHDLFragment(getCurrentFragment(ctx->entity_declarative_part())));
+      pEntity->init_setDeclarativePart(std::make_unique<VHDLFragment>(getCurrentFragment(ctx->entity_declarative_part())));
     }
 
     m_entityMap[name] = pEntity;
@@ -251,9 +251,10 @@ private:
           m_pCurrentArchitecture->init_addSignal(pSignal);
         }
       }
-      else if(value.is<VHDLFragment *>())
+      else if(value.is<std::unique_ptr<VHDLFragment>>())
       {
-        std::cout << "Visited fragment: [" << value.as<VHDLFragment *>()->getText() << "]" << std::endl;
+        std::cout << "Visited fragment: [" << value.as<std::unique_ptr<VHDLFragment>>()->getText() << "]" << std::endl;
+        assert(false);
       }
       else
       {
@@ -354,7 +355,7 @@ private:
     else
     {
       /* Return any unknown VHDL as a VHDLFragment */
-      return new VHDLFragment(getCurrentFragment(ctx));
+      return std::make_unique<VHDLFragment>(getCurrentFragment(ctx));
     }
   }
 
@@ -387,7 +388,7 @@ private:
   }
 
   virtual antlrcpp::Any visitGeneric_clause(vhdlParser::Generic_clauseContext *ctx) override {
-    return new VHDLFragment(getCurrentFragment(ctx));
+    return std::make_unique<VHDLFragment>(getCurrentFragment(ctx));
   }
 
   virtual antlrcpp::Any visitComponent_declaration(vhdlParser::Component_declarationContext *ctx) override {
@@ -396,7 +397,7 @@ private:
 
     if(ctx->generic_clause())
     {
-      pComponent->init_addGenerics(visit(ctx->generic_clause()));
+      pComponent->init_addGenerics(std::move(visit(ctx->generic_clause())));
     }
 
     if(ctx->port_clause())

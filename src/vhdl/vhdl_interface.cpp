@@ -34,12 +34,12 @@ VHDLInterface::VHDLInterface():
 {
 }
 
-void VHDLInterface::init_addGenerics(VHDLFragment *pFragment)
+void VHDLInterface::init_addGenerics(std::unique_ptr<VHDLFragment> pFragment)
 {
   g_assert(m_init);
   g_assert(!m_pGenerics);
   g_assert(pFragment);
-  m_pGenerics = pFragment;
+  m_pGenerics = std::move(pFragment);
 }
 
 void VHDLInterface::init_addPort(std::unique_ptr<VHDLPort> pPort)

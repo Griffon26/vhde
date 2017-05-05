@@ -30,7 +30,7 @@ class VHDLInterface
 {
 protected:
   bool                      m_init;
-  VHDLFragment             *m_pGenerics;
+  std::unique_ptr<VHDLFragment> m_pGenerics;
   std::vector<std::unique_ptr<VHDLPort>> m_ports;
 
 public:
@@ -40,7 +40,7 @@ public:
   VHDLInterface();
 
   /* These methods assume ownership of the objects passed */
-  void init_addGenerics(VHDLFragment *pFragment);
+  void init_addGenerics(std::unique_ptr<VHDLFragment> pFragment);
   void init_addPort(std::unique_ptr<VHDLPort> pPort);
   void init_done() { m_init = false; }
 

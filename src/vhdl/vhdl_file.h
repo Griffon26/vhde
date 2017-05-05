@@ -40,10 +40,10 @@ private:
   Glib::ustring m_name;
   Mode m_mode;
 
-  VHDLFragment *m_pContext;
+  std::unique_ptr<VHDLFragment> m_pContext;
   VHDLEntity *m_pEntity;
   std::vector<VHDLArchitecture *> m_architectures;
-  std::vector<VHDLFragment *> m_otherFragments;
+  std::vector<std::unique_ptr<VHDLFragment>> m_otherFragments;
 
 public:
   VHDLFile(Mode mode);
@@ -53,7 +53,7 @@ public:
   void setName(const Glib::ustring &name);
   const Glib::ustring &getName() { return m_name; }
 
-  void setContext(VHDLFragment *pFragment);
+  void setContext(std::unique_ptr<VHDLFragment> pFragment);
 
   void setEntity(VHDLEntity *pEntity);
   VHDLEntity *getEntity() { return m_pEntity; }
@@ -62,8 +62,8 @@ public:
   const std::vector<VHDLArchitecture *> &getArchitectures();
   VHDLArchitecture *findArchitectureByName(const Glib::ustring &name);
 
-  void addOtherFragment(VHDLFragment *pFragment);
-  const std::vector<VHDLFragment *> &getFragments();
+  void addOtherFragment(std::unique_ptr<VHDLFragment> pFragment);
+  const std::vector<VHDLFragment *> getFragments();
 
   bool write(std::ostream &outStream, int indent);
 };

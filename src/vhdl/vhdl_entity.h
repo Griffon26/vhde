@@ -33,7 +33,7 @@ class VHDLEntity: public VHDLInterface, public INamedItem
 {
 private:
   Glib::ustring             m_name;
-  VHDLFragment             *m_pDeclarativePart;
+  std::unique_ptr<VHDLFragment> m_pDeclarativePart;
 
 public:
   /* Signals */
@@ -41,7 +41,7 @@ public:
 
   VHDLEntity(const Glib::ustring &name);
 
-  void init_setDeclarativePart(VHDLFragment *pFragment);
+  void init_setDeclarativePart(std::unique_ptr<VHDLFragment> pFragment);
 
   void                setName(const Glib::ustring &name);
   const Glib::ustring &getName();

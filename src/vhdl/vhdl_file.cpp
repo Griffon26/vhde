@@ -35,11 +35,11 @@ void VHDLFile::setName(const Glib::ustring &name)
   m_name = name;
 }
 
-void VHDLFile::setContext(VHDLFragment *pFragment)
+void VHDLFile::setContext(std::unique_ptr<VHDLFragment> pFragment)
 {
   g_assert(!m_pContext);
   g_assert(pFragment);
-  m_pContext = pFragment;
+  m_pContext = std::move(pFragment);
 }
 
 void VHDLFile::setEntity(VHDLEntity *pEntity)
@@ -73,16 +73,21 @@ VHDLArchitecture *VHDLFile::findArchitectureByName(const Glib::ustring &name)
   return nullptr;
 }
 
-void VHDLFile::addOtherFragment(VHDLFragment *pFragment)
+void VHDLFile::addOtherFragment(std::unique_ptr<VHDLFragment> pFragment)
 {
   g_assert(m_mode == TEXT);
-  m_otherFragments.push_back(pFragment);
+  m_otherFragments.push_back(std::move(pFragment));
 }
 
-const std::vector<VHDLFragment *> &VHDLFile::getFragments()
+const std::vector<VHDLFragment *> VHDLFile::getFragments()
 {
   g_assert(m_mode == TEXT);
-  return m_otherFragments;
+  std::vector<VHDLFragment *> result;
+  for(auto &pFragment: m_otherFragments)
+  {
+    result.push_back(pFragment.get());
+  }
+  return result;
 }
 
 bool VHDLFile::write(std::ostream &outStream, int indent)
@@ -106,7 +111,7 @@ bool VHDLFile::write(std::ostream &outStream, int indent)
   }
   else
   {
-    for(auto pFragment: m_otherFragments)
+    for(auto &pFragment: m_otherFragments)
     {
       pFragment->write(outStream, indent);
     }

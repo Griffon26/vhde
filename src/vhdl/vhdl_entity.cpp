@@ -30,12 +30,12 @@ VHDLEntity::VHDLEntity(const Glib::ustring &name):
 
 }
 
-void VHDLEntity::init_setDeclarativePart(VHDLFragment *pFragment)
+void VHDLEntity::init_setDeclarativePart(std::unique_ptr<VHDLFragment> pFragment)
 {
   g_assert(m_init);
   g_assert(!m_pDeclarativePart);
   g_assert(pFragment);
-  m_pDeclarativePart = pFragment;
+  m_pDeclarativePart = std::move(pFragment);
 }
 
 void VHDLEntity::setName(const Glib::ustring &name)
