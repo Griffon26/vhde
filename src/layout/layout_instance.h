@@ -22,7 +22,9 @@
 #define _LAYOUT_INSTANCE_H
 
 #include "layout_block.h"
-#include "layout_component.h"
+
+class INamedItem;
+class LayoutComponent;
 
 class LayoutInstance: public LayoutBlock
 {
@@ -46,7 +48,7 @@ public:
   void associateVHDLInstance(INamedItem *pVHDLInstance);
   INamedItem *getAssociatedVHDLInstance();
 
-  void write(std::ostream &stream);
+  void write(std::ostream &stream, int indent);
 
 private:
 #if 0

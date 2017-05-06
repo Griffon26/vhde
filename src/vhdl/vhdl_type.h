@@ -21,8 +21,17 @@
 #ifndef _VHDL_TYPE_H
 #define _VHDL_TYPE_H
 
+#include <glibmm.h>
+
 class VHDLType
 {
+private:
+  Glib::ustring m_name;
+
+public:
+  VHDLType();
+  VHDLType(const Glib::ustring &name);
+  bool write(std::ostream &outStream, int indent);
 
 };
 

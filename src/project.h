@@ -24,30 +24,39 @@
 #include <map>
 #include <string>
 
+#include "parse_layout.h"
+#include "vhdl_file.h"
+
 class LayoutArchitecture;
-class LayoutResolverActions;
+class LayoutFile;
 class VHDLArchitecture;
 class VHDLEntity;
+class VHDLInterface;
 
 class Project
 {
 private:
-  std::map<std::string, VHDLEntity *> m_entityMap;
+  std::map<const Glib::ustring, VHDLEntity *> m_entityMap;
 
   /* These maps use the base name of the VHDL file as key */
-  std::map<std::string, VHDLArchitecture *> m_fileToVHDLArchMap;
-  std::map<std::string, LayoutArchitecture *> m_fileToLayoutArchMap;
-  std::map<std::string, LayoutResolverActions *> m_layoutResolverMap;
+  std::map<const Glib::ustring, std::unique_ptr<VHDLFile>> m_fileToVHDLFileMap;
+  std::map<const Glib::ustring, std::unique_ptr<LayoutFile>> m_fileToLayoutFileMap;
+  std::map<const Glib::ustring, std::unique_ptr<LayoutResolverActions>> m_layoutResolverMap;
 
-  VHDLArchitecture *readVHDLFromFile(std::string fileName);
-  LayoutArchitecture *readLayoutFromFile(std::string fileName, LayoutResolverActions *pLayoutResolverActions);
+  static std::unique_ptr<VHDLFile> readVHDLFromFile(const Glib::ustring &fileName, VHDLFile::Mode mode, std::map<const Glib::ustring, VHDLEntity *> &entityMap);
+
+  std::unique_ptr<LayoutFile> readLayoutFromFile(const Glib::ustring &fileName, LayoutResolverActions *pLayoutResolverActions);
+  void createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock);
+  std::unique_ptr<LayoutArchitecture> createDefaultArchitectureLayout(VHDLArchitecture *pArch);
+  std::unique_ptr<LayoutFile> createDefaultFileLayout(VHDLFile *pVHDLFile);
 
 public:
-  void addFile(std::string fileName);
+  void addFile(const Glib::ustring &fileName, VHDLFile::Mode mode);
   void resolveEntityReferences();
   void resolveLayoutReferences();
+  void resolveLayoutComponentReferences();
 
-  LayoutArchitecture *getLayoutArchitecture(std::string fileName);
+  LayoutFile *getLayoutFile(const Glib::ustring &fileName);
 
   /* temporary method for testing if parsing and saving is done correctly */
   void save();

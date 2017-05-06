@@ -21,6 +21,11 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
+#include <algorithm>
+#include <map>
+#include <memory>
+#include <vector>
+
 #define DIR_TO_NAME(d) ((d == DIR_IN) ? "IN" : \
                         (d == DIR_OUT) ? "OUT" : \
                         (d == DIR_INOUT) ? "INOUT" : \
@@ -32,5 +37,26 @@ typedef enum {
   DIR_INOUT,
   DIR_INVALID
 } Direction;
+
+template<typename T, typename U> std::vector<T> getKeysFromMap(const std::map<T,U> &map)
+{
+  std::vector<T> keys;
+  
+  for(auto &kv: map)
+  {
+    keys.push_back(kv.first);
+  }
+  return keys;
+}
+
+template<typename T> std::vector<T *> stripOwnership(const std::vector<std::unique_ptr<T>> &owningVector)
+{
+  std::vector<T *> borrowingVector;
+  std::transform(owningVector.begin(),
+                 owningVector.end(),
+                 std::back_inserter(borrowingVector),
+                 [](const std::unique_ptr<T> &pT) { return pT.get(); });
+  return borrowingVector;
+}
 
 #endif /* _COMMON_H */

@@ -1,8 +1,8 @@
 component {
   size 150 400
   ports {
-    LEFT 0 "myport1"
-    RIGHT 8 "myport2"
+    "myport1" LEFT 0
+    "myport2" RIGHT 8
   }
 }
 

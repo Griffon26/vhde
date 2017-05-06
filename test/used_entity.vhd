@@ -10,4 +10,3 @@ architecture used_arch of used_entity is
 
 begin
 end;
-

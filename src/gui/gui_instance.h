@@ -51,6 +51,7 @@ private:
   /* Model signals */
   sigc::connection        m_onLayoutPortAddedConnection;
   sigc::connection        m_onVHDLPortAddedConnection;
+  std::map<LayoutPort *, sigc::connection> m_onLayoutPortRemovedConnections;
 public:
   GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance);
   virtual ~GuiInstance();

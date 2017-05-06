@@ -20,6 +20,8 @@
 
 #include <stdio.h>
 
+#include "i_named_item.h"
+#include "layout_port.h"
 #include "layout_signal.h"
 
 #define ENDPOINT_TO_ENDPOINTID(pEndpoint) ((pEndPoint == &m_beginning) ? BEGINNING : END)
@@ -40,6 +42,38 @@ LayoutSignal::LayoutSignal():
   m_endPoints[END].connected = false;
 }
 
+LayoutSignal::~LayoutSignal()
+{
+  m_endPoints[BEGINNING].onInstanceMovedConnection.disconnect();
+  m_endPoints[BEGINNING].onInstanceResizedConnection.disconnect();
+  m_endPoints[BEGINNING].onPortMovedConnection.disconnect();
+  m_endPoints[BEGINNING].onPortRemovedConnection.disconnect();
+
+  m_endPoints[END].onInstanceMovedConnection.disconnect();
+  m_endPoints[END].onInstanceResizedConnection.disconnect();
+  m_endPoints[END].onPortMovedConnection.disconnect();
+  m_endPoints[END].onPortRemovedConnection.disconnect();
+}
+
+void LayoutSignal::init_connect(LayoutInstance *pInstance, Edge edge, int position)
+{
+  EndPointId endPoint;
+  if(!m_endPoints[BEGINNING].connected)
+  {
+    endPoint = BEGINNING;
+  }
+  else if(!m_endPoints[END].connected)
+  {
+    endPoint = END;
+  }
+  else
+  {
+    g_assert_not_reached();
+  }
+
+  connect(endPoint, pInstance, edge, position);
+}
+
 void LayoutSignal::associateSignal(INamedItem *pSignal)
 {
   g_assert(m_pSignal == NULL);
@@ -57,25 +91,25 @@ signal "mysignal" {
   }
 }
 */
-void LayoutSignal::write(std::ostream &stream)
+void LayoutSignal::write(std::ostream &stream, int indent)
 {
   std::list<LayoutPosition>::iterator it;
+  Glib::ustring indentString(indent, ' ');
 
-  stream << "signal \"" << m_pSignal->getName() << "\" {\n"
-         << "  from ";
+  stream << indentString << "signal \"" << m_pSignal->getName() << "\" {\n"
+         << indentString << "  from ";
   writeEndPoint(stream, m_endPoints[BEGINNING]);
-  stream << "  to   ";
+  stream << indentString << "  to   ";
   writeEndPoint(stream, m_endPoints[END]);
-  stream << "  corners {\n";
+  stream << indentString << "  corners {\n";
 
   for(it = m_corners.begin(); it != m_corners.end(); it++)
   {
-    stream << "    " << it->x << " " << it->y << "\n";
+    stream << indentString << "    " << it->x << " " << it->y << "\n";
   }
 
-  stream << "  }\n"
-         << "}\n"
-         << "\n";
+  stream << indentString << "  }\n"
+         << indentString << "}\n";
 }
 
 void LayoutSignal::connect(EndPointId endPointId, LayoutInstance *pLayoutInstance, Edge edge, int position)

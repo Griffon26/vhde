@@ -25,19 +25,26 @@
 #include <map>
 
 #include "i_named_item.h"
-#include "vhdl_signal.h"
 
 class VHDLComponent;
+class VHDLSignal;
 
 class VHDLInstance: public INamedItem
 {
 private:
-  typedef struct
+  class MapEntry
   {
+  public:
     sigc::connection onPortRemovedConnection;
     sigc::connection onSignalRemovedConnection;
     VHDLSignal *pSignal;
-  } MapEntry;
+
+    ~MapEntry()
+    {
+      onPortRemovedConnection.disconnect();
+      onSignalRemovedConnection.disconnect();
+    }
+  };
 
   Glib::ustring                             m_name;
   VHDLComponent                            *m_pComponent;
@@ -48,7 +55,7 @@ public:
   /* signals */
   //sigc::signal<void, VHDLSignal *, VHDLPort *> signal_disassociated;
 
-  VHDLInstance(Glib::ustring name, VHDLComponent *pComponent);
+  VHDLInstance(const Glib::ustring &name, VHDLComponent *pComponent);
   virtual ~VHDLInstance();
 
   void connectSignalToPort(VHDLSignal *pSignal, VHDLPort *pPort);
@@ -59,6 +66,8 @@ public:
 
   const Glib::ustring &getName() { return m_name; }
   VHDLComponent *getComponent() { return m_pComponent; }
+
+  std::vector<std::pair<VHDLPort *, VHDLSignal *>> getPortsAndSignals();
 
 private:
   void onPortRemoved(VHDLPort *pPort);

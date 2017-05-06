@@ -23,21 +23,27 @@
 
 #include <glibmm.h>
 
+#include "common.h"
 #include "i_named_item.h"
 #include "vhdl_interface.h"
+
+class VHDLPort;
 
 class VHDLEntity: public VHDLInterface, public INamedItem
 {
 private:
   Glib::ustring             m_name;
+  std::unique_ptr<VHDLFragment> m_pDeclarativePart;
 
 public:
   /* Signals */
   sigc::signal<void, Glib::ustring> name_changed;
 
-  VHDLEntity(Glib::ustring name);
+  VHDLEntity(const Glib::ustring &name);
 
-  void                setName(Glib::ustring name);
+  void init_setDeclarativePart(std::unique_ptr<VHDLFragment> pFragment);
+
+  void                setName(const Glib::ustring &name);
   const Glib::ustring &getName();
 
 

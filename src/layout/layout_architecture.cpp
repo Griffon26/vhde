@@ -18,13 +18,16 @@
  *
  */
 
+#include "common.h"
+#include "i_named_item.h"
 #include "layout_architecture.h"
 #include "layout_component.h"
 #include "layout_instance.h"
 #include "layout_signal.h"
 
 LayoutArchitecture::LayoutArchitecture():
-  m_pComponent(nullptr)
+  m_init(true),
+  m_pVHDLArchitecture(nullptr)
 {
 }
 
@@ -33,56 +36,48 @@ LayoutArchitecture::~LayoutArchitecture()
   /* TODO: release all owned resources */
 }
 
-void LayoutArchitecture::setComponent(LayoutComponent *pComponent)
-{
-  g_assert(!m_pComponent);
-  m_pComponent = pComponent;
-}
-
-void LayoutArchitecture::init_addInstance(LayoutInstance *pInstance)
+void LayoutArchitecture::init_addInstance(std::unique_ptr<LayoutInstance> pInstance)
 {
   g_assert(m_init);
-  m_instances.push_back(pInstance);
+  m_instances.push_back(std::move(pInstance));
 }
 
-void LayoutArchitecture::init_addSignal(LayoutSignal *pSignal)
+void LayoutArchitecture::init_addSignal(std::unique_ptr<LayoutSignal> pSignal)
 {
   g_assert(m_init);
-  m_signals.push_back(pSignal);
+  m_signals.push_back(std::move(pSignal));
 }
 
-int LayoutArchitecture::getNumberOfInstances()
+void LayoutArchitecture::associateVHDLArchitecture(INamedItem *pVHDLArchitecture)
 {
-  return m_instances.size();
+  g_assert(!m_pVHDLArchitecture);
+  g_assert(pVHDLArchitecture);
+  m_pVHDLArchitecture = pVHDLArchitecture;
 }
 
-LayoutInstance *LayoutArchitecture::getInstance(int index)
+const std::vector<LayoutInstance *> LayoutArchitecture::getInstances()
 {
-  return m_instances[index];
+  return stripOwnership(m_instances);
 }
 
-int LayoutArchitecture::getNumberOfSignals()
+const std::vector<LayoutSignal *> LayoutArchitecture::getSignals()
 {
-  return m_signals.size();
+  return stripOwnership(m_signals);
 }
 
-LayoutSignal *LayoutArchitecture::getSignal(int index)
+void LayoutArchitecture::write(std::ostream &stream, int indent)
 {
-  return m_signals[index];
-}
-
-void LayoutArchitecture::write(std::ostream &stream)
-{
-  g_assert(m_pComponent);
-  m_pComponent->write(stream);
+  stream << "architecture \"" << m_pVHDLArchitecture->getName() << "\" {\n";
 
   for(auto &pInstance: m_instances)
   {
-    pInstance->write(stream);
+    pInstance->write(stream, indent + 2);
   }
   for(auto &pSignal: m_signals)
   {
-    pSignal->write(stream);
+    pSignal->write(stream, indent + 2);
   }
+
+  stream << "}\n";
 }
 

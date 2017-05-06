@@ -24,7 +24,10 @@
 class LayoutPosition
 {
 public:
-  LayoutPosition() {}
+  LayoutPosition():
+    x(0),
+    y(0)
+  {}
 
   LayoutPosition(int x, int y):
     x(x),
@@ -48,7 +51,10 @@ public:
 class LayoutSize
 {
 public:
-  LayoutSize() {}
+  LayoutSize():
+    width(0),
+    height(0)
+  {}
 
   LayoutSize(int width, int height):
     width(width),

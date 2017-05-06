@@ -23,9 +23,10 @@
 
 #include <glibmm.h>
 
-#include "i_named_item.h"
 #include "layout_instance.h"
 #include "layout_types.h"
+
+class INamedItem;
 
 class LayoutSignal
 {
@@ -73,9 +74,17 @@ public:
   sigc::signal<void, EndPointId>                          endpoint_disconnected;
 
   LayoutSignal();
+  virtual ~LayoutSignal();
+
+  /* This function is only used when constructing an arbitrary layout for a given signal.
+   * Because I do not want to expose which endpoint is already connected, this function
+   * will connect to the first free endpoint.
+   */
+  void init_connect(LayoutInstance *pInstance, Edge edge, int position);
+
   void associateSignal(INamedItem *pSignal);
 
-  void write(std::ostream &stream);
+  void write(std::ostream &stream, int indent);
 
   void connect(EndPointId endPointId, LayoutInstance *pInstance, Edge edge, int position);
 

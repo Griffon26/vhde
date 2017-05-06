@@ -21,8 +21,11 @@
 #ifndef _LAYOUT_PORT_H
 #define _LAYOUT_PORT_H
 
-#include "i_named_item.h"
+#include <glibmm.h>
+
 #include "layout_types.h"
+
+class INamedItem;
 
 class LayoutPort
 {
@@ -50,7 +53,9 @@ public:
   void associateVHDLPort(INamedItem *pPort);
   INamedItem *getAssociatedVHDLPort();
 
-  Glib::ustring getName();
+  const Glib::ustring &getName();
+
+  std::pair<Edge, int> getLocation();
 
 protected:
   friend class LayoutBlock;

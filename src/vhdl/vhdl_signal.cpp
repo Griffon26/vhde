@@ -20,7 +20,7 @@
 
 #include "vhdl_signal.h"
 
-VHDLSignal::VHDLSignal(Glib::ustring name):
+VHDLSignal::VHDLSignal(const Glib::ustring &name):
   m_name(name)
 {
 }
@@ -30,12 +30,24 @@ VHDLSignal::~VHDLSignal()
   removed.emit(this);
 }
 
-void setType(VHDLType type)
+void VHDLSignal::setType(const VHDLType &type)
 {
+  m_type = type;
+}
+
+void VHDLSignal::setDefaultValue(const Glib::ustring &defaultValue)
+{
+  m_defaultValue = defaultValue;
 }
 
 bool VHDLSignal::write(std::ostream &outStream, int indent)
 {
-  outStream << std::string(indent, ' ') << "signal " << m_name << ": sometype;\n";
+  outStream << Glib::ustring(indent, ' ') << "signal " << m_name << ": ";
+  m_type.write(outStream, indent);
+  if(m_defaultValue != "")
+  {
+    outStream << " := " << m_defaultValue;
+  }
+  outStream << ";\n";
   return true;
 }

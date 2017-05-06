@@ -18,19 +18,25 @@
  *
  */
 
-#ifndef _VHDL_GENERIC_H
-#define _VHDL_GENERIC_H
+#include "vhdl_fragment.h"
 
-#include <glibmm.h>
-
-#include "vhdl_type.h"
-
-class VHDLGeneric
+VHDLFragment::VHDLFragment(const Glib::ustring &text):
+  m_text(text)
 {
-private:
-  Glib::ustring         m_name;
-  VHDLType              m_type;
-  Glib::ustring         m_defaultValue;
-};
+}
 
-#endif /* _VHDL_GENERIC_H */
+VHDLFragment::~VHDLFragment()
+{
+}
+
+const Glib::ustring &VHDLFragment::getText()
+{
+  return m_text;
+}
+
+bool VHDLFragment::write(std::ostream &outStream, int indent)
+{
+
+  outStream << Glib::ustring(indent, ' ') << m_text << std::endl;
+  return true;
+}

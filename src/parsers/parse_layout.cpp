@@ -21,21 +21,32 @@
 #include <glib.h>
 #include <sstream>
 
+#include "layout_architecture.h"
 #include "layout_component.h"
+#include "layout_file.h"
 #include "layout_instance.h"
+#include "layout_port.h"
 #include "layout_signal.h"
 #include "parse_layout.h"
 #include "vhdl_architecture.h"
+#include "vhdl_component.h"
 #include "vhdl_entity.h"
+#include "vhdl_file.h"
+#include "vhdl_instance.h"
+#include "vhdl_port.h"
+#include "vhdl_signal.h"
 
-std::string stripQuotes(std::string s)
+Glib::ustring stripQuotes(const Glib::ustring &s)
 {
-  return std::string(s.begin() + 1, s.end() - 1);
+  g_assert(s[0] == '"');
+  g_assert(s[s.length() - 1] == '"');
+
+  return s.substr(1, s.length() - 2);
 }
 
 std::pair<int, int> parsePosition(std::istream &stream)
 {
-  std::string position;
+  Glib::ustring position;
   int x, y;
   stream >> position >> x >> y;
   g_assert(position == "position");
@@ -44,7 +55,7 @@ std::pair<int, int> parsePosition(std::istream &stream)
 
 std::pair<int, int> parseSize(std::istream &stream)
 {
-  std::string size;
+  Glib::ustring size;
   int width, height;
   stream >> size >> width >> height;
   g_assert(size == "size");
@@ -53,70 +64,82 @@ std::pair<int, int> parseSize(std::istream &stream)
 
 void parsePortsHeader(std::istream &stream)
 {
-  std::string ports, brace;
+  Glib::ustring ports, brace;
   stream >> ports >> brace;
   g_assert(ports == "ports");
+  g_assert(brace == "{");
 }
 
 auto parsePort(std::istream &stream, LayoutBlock *pLayoutBlock)
 {
-  std::string first, name;
+  Glib::ustring first, edgeName;
   int index;
   stream >> first;
 
   if(first != "}")
   {
-    Edge edge = NAME_TO_EDGE(first);
-    g_assert(edge != NR_OF_EDGES);
-    stream >> index >> name;
-    name = stripQuotes(name);
+    first = stripQuotes(first);
 
-    auto pLayoutPort = new LayoutPort();
-    pLayoutBlock->init_addPort(edge, index, pLayoutPort);
-    return std::make_pair(pLayoutPort, name);
+    stream >> edgeName >> index;
+    Edge edge = NAME_TO_EDGE(edgeName);
+    g_assert(edge != NR_OF_EDGES);
+
+    auto pLayoutPort = std::make_unique<LayoutPort>();
+    auto portAndName = std::make_pair(pLayoutPort.get(), first);
+    pLayoutBlock->init_addPort(edge, index, std::move(pLayoutPort));
+    return portAndName;
   }
   else
   {
-    return std::make_pair(static_cast<LayoutPort *>(nullptr), std::string(""));
+    return std::make_pair(static_cast<LayoutPort *>(nullptr), Glib::ustring(""));
   }
 }
 
-LayoutComponent *parseComponent(std::istream &stream, LayoutResolverActions &resolver)
+std::unique_ptr<LayoutComponent> parseComponent(std::istream &stream, LayoutResolverActions &resolver)
 {
-  std::string brace;
+  Glib::ustring brace;
 
   stream >> brace;
+  g_assert(brace == "{");
 
-  auto pLayoutComponent = new LayoutComponent();
+  auto pLayoutComponent = std::make_unique<LayoutComponent>();
   auto wh = parseSize(stream);
   pLayoutComponent->setSize(LayoutSize(wh.first, wh.second));
-  resolver.add([pLayoutComponent](VHDLArchitecture *pArch) { pLayoutComponent->associateEntity(pArch->getEntity()); });
+
+  /* Use a raw pointer here so it can be captured by value */
+  auto pRawLayoutComponent = pLayoutComponent.get();
+  resolver.add([=](VHDLFile *pVHDLFile) { pRawLayoutComponent->associateEntity(pVHDLFile->getEntity()); });
 
   parsePortsHeader(stream);
 
-  std::pair<LayoutPort *, std::string> portAndName;
+  std::pair<LayoutPort *, Glib::ustring> portAndName;
   do
   {
-    portAndName = parsePort(stream, pLayoutComponent);
+    portAndName = parsePort(stream, pLayoutComponent.get());
     if(portAndName.first != nullptr)
     {
-      resolver.add([portAndName](VHDLArchitecture *pArch) { portAndName.first->associateVHDLPort(pArch->getEntity()->findPortByName(portAndName.second)); });
+      resolver.add([portAndName](VHDLFile *pVHDLFile) { portAndName.first->associateVHDLPort(pVHDLFile->getEntity()->findPortByName(portAndName.second)); });
     }
   } while(portAndName.first);
 
   pLayoutComponent->init_done();
 
+  stream >> brace;
+  g_assert(brace == "}");
+
   return pLayoutComponent;
 }
 
-LayoutInstance *parseInstance(std::istream &stream, std::map<std::string, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
+std::unique_ptr<LayoutInstance> parseInstance(std::istream &stream, const Glib::ustring &archName, std::map<const Glib::ustring, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
 {
-  std::string instanceName, brace;
+  Glib::ustring instanceName, brace;
 
   stream >> instanceName >> brace;
+  g_assert(brace == "{");
 
   instanceName = stripQuotes(instanceName);
-  auto pLayoutInstance = new LayoutInstance();
+  auto pLayoutInstance = std::make_unique<LayoutInstance>();
+  auto pRawLayoutInstance = pLayoutInstance.get();
   auto xy = parsePosition(stream);
   pLayoutInstance->setPosition(LayoutPosition(xy.first, xy.second));
   auto wh = parseSize(stream);
@@ -124,48 +147,102 @@ LayoutInstance *parseInstance(std::istream &stream, std::map<std::string, Layout
 
   parsePortsHeader(stream);
 
-  std::pair<LayoutPort *, std::string> portAndName;
+  std::pair<LayoutPort *, Glib::ustring> portAndName;
   do
   {
-    portAndName = parsePort(stream, pLayoutInstance);
+    portAndName = parsePort(stream, pRawLayoutInstance);
     if(portAndName.first != nullptr)
     {
-      resolver.add([portAndName, instanceName](VHDLArchitecture *pArch) { portAndName.first->associateVHDLPort(pArch->findInstanceByName(instanceName)->getComponent()->findPortByName(portAndName.second)); });
+      resolver.add([=](VHDLFile *pVHDLFile) {
+        portAndName.first->associateVHDLPort(pVHDLFile->findArchitectureByName(archName)->findInstanceByName(instanceName)->getComponent()->findPortByName(portAndName.second));
+      });
     }
   } while(portAndName.first);
 
+  stream >> brace;
+  g_assert(brace == "}");
+
   pLayoutInstance->init_done();
 
-  resolver.add([pLayoutInstance, instanceName](VHDLArchitecture *pArch) { pLayoutInstance->associateVHDLInstance(pArch->findInstanceByName(instanceName)); });
+  resolver.add([=](VHDLFile *pVHDLFile) {
+    pRawLayoutInstance->associateVHDLInstance(pVHDLFile->findArchitectureByName(archName)->findInstanceByName(instanceName));
+  });
 
-  layoutInstanceMap[instanceName] = pLayoutInstance;
+  layoutInstanceMap[instanceName] = pRawLayoutInstance;
 
   return pLayoutInstance;
 }
 
-LayoutSignal *parseSignal(std::istream &stream, std::map<std::string, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
+void parseEndPoint(std::istream &stream, LayoutSignal::EndPointId expectedEndPointId, std::map<const Glib::ustring, LayoutInstance *> &layoutInstanceMap, LayoutSignal *pLayoutSignal)
 {
-  std::string name, brace;
+  Glib::ustring from_or_to, port_or_signal, instance, side;
+  int index;
+
+  stream >> from_or_to;
+
+  LayoutSignal::EndPointId endPointId;
+  if(from_or_to == "from")
+  {
+    endPointId = LayoutSignal::BEGINNING;
+  }
+  else if(from_or_to == "to")
+  {
+    endPointId = LayoutSignal::END;
+  }
+  else
+  {
+    g_assert_not_reached();
+  }
+  g_assert(endPointId == expectedEndPointId);
+
+  stream >> port_or_signal;
+
+  if(port_or_signal == "port")
+  {
+    stream >> instance >> side >> index;
+
+    Edge edge = NAME_TO_EDGE(side);
+    g_assert(edge != NR_OF_EDGES);
+    instance = stripQuotes(instance);
+
+    pLayoutSignal->connect(endPointId, layoutInstanceMap.at(instance), edge, index);
+  }
+  else if(port_or_signal == "signal")
+  {
+    /* TODO: implement */
+    g_assert_not_reached();
+  }
+  else if(port_or_signal == "unconnected")
+  {
+    /* Do nothing */
+    return;
+  }
+  else
+  {
+    g_assert_not_reached();
+  }
+}
+
+std::unique_ptr<LayoutSignal> parseSignal(std::istream &stream, const Glib::ustring &archName, std::map<const Glib::ustring, LayoutInstance *> &layoutInstanceMap, LayoutResolverActions &resolver)
+{
+  Glib::ustring name, brace;
   stream >> name >> brace;
 
   name = stripQuotes(name);
-  std::string from, port1, to, port2, instance, side;
-  int index;
-  stream >> from >> port1 >> to >> port2 >> instance >> side >> index;
-  g_assert(from == "from");
-  g_assert(to == "to");
-  instance = stripQuotes(instance);
+  
+  auto pLayoutSignal = std::make_unique<LayoutSignal>();
+  auto pRawLayoutSignal = pLayoutSignal.get();
 
-  auto pLayoutSignal = new LayoutSignal();
-  pLayoutSignal->connect(LayoutSignal::END, layoutInstanceMap.at(instance), NAME_TO_EDGE(side), index);
+  parseEndPoint(stream, LayoutSignal::BEGINNING, layoutInstanceMap, pRawLayoutSignal);
+  parseEndPoint(stream, LayoutSignal::END, layoutInstanceMap, pRawLayoutSignal);
 
-  resolver.add([pLayoutSignal, name](VHDLArchitecture *pArch) { pLayoutSignal->associateSignal(pArch->findSignalByName(name)); });
+  resolver.add([=](VHDLFile *pVHDLFile) { pRawLayoutSignal->associateSignal(pVHDLFile->findArchitectureByName(archName)->findSignalByName(name)); });
 
-  std::string corners;
+  Glib::ustring corners;
   stream >> corners >> brace;
   g_assert(corners == "corners");
 
-  std::string x, y;
+  Glib::ustring x, y;
   do
   {
     stream >> x;
@@ -175,39 +252,65 @@ LayoutSignal *parseSignal(std::istream &stream, std::map<std::string, LayoutInst
     }
   } while(x != "}");
 
+  stream >> brace;
+  g_assert(brace == "}");
+
   return pLayoutSignal;
 }
 
-LayoutList *parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions)
+std::unique_ptr<LayoutArchitecture> parseArchitecture(std::istream &stream, LayoutResolverActions &layoutResolverActions)
 {
-  LayoutList *pLayoutList = new LayoutList();
-  std::map<std::string, LayoutInstance *> layoutInstanceMap;
+  Glib::ustring name, brace;
+  stream >> name >> brace;
 
-  std::string nextToken;
+  name = stripQuotes(name);
+  auto pLayoutArchitecture = std::make_unique<LayoutArchitecture>();
+  auto pRawLayoutArchitecture = pLayoutArchitecture.get();
+  layoutResolverActions.add([=](VHDLFile *pVHDLFile) { pRawLayoutArchitecture->associateVHDLArchitecture(pVHDLFile->findArchitectureByName(name)); });
+
+  std::map<const Glib::ustring, LayoutInstance *> layoutInstanceMap;
+  Glib::ustring nextToken;
+  while(stream >> nextToken)
+  {
+    if(nextToken == "instance")
+    {
+      pLayoutArchitecture->init_addInstance(parseInstance(stream, name, layoutInstanceMap, layoutResolverActions));
+    }
+    else if(nextToken == "signal")
+    {
+      pLayoutArchitecture->init_addSignal(parseSignal(stream, name, layoutInstanceMap, layoutResolverActions));
+    }
+    else if(nextToken == "}")
+    {
+      pLayoutArchitecture->init_done();
+      break;
+    }
+  }
+  return pLayoutArchitecture;
+}
+
+std::unique_ptr<LayoutFile> parseLayout(std::istream &stream, LayoutResolverActions &layoutResolverActions)
+{
+  auto pLayoutFile = std::make_unique<LayoutFile>();
+
+  Glib::ustring nextToken;
   while(stream >> nextToken)
   {
     if(nextToken == "component")
     {
-      pLayoutList->push_back(parseComponent(stream, layoutResolverActions));
+      pLayoutFile->setComponent(parseComponent(stream, layoutResolverActions));
     }
-    else if(nextToken == "instance")
+    else if(nextToken == "architecture")
     {
-      pLayoutList->push_back(parseInstance(stream, layoutInstanceMap, layoutResolverActions));
-    }
-    else if(nextToken == "signal")
-    {
-      pLayoutList->push_back(parseSignal(stream, layoutInstanceMap, layoutResolverActions));
-    }
-    else if(nextToken == "}")
-    {
-      // this should be the last token
+      pLayoutFile->addArchitecture(parseArchitecture(stream, layoutResolverActions));
     }
     else
     {
+      std::cout << "Found unexpected token: " << nextToken << "\n";
       g_assert_not_reached();
     }
   }
 
-  return pLayoutList;
+  return pLayoutFile;
 }
 

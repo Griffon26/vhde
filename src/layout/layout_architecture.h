@@ -24,40 +24,36 @@
 #include <glibmm.h>
 #include <stdio.h>
 
+class INamedItem;
 class LayoutComponent;
 class LayoutInstance;
 class LayoutSignal;
 
-/* The only purpose of this class is to group other layout objects belonging to
- * one file so it is easy to write them all out in one go.
- */
 class LayoutArchitecture
 {
 private:
   bool                          m_init;
-  LayoutComponent              *m_pComponent;
-  std::vector<LayoutInstance *> m_instances;
-  std::vector<LayoutSignal *>   m_signals;
+  std::vector<std::unique_ptr<LayoutInstance>> m_instances;
+  std::vector<std::unique_ptr<LayoutSignal>> m_signals;
+  INamedItem                   *m_pVHDLArchitecture;
 
 public:
   LayoutArchitecture();
   virtual ~LayoutArchitecture();
 
   /* These methods assume ownership of the component, instance and signal */
-  void setComponent(LayoutComponent *pComponent);
-  LayoutComponent *getComponent() { return m_pComponent; }
-  void init_addInstance(LayoutInstance *pInstance);
-  void init_addSignal(LayoutSignal *pSignal);
+  void init_addInstance(std::unique_ptr<LayoutInstance> pInstance);
+  void init_addSignal(std::unique_ptr<LayoutSignal> pSignal);
 
   void init_done() { m_init = false; }
 
-  int getNumberOfInstances();
-  LayoutInstance *getInstance(int index);
+  void associateVHDLArchitecture(INamedItem *pArch);
 
-  int getNumberOfSignals();
-  LayoutSignal *getSignal(int index);
+  /* Accessors */
+  const std::vector<LayoutInstance *> getInstances();
+  const std::vector<LayoutSignal *> getSignals();
 
-  void write(std::ostream &stream);
+  void write(std::ostream &stream, int indent);
 };
 
 #endif /* _LAYOUT_ARCHITECTURE_H */

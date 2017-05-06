@@ -49,7 +49,7 @@ private:
   sigc::connection        m_onResizedConnection;
 
 protected:
-  std::list<GuiPort *>   m_portList;
+  std::vector<std::unique_ptr<GuiPort>> m_ports;
 
   LayoutBlock            *m_pLayoutBlock;
 
@@ -66,7 +66,7 @@ protected:
   float                         m_initialHandleY;
   LayoutSize                    m_initialSize;
   LayoutSize                    m_minimumSize;
-  LayoutBlock::PortPositionMap  m_initialPortPositionMaps[NR_OF_EDGES];
+  std::vector<int>              m_initialPortPositions[NR_OF_EDGES];
 
 
 public:
@@ -78,7 +78,6 @@ public:
 private:
   bool getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition,
                       bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
-  void resizeEdge(const LayoutBlock::PortPositionMap &oldPortPositionMap, LayoutBlock::PortPositionMap *pNewPortPositionMap, int newSize);
 
   bool onPortDragged(Clutter::Event *pEvent, GuiPort *pGuiPort);
   bool onPortButtonPress(Clutter::ButtonEvent *pEvent, GuiPort *pGuiPort);

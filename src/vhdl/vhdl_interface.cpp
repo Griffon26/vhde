@@ -20,54 +20,70 @@
 
 #include <algorithm>
 
+#include "vhdl_fragment.h"
 #include "vhdl_interface.h"
+#include "vhdl_port.h"
 
 /*
  * Public methods
  */
 
 VHDLInterface::VHDLInterface():
-  m_init(true)
+  m_init(true),
+  m_pGenerics(nullptr)
 {
 }
 
-void VHDLInterface::init_addPort(VHDLPort *pPort)
+void VHDLInterface::init_addGenerics(std::unique_ptr<VHDLFragment> pFragment)
+{
+  g_assert(m_init);
+  g_assert(!m_pGenerics);
+  g_assert(pFragment);
+  m_pGenerics = std::move(pFragment);
+}
+
+void VHDLInterface::init_addPort(std::unique_ptr<VHDLPort> pPort)
 {
   g_assert(m_init);
 
-  printf("VHDLInterface(%p)::init_addPort(%s(%p))\n", this, pPort->getName().c_str(), pPort);
+  printf("VHDLInterface(%p)::init_addPort(%s(%p))\n", this, pPort->getName().c_str(), pPort.get());
 
-  m_ports.push_back(pPort);
+  m_ports.push_back(std::move(pPort));
 }
 
-VHDLPort *VHDLInterface::findPortByName(Glib::ustring name)
+VHDLPort *VHDLInterface::findPortByName(const Glib::ustring &name)
 {
-  std::list<VHDLPort *>::iterator it;
-
   printf("VHDLInterface(%p)::findPortByName(%s)\n", this, name.c_str());
 
-  for(it = m_ports.begin(); it != m_ports.end(); it++)
+  for(auto &pPort: m_ports)
   {
-    printf(".. %s\n", (*it)->getName().c_str());
-    if((*it)->getName() == name)
+    if(pPort->getName() == name)
     {
-      return *it;
+      return pPort.get();
     }
   }
+  printf(".. not found\n");
   return NULL;
 }
 
-void VHDLInterface::addPort(VHDLPort *pPort)
+const std::vector<VHDLPort *> VHDLInterface::getPortList()
 {
-  printf("VHDLInterface(%p)::addPort(%s(%p))\n", this, pPort->getName().c_str(), pPort);
-  g_assert(find(m_ports.begin(), m_ports.end(), pPort) == m_ports.end());
-  m_ports.push_back(pPort);
-  port_added.emit(pPort);
+  return stripOwnership(m_ports);
+}
+
+void VHDLInterface::addPort(std::unique_ptr<VHDLPort> pPort)
+{
+  VHDLPort *pRawPort = pPort.get();
+  printf("VHDLInterface(%p)::addPort(%s(%p))\n", this, pPort->getName().c_str(), pRawPort);
+  g_assert(find_if(m_ports.begin(), m_ports.end(), [&](std::unique_ptr<VHDLPort> &p) { return p.get() == pRawPort; }) == m_ports.end());
+  m_ports.push_back(std::move(pPort));
+  port_added.emit(pRawPort);
 }
 
 void VHDLInterface::removePort(VHDLPort *pPort)
 {
   printf("VHDLInterface(%p)::removePort(%s(%p))\n", this, pPort->getName().c_str(), pPort);
-  g_assert(find(m_ports.begin(), m_ports.end(), pPort) != m_ports.end());
-  m_ports.remove(pPort);
+  auto it = find_if(m_ports.begin(), m_ports.end(), [&](std::unique_ptr<VHDLPort> &p) { return p.get() == pPort; });
+  m_ports.erase(it);
 }
+

@@ -24,46 +24,50 @@
 #include <glibmm.h>
 #include <stdio.h>
 
-#include "vhdl_component.h"
-#include "vhdl_entity.h"
-#include "vhdl_instance.h"
-#include "vhdl_signal.h"
+#include "i_named_item.h"
 
-class VHDLArchitecture
+class VHDLComponent;
+class VHDLEntity;
+class VHDLInstance;
+class VHDLSignal;
+
+class VHDLArchitecture: public INamedItem
 {
 private:
-  bool                        m_init;
-  Glib::ustring               m_name;
-  VHDLEntity                 *m_pEntity;
-  std::list<VHDLComponent *>  m_components;
-  std::list<VHDLSignal *>     m_signals;
-  std::list<VHDLInstance *>   m_instances;
+  bool                          m_init;
+  Glib::ustring                 m_name;
+  VHDLEntity                   *m_pEntity;
+  std::vector<std::unique_ptr<VHDLComponent>> m_components;
+  std::vector<std::unique_ptr<VHDLSignal>> m_signals;
+  std::vector<std::unique_ptr<VHDLInstance>> m_instances;
 
 public:
-  VHDLArchitecture(Glib::ustring name);
+  VHDLArchitecture(const Glib::ustring &name);
   virtual ~VHDLArchitecture();
 
-  /* This method assumes ownership of the port */
-  void init_addSignal(VHDLSignal *pSignal);
-  /* This method assumes ownership of the component */
-  void init_addComponent(VHDLComponent *pComponent);
-  /* This method assumes ownership of the instance */
-  void init_addInstance(VHDLInstance *pInstance);
+  void init_addComponent(std::unique_ptr<VHDLComponent> pComponent);
+  void init_addSignal(std::unique_ptr<VHDLSignal> pSignal);
+  void init_addInstance(std::unique_ptr<VHDLInstance> pInstance);
   void init_done() { m_init = false; }
+
+  /* Accessors */
+  const std::vector<VHDLInstance *> getInstances();
+  const std::vector<VHDLSignal *> getSignals();
 
   void setEntity(VHDLEntity *pEntity);
   VHDLEntity *getEntity() { return m_pEntity; }
 
-  VHDLComponent *findComponentByName(Glib::ustring name);
-  VHDLSignal *findSignalByName(Glib::ustring name);
-  VHDLInstance *findInstanceByName(Glib::ustring name);
+  VHDLComponent *findComponentByName(const Glib::ustring &name);
+  VHDLSignal *findSignalByName(const Glib::ustring &name);
+  VHDLInstance *findInstanceByName(const Glib::ustring &name);
 
   bool write(std::ostream &outStream, int indent);
 
-  Glib::ustring getName() { return m_name; }
+  const Glib::ustring &getName() { return m_name; }
 
-  void resolveEntityReferences(const std::map<std::string, VHDLEntity *> &entityMap);
+  void resolveEntityReferences(const std::map<const Glib::ustring, VHDLEntity *> &entityMap);
 
 };
 
 #endif /* _VHDL_ARCHITECTURE_H */
+

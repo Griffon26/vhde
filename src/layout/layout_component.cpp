@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 
+#include "i_named_item.h"
 #include "layout_component.h"
 #include "layout_port.h"
 
@@ -48,10 +49,11 @@ INamedItem *LayoutComponent::getAssociatedVHDLEntity()
 LayoutPort *LayoutComponent::createPort(Edge edge, int position, INamedItem *pVHDLPort)
 {
   printf("LayoutComponent::createPort\n");
-  LayoutPort *pLayoutPort = new LayoutPort();
+  auto pLayoutPort = std::make_unique<LayoutPort>();
+  auto pRawLayoutPort = pLayoutPort.get();
   pLayoutPort->associateVHDLPort(pVHDLPort);
-  addPort(edge, position, pLayoutPort);
-  return pLayoutPort;
+  addPort(edge, position, std::move(pLayoutPort));
+  return pRawLayoutPort;
 }
 
 void LayoutComponent::destroyPort(Edge edge, int position)
@@ -60,7 +62,6 @@ void LayoutComponent::destroyPort(Edge edge, int position)
   printf("LayoutComponent(%p)::destroyPort(%p)\n", this, pLayoutPort);
   g_assert(pLayoutPort != NULL);
   removePort(pLayoutPort);
-  delete pLayoutPort;
 }
 
 /*
@@ -73,25 +74,23 @@ component {
 }
 
 */
-void LayoutComponent::write(std::ostream &stream)
+void LayoutComponent::write(std::ostream &stream, int indent)
 {
-  int edge;
   std::map<int, LayoutPort *>::iterator it;
+  Glib::ustring indentString(indent, ' ');
 
-  stream << "component {\n"
-         << "  size " << m_size.width << " " << m_size.height << "\n"
-         << "  ports {\n";
+  stream << indentString << "component {\n"
+         << indentString << "  size " << m_size.width << " " << m_size.height << "\n"
+         << indentString << "  ports {\n";
 
-  for(edge = 0; edge < NR_OF_EDGES; edge++)
+  for(auto pPort: m_portOrder)
   {
-    for(it = m_ports[edge].begin(); it != m_ports[edge].end(); it++)
-    {
-      stream << "    " << EDGE_TO_NAME(edge) << " " << it->first << " \"" << it->second->getAssociatedVHDLPort()->getName() << "\"\n";
-    }
+    auto edgeAndPosition = pPort->getLocation();
+    stream << indentString << "    \"" << pPort->getAssociatedVHDLPort()->getName() << "\" " << EDGE_TO_NAME(edgeAndPosition.first) << " " << edgeAndPosition.second << "\n";
   }
 
-  stream << "  }\n"
-         << "}\n"
+  stream << indentString << "  }\n"
+         << indentString << "}\n"
          << "\n";
 }
 

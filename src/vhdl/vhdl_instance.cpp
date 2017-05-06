@@ -20,12 +20,14 @@
 
 #include "vhdl_component.h"
 #include "vhdl_instance.h"
+#include "vhdl_port.h"
+#include "vhdl_signal.h"
 
 /*
  * Public methods
  */
 
-VHDLInstance::VHDLInstance(Glib::ustring name, VHDLComponent *pComponent):
+VHDLInstance::VHDLInstance(const Glib::ustring &name, VHDLComponent *pComponent):
   m_name(name),
   m_pComponent(pComponent)
 {
@@ -83,18 +85,17 @@ void VHDLInstance::disconnectSignal(VHDLSignal *pSignal)
 
 bool VHDLInstance::write(std::ostream &outStream, int indent)
 {
-  std::list<VHDLPort *>::const_iterator pit;
-  const std::list<VHDLPort *> *pPorts = m_pComponent->getPortList();
+  auto ports = m_pComponent->getPortList();
   std::map<VHDLPort *, MapEntry>::const_iterator mit;
-  std::string indentString(indent, ' ');
+  Glib::ustring indentString(indent, ' ');
 
   outStream << indentString << m_name << ": " << m_pComponent->getName() << "\n"
             << indentString << "port map (\n";
 
-  for(pit = pPorts->begin(); pit != pPorts->end(); pit++)
+  for(auto pit = ports.begin(); pit != ports.end(); pit++)
   {
     mit = m_portMap.find(*pit);
-    if(pit != pPorts->begin()) outStream << ",\n";
+    if(pit != ports.begin()) outStream << ",\n";
     outStream << indentString << "  " << (*pit)->getName() << " => ";
     if(mit == m_portMap.end())
     {
@@ -109,6 +110,17 @@ bool VHDLInstance::write(std::ostream &outStream, int indent)
   outStream << "\n" << indentString << ");\n";
 
   return true;
+}
+
+std::vector<std::pair<VHDLPort *, VHDLSignal *>> VHDLInstance::getPortsAndSignals()
+{
+  std::vector<std::pair<VHDLPort *, VHDLSignal *>> portsAndSignals;
+
+  for(auto &kv: m_portMap)
+  {
+    portsAndSignals.push_back(std::make_pair(kv.first, kv.second.pSignal));
+  }
+  return portsAndSignals;
 }
 
 /*
