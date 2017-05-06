@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.7)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
+       "Choose the type of build, options are: Debug Release."
+       FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
 set(CMAKE_CXX_EXTENSIONS off)
 
 # -Wall only works for gcc or clang, but let's fix that when someone starts
@@ -17,12 +23,12 @@ get_filename_component(ANTLR_RUNTIME_PREFIX ${ANTLR_RUNTIME}-prefix ABSOLUTE)
 include(ExternalProject)
 externalproject_add(${ANTLR_RUNTIME}
     PREFIX                ${ANTLR_RUNTIME_PREFIX}
-    GIT_REPOSITORY        https://github.com/antlr/antlr4.git
-    GIT_TAG               "4.7"
+    GIT_REPOSITORY        https://github.com/Griffon26/antlr4.git
+    GIT_TAG               "4.7-unique_ptr"
     UPDATE_COMMAND        ""
-    PATCH_COMMAND         sed -i "s,FILES LICENSE.txt,FILES ../../LICENSE.txt," runtime/Cpp/CMakeLists.txt
     SOURCE_SUBDIR         runtime/Cpp
     CMAKE_ARGS            -DCMAKE_INSTALL_PREFIX=${ANTLR_RUNTIME_PREFIX}
+                          -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 )
 
 find_package(PkgConfig)
