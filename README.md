@@ -36,3 +36,10 @@ any additional items you would like to see on this backlog or you have a
 comment on the chosen priorities, don't hesitate to contact me at
 griffon26@kfk4ever.com.
 
+Currently the GUI is mostly a demonstration of the functionality of the object
+model.  The screenshot shows an entity and a component instance, both loaded
+from disk. You can interact with them in the diagram and when you close the
+application your changes are saved back to disk.
+
+![A screenshot](/docs/images/screenshot.png?raw=true)
+
