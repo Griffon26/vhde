@@ -18,8 +18,11 @@
  *
  */
 
+#include <clutter-gtkmm.h>
 #include <cluttermm.h>
 #include <fstream>
+#include <gtkmm/window.h>
+#include <gtkmm/application.h>
 #include <iostream>
 
 #include "gui_component.h"
@@ -112,7 +115,7 @@ enum State
   WAITING_FOR_INDEX
 };
 
-static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent)
+static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent, Gtk::Window *pWindow)
 {
   int position;
   static Edge edge;
@@ -149,7 +152,7 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
     if(pEvent->keyval == 'q')
     {
       printf("Exiting...\n");
-      Clutter::main_quit();
+      pWindow->hide();
     }
     break;
   case WAITING_FOR_EDGE:
@@ -197,28 +200,19 @@ static bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponen
 
 int main(int argc, char** argv)
 {
-  Clutter::init(&argc, &argv);
-  Clutter::set_motion_events_enabled(false);
-  //Clutter::set_font_flags(Clutter::get_font_flags() & ~Clutter::FONT_MIPMAPPING);
+  Clutter::Gtk::init(&argc, &argv);
+  Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv, "com.kfk4ever.vhde");
 
-  /* Get the stage and set its size and color */
-  const Glib::RefPtr<Clutter::Stage> stage = Clutter::Stage::get_default();
-  stage->set_size(1100, 700);
+  Gtk::Window window;
+  Clutter::Gtk::Embed clutterEmbed;
+
+  window.add(clutterEmbed);
+  window.set_size_request(1100, 700);
+  window.show_all();
+
+  const Glib::RefPtr<Clutter::Stage> stage = clutterEmbed.get_stage();
   stage->set_color(STAGE_COLOR);
-
-
-  const Glib::RefPtr<Clutter::Rectangle> pActor = Clutter::Rectangle::create();
-  stage->add_actor(pActor);
-
-  fprintf(stderr, "Checking reference counting on stage. If this crashes you need a fix for cluttermm.\n");
-  fprintf(stderr, "Here we go...\n");
-  fprintf(stderr, "going once... ");
-  pActor->get_stage();
-  fprintf(stderr, "going twice... ");
-  pActor->get_stage();
-  fprintf(stderr, "sold to the man in the blue hat!\n");
-  pActor->get_stage();
-
+  stage->set_motion_events_enabled(false);
 
   /*
    * Read in some example files to create a model
@@ -247,9 +241,9 @@ int main(int argc, char** argv)
    * Allow the user to interact with the diagram
    */
   stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, stage));
-  stage->signal_key_press_event().connect(sigc::bind(&on_key_pressed, &guiComponent));
-  stage->show();
-  Clutter::main();
+  stage->signal_key_press_event().connect(sigc::bind(&on_key_pressed, &guiComponent, &window));
+
+  app->run(window);
 
   /*
    * Write the model back out to files, suffixing each filename with a '2'
@@ -259,3 +253,4 @@ int main(int argc, char** argv)
 
   return 0;
 }
+
