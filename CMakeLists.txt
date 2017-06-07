@@ -81,6 +81,8 @@ set(SRCS src/main.cpp
          src/parsers/generated/vhdlVisitor.cpp
          src/parsers/parse_layout.cpp
          src/parsers/parse_vhdl.cpp
+         src/vhde_application.cpp
+         src/vhde_window.cpp
          src/vhdl/vhdl_architecture.cpp
          src/vhdl/vhdl_component.cpp
          src/vhdl/vhdl_entity.cpp
@@ -93,6 +95,10 @@ set(SRCS src/main.cpp
          src/vhdl/vhdl_type.cpp)
 
 add_executable(vhde ${SRCS})
+
+# This definition enables a work-around for
+# https://bugzilla.gnome.org/show_bug.cgi?id=783362
+add_definitions(-DCLUTTER_GTKMM_BUG)
 
 target_compile_features(vhde PRIVATE cxx_generic_lambdas
                                      cxx_noexcept

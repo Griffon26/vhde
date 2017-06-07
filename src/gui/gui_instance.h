@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef _GUI_INSTANCE_H
+#define _GUI_INSTANCE_H
+
 #include "gui_block.h"
 #include "layout_instance.h"
 
@@ -66,3 +69,6 @@ private:
   void onLayoutPortRemoved(Edge edge, int position, LayoutPort *pLayoutPort);
   void onVHDLPortAdded(VHDLPort *pVHDLPort);
 };
+
+#endif
+

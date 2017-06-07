@@ -18,18 +18,35 @@
  *
  */
 
-#include "vhde_application.h"
+#ifndef _VHDE_APPLICATION_H
+#define _VHDE_APPLICATION_H
 
+#ifdef CLUTTER_GTKMM_BUG
 #include <clutter-gtkmm.h>
+#endif
+#include <gtkmm.h>
 
-int main(int argc, char** argv)
+#include "project.h"
+
+class VHDEApplication: public Gtk::Application
 {
-  Clutter::Gtk::init(&argc, &argv);
+protected:
+  VHDEApplication();
 
-  auto app = VHDEApplication::create();
+public:
+  static Glib::RefPtr<VHDEApplication> create();
 
-  app->run();
+protected:
+  void on_activate() override;
 
-  return 0;
-}
+private:
+  void on_hide_window(Gtk::Window *window);
+
+  Project m_project;
+#ifdef CLUTTER_GTKMM_BUG
+  Clutter::Gtk::Embed m_longLivedEmbed;
+#endif
+};
+
+#endif
 

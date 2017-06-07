@@ -24,12 +24,13 @@
 #include <map>
 #include <string>
 
+#include "layout_architecture.h"
+#include "layout_file.h"
 #include "parse_layout.h"
+#include "vhdl_architecture.h"
 #include "vhdl_file.h"
 
-class LayoutArchitecture;
-class LayoutFile;
-class VHDLArchitecture;
+class LayoutBlock;
 class VHDLEntity;
 class VHDLInterface;
 
