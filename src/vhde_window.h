@@ -45,6 +45,17 @@ public:
   virtual ~VHDEWindow();
 
 private:
+  class TreeStoreColumns: public Gtk::TreeModel::ColumnRecord
+  {
+  public:
+    TreeStoreColumns()
+    {
+      add(name);
+    }
+    
+    Gtk::TreeModelColumn<Glib::ustring> name;
+  };
+
   bool on_idle_hide_window();
   bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent);
 
@@ -54,6 +65,9 @@ private:
   Glib::RefPtr<Clutter::Stage> m_stage;
   sigc::connection m_capture_connection;
   sigc::connection m_key_press_connection;
+
+  TreeStoreColumns m_treeStoreColumns;
+  Glib::RefPtr<Gtk::TreeStore> m_pTreeStore;
 
   /* Temporary member variables. Eventually these objects are to be created
    * dynamically based on the model. */

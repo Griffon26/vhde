@@ -36,7 +36,6 @@
 
 static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::Stage> pStage)
 {
-  std::cout << "on_my_captured_event in" << std::endl;
   if(pEvent->type == CLUTTER_SCROLL)
   {
     if(pEvent->scroll.modifier_state & CLUTTER_CONTROL_MASK)
@@ -211,8 +210,30 @@ VHDEWindow::VHDEWindow(Project *pProject):
 #endif
   Gtk::ApplicationWindow()
 {
-  add(m_clutterEmbed);
-  set_size_request(1100, 700);
+  /*
+   * Construct the widgets in this window
+   */
+
+  Glib::RefPtr<Gtk::Builder> pBuilder = Gtk::Builder::create_from_file("glade/window.glade");
+
+  Gtk::Box *pBox;
+  pBuilder->get_widget("toplevelbox", pBox);
+  add(*pBox);
+
+  Gtk::Box *pClutterEmbedBox;
+  pBuilder->get_widget("clutterEmbedBox", pClutterEmbedBox);
+  pClutterEmbedBox->add(m_clutterEmbed);
+
+  Gtk::TreeView *pTreeView;
+  pBuilder->get_widget("treeview", pTreeView);
+  m_pTreeStore = Gtk::TreeStore::create(m_treeStoreColumns);
+  pTreeView->set_model(m_pTreeStore);
+  pTreeView->append_column("Name", m_treeStoreColumns.name);
+
+  auto parentRow = *m_pTreeStore->append();
+  parentRow[m_treeStoreColumns.name] = "parent";
+  auto childRow = *m_pTreeStore->append(parentRow.children());
+  childRow[m_treeStoreColumns.name] = "child";
 
   m_stage = m_clutterEmbed.get_stage();
   m_stage->set_color(STAGE_COLOR);
