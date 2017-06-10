@@ -235,6 +235,8 @@ VHDEWindow::VHDEWindow(Project *pProject):
   auto childRow = *m_pTreeStore->append(parentRow.children());
   childRow[m_treeStoreColumns.name] = "child";
 
+  set_default_size(1300, 700);
+
   m_stage = m_clutterEmbed.get_stage();
   m_stage->set_color(STAGE_COLOR);
   m_stage->set_motion_events_enabled(false);
