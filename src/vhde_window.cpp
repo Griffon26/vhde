@@ -18,7 +18,7 @@
  *
  */
 
-
+#include "i_stage_updater.h"
 #include "gui_common.h"
 #include "gui_component.h"
 #include "gui_instance.h"
@@ -107,6 +107,7 @@ bool VHDEWindow::on_idle_hide_window()
   return false;
 }
 
+#if 0
 bool VHDEWindow::on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent)
 {
   int position;
@@ -202,13 +203,15 @@ bool VHDEWindow::on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiCom
 
   return HANDLED;
 }
+#endif
 
 #ifdef CLUTTER_GTKMM_BUG
-VHDEWindow::VHDEWindow(Project *pProject, Clutter::Gtk::Embed &m_clutterEmbed):
+VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater, Clutter::Gtk::Embed &m_clutterEmbed):
 #else
-VHDEWindow::VHDEWindow(Project *pProject):
+VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater):
 #endif
-  Gtk::ApplicationWindow()
+  Gtk::ApplicationWindow(),
+  m_pStageUpdater(std::move(pStageUpdater))
 {
   /*
    * Construct the widgets in this window
@@ -241,21 +244,13 @@ VHDEWindow::VHDEWindow(Project *pProject):
   m_stage->set_color(STAGE_COLOR);
   m_stage->set_motion_events_enabled(false);
 
-  /*
-   * Create GUI objects from some of the layout classes to show them on the screen
-   */
-  auto pLayoutTopArch = pProject->getLayoutFile("test/top_entity.vhd")->getArchitectures()[0];
-  auto pLayoutUsedFile = pProject->getLayoutFile("test/used_entity.vhd");
-
-  m_pGuiSignal = std::make_unique<GuiSignal>(m_stage, pLayoutTopArch->getSignals()[0]);
-  m_pGuiInstance = std::make_unique<GuiInstance>(m_stage, pLayoutTopArch->getInstances()[0]);
-  m_pGuiComponent = std::make_unique<GuiComponent>(m_stage, pLayoutUsedFile->getComponent());
+  m_pStageUpdater->setStage(m_stage);
 
   /*
    * Allow the user to interact with the diagram
    */
   m_capture_connection = m_stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, m_stage));
-  m_key_press_connection = m_stage->signal_key_press_event().connect(sigc::bind(sigc::mem_fun(*this, &VHDEWindow::on_key_pressed), m_pGuiComponent.get()));
+  //m_key_press_connection = m_stage->signal_key_press_event().connect(sigc::bind(sigc::mem_fun(*this, &VHDEWindow::on_key_pressed), m_pGuiComponent.get()));
 }
 
 VHDEWindow::~VHDEWindow()
@@ -264,9 +259,8 @@ VHDEWindow::~VHDEWindow()
   m_capture_connection.disconnect();
   m_key_press_connection.disconnect();
 
-  m_pGuiSignal.reset(nullptr);
-  m_pGuiInstance.reset(nullptr);
-  m_pGuiComponent.reset(nullptr);
+  /* Force removal of the updater and thereby registration to events, when the window is closed */
+  m_pStageUpdater = nullptr;
 }
 
 

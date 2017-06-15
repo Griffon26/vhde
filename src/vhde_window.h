@@ -25,11 +25,7 @@
 #include <cluttermm.h>
 #include <gtkmm.h>
 
-#include "gui_component.h"
-#include "gui_instance.h"
-#include "gui_signal.h"
-
-class Project;
+class IStageUpdater;
 
 class VHDEWindow : public Gtk::ApplicationWindow
 {
@@ -38,9 +34,9 @@ public:
  * pass an Embed with a longer life-time than the window as a parameter.
  */
 #ifdef CLUTTER_GTKMM_BUG
-  VHDEWindow(Project *pProject, Clutter::Gtk::Embed &m_clutterEmbed);
+  VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater, Clutter::Gtk::Embed &m_clutterEmbed);
 #else
-  VHDEWindow(Project *pProject);
+  VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater);
 #endif
   virtual ~VHDEWindow();
 
@@ -57,7 +53,7 @@ private:
   };
 
   bool on_idle_hide_window();
-  bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent);
+  //bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent);
 
 #ifndef CLUTTER_GTKMM_BUG
   Clutter::Gtk::Embed m_clutterEmbed;
@@ -69,11 +65,7 @@ private:
   TreeStoreColumns m_treeStoreColumns;
   Glib::RefPtr<Gtk::TreeStore> m_pTreeStore;
 
-  /* Temporary member variables. Eventually these objects are to be created
-   * dynamically based on the model. */
-  std::unique_ptr<GuiSignal> m_pGuiSignal;
-  std::unique_ptr<GuiInstance> m_pGuiInstance;
-  std::unique_ptr<GuiComponent> m_pGuiComponent;
+  std::unique_ptr<IStageUpdater> m_pStageUpdater;
 };
 
 #endif

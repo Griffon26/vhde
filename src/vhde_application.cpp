@@ -18,6 +18,8 @@
  *
  */
 
+#include "architecture_stage_updater.h"
+#include "entity_stage_updater.h"
 #include "vhde_application.h"
 #include "vhde_window.h"
 #include "vhdl_file.h"
@@ -46,10 +48,14 @@ void VHDEApplication::on_activate()
    * absence of a .layout file
    */
 
+  auto pArchStageUpdater = std::make_unique<ArchitectureStageUpdater>();
+  auto pLayoutTopArch = m_project.getLayoutFile("test/top_entity.vhd")->getArchitectures()[0];
+  pArchStageUpdater->setArchitecture(pLayoutTopArch);
+
 #ifdef CLUTTER_GTKMM_BUG
-  auto pWindow = new VHDEWindow(&m_project, m_longLivedEmbed);
+  auto pWindow = new VHDEWindow(std::move(pArchStageUpdater), m_longLivedEmbed);
 #else
-  auto pWindow = new VHDEWindow(&m_project);
+  auto pWindow = new VHDEWindow(std::move(pArchStageUpdater));
 #endif
   add_window(*pWindow);
   pWindow->signal_hide().connect(sigc::bind<Gtk::Window*>(sigc::mem_fun(*this, &VHDEApplication::on_hide_window), pWindow));
