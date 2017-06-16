@@ -152,6 +152,7 @@ void GuiInstance::onLayoutPortRemoved(Edge edge, int position, LayoutPort *pLayo
   m_eventData.position = position;
 
   m_onLayoutPortRemovedConnections[pLayoutPort].disconnect();
+  m_onLayoutPortRemovedConnections.erase(pLayoutPort);
 
   removePort(m_eventData.edge, m_eventData.position);
 }

@@ -28,6 +28,7 @@ VHDLPort::VHDLPort(const Glib::ustring &name):
 
 VHDLPort::~VHDLPort()
 {
+  printf("VHDLPort(%p)::~VHDLPort()\n", this);
   removed.emit(this);
 }
 
