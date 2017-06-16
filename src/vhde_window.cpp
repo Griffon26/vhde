@@ -94,117 +94,6 @@ static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::S
   }
 }
 
-enum State
-{
-  NORMAL,
-  WAITING_FOR_EDGE,
-  WAITING_FOR_INDEX
-};
-
-bool VHDEWindow::on_idle_hide_window()
-{
-  hide();
-  return false;
-}
-
-#if 0
-bool VHDEWindow::on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent)
-{
-  int position;
-  static Edge edge;
-  static State state = NORMAL;
-
-  if(m_stage)
-  {
-    std::cout << "Stage points to something valid" << std::endl;
-  }
-  else
-  {
-    std::cout << "Stage !!DOES NOT!! point to something valid" << std::endl;
-  }
-
-  /* Handle escape */
-  if(pEvent->keyval == CLUTTER_KEY_Escape)
-  {
-    printf("Escaped\n");
-    state = NORMAL;
-    return HANDLED;
-  }
-
-  switch(state)
-  {
-  case NORMAL:
-    if(pEvent->keyval == 'a')
-    {
-      if(pGuiComponent->findFreeSlot(EDGE_BOTTOM, 2, &edge, &position))
-      {
-        printf("Adding port at %s %d\n", EDGE_TO_NAME(edge), position);
-        pGuiComponent->createPort(edge, position, DIR_OUT, "port3");
-      }
-      else
-      {
-        printf("Can't add any more ports\n");
-      }
-    }
-    if(pEvent->keyval == 'd')
-    {
-      state = WAITING_FOR_EDGE;
-      printf("Enter edge of port to delete (L, R, T, B)\n");
-    }
-    if(pEvent->keyval == 'q')
-    {
-      printf("Exiting...\n");
-
-      /* Hide the window on idle instead of calling hide() here to avoid a
-       * deadlock with a second clutter signal (when the window is destroyed)
-       * being emitted from within this handler of the first.
-       */
-      Glib::signal_idle().connect(sigc::mem_fun(*this, &VHDEWindow::on_idle_hide_window));
-    }
-    break;
-  case WAITING_FOR_EDGE:
-    state = WAITING_FOR_INDEX;
-    switch(pEvent->keyval)
-    {
-    case 'l':
-      edge = EDGE_LEFT;
-      break;
-    case 'r':
-      edge = EDGE_RIGHT;
-      break;
-    case 't':
-      edge = EDGE_TOP;
-      break;
-    case 'b':
-      edge = EDGE_BOTTOM;
-      break;
-    default:
-      state = WAITING_FOR_EDGE;
-      break;
-    }
-    if(state == WAITING_FOR_INDEX)
-    {
-      printf("edge = %s\n", EDGE_TO_NAME(edge));
-      printf("Enter position of port to be deleted (0-9)\n");
-    }
-    break;
-  case WAITING_FOR_INDEX:
-    if(isdigit(pEvent->keyval))
-    {
-      int position = pEvent->keyval - '0';
-      printf("Destroying port at edge %s pos %d\n", EDGE_TO_NAME(edge), position);
-      pGuiComponent->destroyPort(edge, position);
-      state = NORMAL;
-    }
-    break;
-  default:
-    g_assert_not_reached();
-  }
-
-  return HANDLED;
-}
-#endif
-
 #ifdef CLUTTER_GTKMM_BUG
 VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater, Clutter::Gtk::Embed &m_clutterEmbed):
 #else
@@ -250,14 +139,12 @@ VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater):
    * Allow the user to interact with the diagram
    */
   m_capture_connection = m_stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, m_stage));
-  //m_key_press_connection = m_stage->signal_key_press_event().connect(sigc::bind(sigc::mem_fun(*this, &VHDEWindow::on_key_pressed), m_pGuiComponent.get()));
 }
 
 VHDEWindow::~VHDEWindow()
 {
   std::cout << "Disconnecting signals" << std::endl;
   m_capture_connection.disconnect();
-  m_key_press_connection.disconnect();
 
   /* Force removal of the updater and thereby registration to events, when the window is closed */
   m_pStageUpdater = nullptr;

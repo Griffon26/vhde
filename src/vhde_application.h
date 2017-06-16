@@ -40,7 +40,8 @@ protected:
   void on_activate() override;
 
 private:
-  void on_hide_window(Gtk::Window *window);
+  void on_quit_requested();
+  void on_hide_window(Gtk::Window *pWindow);
 
   Project m_project;
 #ifdef CLUTTER_GTKMM_BUG

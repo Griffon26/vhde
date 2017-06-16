@@ -31,6 +31,9 @@ class LayoutComponent;
 class EntityStageUpdater: public IStageUpdater
 {
 public:
+  /* TODO: remove this signal and handle global keys in the application */
+  sigc::signal<void> quit_requested;
+
   EntityStageUpdater();
   virtual ~EntityStageUpdater();
 
@@ -38,6 +41,11 @@ public:
   void setStage(Glib::RefPtr<Clutter::Stage> pStage);
 
 private:
+  bool on_idle_request_quit();
+  bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent);
+
+  sigc::connection m_key_press_connection;
+
   LayoutComponent *m_pEntity;
   Glib::RefPtr<Clutter::Stage> m_pStage;
 

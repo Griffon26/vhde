@@ -48,19 +48,34 @@ void VHDEApplication::on_activate()
    * absence of a .layout file
    */
 
-  auto pArchStageUpdater = std::make_unique<ArchitectureStageUpdater>();
+//#define SHOW_ARCHITECTURE
+
+#ifdef SHOW_ARCHITECTURE
+  auto pStageUpdater = std::make_unique<ArchitectureStageUpdater>();
   auto pLayoutTopArch = m_project.getLayoutFile("test/top_entity.vhd")->getArchitectures()[0];
-  pArchStageUpdater->setArchitecture(pLayoutTopArch);
+  pStageUpdater->setArchitecture(pLayoutTopArch);
+#else
+  auto pStageUpdater = std::make_unique<EntityStageUpdater>();
+  auto pLayoutUsedEntity = m_project.getLayoutFile("test/used_entity.vhd")->getComponent();
+  pStageUpdater->setEntity(pLayoutUsedEntity);
+  pStageUpdater->quit_requested.connect(sigc::mem_fun(*this, &VHDEApplication::on_quit_requested));
+#endif
 
 #ifdef CLUTTER_GTKMM_BUG
-  auto pWindow = new VHDEWindow(std::move(pArchStageUpdater), m_longLivedEmbed);
+  auto pWindow = new VHDEWindow(std::move(pStageUpdater), m_longLivedEmbed);
 #else
-  auto pWindow = new VHDEWindow(std::move(pArchStageUpdater));
+  auto pWindow = new VHDEWindow(std::move(pStageUpdater));
 #endif
   add_window(*pWindow);
   pWindow->signal_hide().connect(sigc::bind<Gtk::Window*>(sigc::mem_fun(*this, &VHDEApplication::on_hide_window), pWindow));
 
   pWindow->show_all();
+}
+
+void VHDEApplication::on_quit_requested()
+{
+  auto pWindow = get_active_window();
+  pWindow->hide();
 }
 
 void VHDEApplication::on_hide_window(Gtk::Window *pWindow)

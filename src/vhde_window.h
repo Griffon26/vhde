@@ -48,19 +48,15 @@ private:
     {
       add(name);
     }
-    
+
     Gtk::TreeModelColumn<Glib::ustring> name;
   };
-
-  bool on_idle_hide_window();
-  //bool on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent);
 
 #ifndef CLUTTER_GTKMM_BUG
   Clutter::Gtk::Embed m_clutterEmbed;
 #endif
   Glib::RefPtr<Clutter::Stage> m_stage;
   sigc::connection m_capture_connection;
-  sigc::connection m_key_press_connection;
 
   TreeStoreColumns m_treeStoreColumns;
   Glib::RefPtr<Gtk::TreeStore> m_pTreeStore;
