@@ -36,6 +36,7 @@ public:
 
   void associateEntity(INamedItem *pVHDLEntity);
   INamedItem *getAssociatedVHDLEntity();
+  const Glib::ustring &getName();
 
   /* This method retains ownership of the returned LayoutPort */
   LayoutPort *createPort(Edge edge, int position, INamedItem *pVHDLPort);

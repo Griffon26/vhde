@@ -20,15 +20,39 @@
 
 #include "project_treeview_updater.h"
 
+void ProjectTreeViewUpdater::setProject(Project *pProject)
+{
+  m_pProject = pProject;
+}
+
 void ProjectTreeViewUpdater::setTreeView(Gtk::TreeView *pTreeView)
 {
+  g_assert(m_pProject);
+
   m_pTreeStore = Gtk::TreeStore::create(m_treeStoreColumns);
   pTreeView->set_model(m_pTreeStore);
   pTreeView->append_column("Name", m_treeStoreColumns.name);
 
-  auto parentRow = *m_pTreeStore->append();
-  parentRow[m_treeStoreColumns.name] = "parent2";
-  auto childRow = *m_pTreeStore->append(parentRow.children());
-  childRow[m_treeStoreColumns.name] = "child2";
+  auto fileNames = m_pProject->getFileNames();
+  for(auto &pFileName: fileNames)
+  {
+    auto parentRow = *m_pTreeStore->append();
+    parentRow[m_treeStoreColumns.name] = pFileName;
+
+    auto childRow = *m_pTreeStore->append(parentRow.children());
+    auto pLayoutFile = m_pProject->getLayoutFile(pFileName);
+
+    auto name = pLayoutFile->getComponent()->getName();
+    childRow[m_treeStoreColumns.name] = name;
+
+    for(auto &pArch: pLayoutFile->getArchitectures())
+    {
+      childRow = *m_pTreeStore->append(parentRow.children());
+      name = pArch->getName();
+      childRow[m_treeStoreColumns.name] = name;
+    }
+  }
+
+  pTreeView->expand_all();
 }
 

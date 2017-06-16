@@ -24,11 +24,13 @@
 #include <glibmm.h>
 #include <gtkmm.h>
 
+#include "project.h"
 #include "i_treeview_updater.h"
 
 class ProjectTreeViewUpdater: public ITreeViewUpdater
 {
 public:
+  void setProject(Project *pProject);
   void setTreeView(Gtk::TreeView *pTreeView);
 
 private:
@@ -44,6 +46,8 @@ private:
   };
 
   TreeStoreColumns m_treeStoreColumns;
+
+  Project *m_pProject;
   Glib::RefPtr<Gtk::TreeStore> m_pTreeStore;
 };
 

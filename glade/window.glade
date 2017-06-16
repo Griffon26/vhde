@@ -187,6 +187,7 @@
             <property name="width_request">200</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="headers_visible">False</property>
             <child internal-child="selection">
               <object class="GtkTreeSelection"/>
             </child>

@@ -63,6 +63,7 @@ void VHDEApplication::on_activate()
 #endif
 
   auto pTreeViewUpdater = std::make_unique<ProjectTreeViewUpdater>();
+  pTreeViewUpdater->setProject(&m_project);
 
 #ifdef CLUTTER_GTKMM_BUG
   auto pWindow = new VHDEWindow(std::move(pStageUpdater),

@@ -46,6 +46,12 @@ INamedItem *LayoutComponent::getAssociatedVHDLEntity()
   return m_pVHDLEntity;
 }
 
+const Glib::ustring &LayoutComponent::getName()
+{
+  g_assert(m_pVHDLEntity);
+  return m_pVHDLEntity->getName();
+}
+
 LayoutPort *LayoutComponent::createPort(Edge edge, int position, INamedItem *pVHDLPort)
 {
   printf("LayoutComponent::createPort\n");

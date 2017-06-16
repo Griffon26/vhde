@@ -57,6 +57,7 @@ public:
   void resolveLayoutReferences();
   void resolveLayoutComponentReferences();
 
+  std::vector<Glib::ustring> getFileNames();
   LayoutFile *getLayoutFile(const Glib::ustring &fileName);
 
   /* temporary method for testing if parsing and saving is done correctly */

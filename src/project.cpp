@@ -233,6 +233,17 @@ void Project::resolveLayoutComponentReferences()
   }
 }
 
+std::vector<Glib::ustring> Project::getFileNames()
+{
+  std::vector<Glib::ustring> keys;
+
+  for(auto &kv: m_fileToVHDLFileMap)
+  {
+    keys.push_back(kv.first);
+  }
+  return keys;
+}
+
 LayoutFile *Project::getLayoutFile(const Glib::ustring &fileName)
 {
   return m_fileToLayoutFileMap.at(getBaseName(fileName)).get();
@@ -245,7 +256,7 @@ void Project::save()
     std::cout << "Saving file " << kv.second->getName() << " to file " << kv.first << ".*" << std::endl;
 
     std::ofstream outStream;
-    
+
     outStream.open(kv.first + ".vhd");
     kv.second->write(outStream, 0);
     outStream.close();

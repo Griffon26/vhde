@@ -50,6 +50,8 @@ public:
   void associateVHDLArchitecture(INamedItem *pArch);
 
   /* Accessors */
+  const Glib::ustring &getName();
+
   const std::vector<LayoutInstance *> getInstances();
   const std::vector<LayoutSignal *> getSignals();
 

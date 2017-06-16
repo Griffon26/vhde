@@ -41,7 +41,7 @@ typedef enum {
 template<typename T, typename U> std::vector<T> getKeysFromMap(const std::map<T,U> &map)
 {
   std::vector<T> keys;
-  
+
   for(auto &kv: map)
   {
     keys.push_back(kv.first);
