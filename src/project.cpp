@@ -93,7 +93,7 @@ void Project::createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLa
   }
   LayoutSize size;
   pLayoutBlock->getMinimumSize(&size);
-  if(size.width < 200) size.width = 200;
+  if(size.width < 230) size.width = 230;
   if(size.height < 250) size.height = 250;
   pLayoutBlock->setSize(size);
 }
@@ -146,6 +146,7 @@ std::unique_ptr<LayoutFile> Project::createDefaultFileLayout(VHDLFile *pVHDLFile
   auto pLayoutFile = std::make_unique<LayoutFile>();
 
   auto pLayoutComponent = std::make_unique<LayoutComponent>();
+  pLayoutComponent->associateEntity(pVHDLFile->getEntity());
   createDefaultPorts(pVHDLFile->getEntity(), pLayoutComponent.get());
 
   pLayoutFile->setComponent(std::move(pLayoutComponent));

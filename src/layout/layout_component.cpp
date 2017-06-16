@@ -28,7 +28,8 @@
  * Public methods
  */
 
-LayoutComponent::LayoutComponent()
+LayoutComponent::LayoutComponent():
+  m_pVHDLEntity(nullptr)
 {
   m_position.x = 800;
   m_position.y = 50;
