@@ -20,6 +20,7 @@
 
 #include "architecture_stage_updater.h"
 #include "entity_stage_updater.h"
+#include "project_treeview_updater.h"
 #include "vhde_application.h"
 #include "vhde_window.h"
 #include "vhdl_file.h"
@@ -61,10 +62,15 @@ void VHDEApplication::on_activate()
   pStageUpdater->quit_requested.connect(sigc::mem_fun(*this, &VHDEApplication::on_quit_requested));
 #endif
 
+  auto pTreeViewUpdater = std::make_unique<ProjectTreeViewUpdater>();
+
 #ifdef CLUTTER_GTKMM_BUG
-  auto pWindow = new VHDEWindow(std::move(pStageUpdater), m_longLivedEmbed);
+  auto pWindow = new VHDEWindow(std::move(pStageUpdater),
+                                std::move(pTreeViewUpdater),
+                                m_longLivedEmbed);
 #else
-  auto pWindow = new VHDEWindow(std::move(pStageUpdater));
+  auto pWindow = new VHDEWindow(std::move(pStageUpdater),
+                                std::move(pTreeViewUpdater));
 #endif
   add_window(*pWindow);
   pWindow->signal_hide().connect(sigc::bind<Gtk::Window*>(sigc::mem_fun(*this, &VHDEApplication::on_hide_window), pWindow));

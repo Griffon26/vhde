@@ -61,6 +61,7 @@ set(SRCS src/main.cpp
          src/architecture_stage_updater.cpp
          src/entity_stage_updater.cpp
          src/project.cpp
+         src/project_treeview_updater.cpp
          src/clutter/clutter_block.cpp
          src/clutter/clutter_port.cpp
          src/clutter/clutter_scaling_text.cpp

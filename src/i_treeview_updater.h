@@ -18,40 +18,22 @@
  *
  */
 
-#ifndef _VHDE_APPLICATION_H
-#define _VHDE_APPLICATION_H
+#ifndef _I_TREEVIEW_UPDATER_H
+#define _I_TREEVIEW_UPDATER_H
 
-#ifdef CLUTTER_GTKMM_BUG
-#include <clutter-gtkmm.h>
-#endif
+#include <glibmm.h>
 #include <gtkmm.h>
 
-#include "project.h"
-
-/* The responsibilities of this class are:
- * - to create and manage windows
- * - to create updater objects that are the link between the data model and the
- *   widgets that display it, and pass them to the windows it creates
+/*
+ * This interface is to be implemented by any object that performs all updates
+ * to a Treeview widget. The window will pass its treeview to this object and
+ * destroy the object itself when it is no longer needed.
  */
-class VHDEApplication: public Gtk::Application
+class ITreeViewUpdater
 {
-protected:
-  VHDEApplication();
-
 public:
-  static Glib::RefPtr<VHDEApplication> create();
-
-protected:
-  void on_activate() override;
-
-private:
-  void on_quit_requested();
-  void on_hide_window(Gtk::Window *pWindow);
-
-  Project m_project;
-#ifdef CLUTTER_GTKMM_BUG
-  Clutter::Gtk::Embed m_longLivedEmbed;
-#endif
+  virtual ~ITreeViewUpdater() {};
+  virtual void setTreeView(Gtk::TreeView *pTreeView) = 0;
 };
 
 #endif

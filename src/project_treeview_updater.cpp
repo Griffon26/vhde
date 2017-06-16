@@ -18,41 +18,17 @@
  *
  */
 
-#ifndef _VHDE_APPLICATION_H
-#define _VHDE_APPLICATION_H
+#include "project_treeview_updater.h"
 
-#ifdef CLUTTER_GTKMM_BUG
-#include <clutter-gtkmm.h>
-#endif
-#include <gtkmm.h>
-
-#include "project.h"
-
-/* The responsibilities of this class are:
- * - to create and manage windows
- * - to create updater objects that are the link between the data model and the
- *   widgets that display it, and pass them to the windows it creates
- */
-class VHDEApplication: public Gtk::Application
+void ProjectTreeViewUpdater::setTreeView(Gtk::TreeView *pTreeView)
 {
-protected:
-  VHDEApplication();
+  m_pTreeStore = Gtk::TreeStore::create(m_treeStoreColumns);
+  pTreeView->set_model(m_pTreeStore);
+  pTreeView->append_column("Name", m_treeStoreColumns.name);
 
-public:
-  static Glib::RefPtr<VHDEApplication> create();
-
-protected:
-  void on_activate() override;
-
-private:
-  void on_quit_requested();
-  void on_hide_window(Gtk::Window *pWindow);
-
-  Project m_project;
-#ifdef CLUTTER_GTKMM_BUG
-  Clutter::Gtk::Embed m_longLivedEmbed;
-#endif
-};
-
-#endif
+  auto parentRow = *m_pTreeStore->append();
+  parentRow[m_treeStoreColumns.name] = "parent2";
+  auto childRow = *m_pTreeStore->append(parentRow.children());
+  childRow[m_treeStoreColumns.name] = "child2";
+}
 

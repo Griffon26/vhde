@@ -26,7 +26,11 @@
 #include <gtkmm.h>
 
 class IStageUpdater;
+class ITreeViewUpdater;
 
+/* The responsibility of this class is to maintain a set of widgets and connect
+ * the provided updater objects to the appropriate widget.
+ */
 class VHDEWindow : public Gtk::ApplicationWindow
 {
 public:
@@ -34,34 +38,24 @@ public:
  * pass an Embed with a longer life-time than the window as a parameter.
  */
 #ifdef CLUTTER_GTKMM_BUG
-  VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater, Clutter::Gtk::Embed &m_clutterEmbed);
+  VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
+             std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
+             Clutter::Gtk::Embed &m_clutterEmbed);
 #else
-  VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater);
+  VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
+             std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater);
 #endif
   virtual ~VHDEWindow();
 
 private:
-  class TreeStoreColumns: public Gtk::TreeModel::ColumnRecord
-  {
-  public:
-    TreeStoreColumns()
-    {
-      add(name);
-    }
-
-    Gtk::TreeModelColumn<Glib::ustring> name;
-  };
-
 #ifndef CLUTTER_GTKMM_BUG
   Clutter::Gtk::Embed m_clutterEmbed;
 #endif
   Glib::RefPtr<Clutter::Stage> m_stage;
   sigc::connection m_capture_connection;
 
-  TreeStoreColumns m_treeStoreColumns;
-  Glib::RefPtr<Gtk::TreeStore> m_pTreeStore;
-
   std::unique_ptr<IStageUpdater> m_pStageUpdater;
+  std::unique_ptr<ITreeViewUpdater> m_pTreeViewUpdater;
 };
 
 #endif

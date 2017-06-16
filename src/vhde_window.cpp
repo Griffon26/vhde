@@ -19,6 +19,7 @@
  */
 
 #include "i_stage_updater.h"
+#include "i_treeview_updater.h"
 #include "gui_common.h"
 #include "gui_component.h"
 #include "gui_instance.h"
@@ -95,12 +96,16 @@ static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::S
 }
 
 #ifdef CLUTTER_GTKMM_BUG
-VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater, Clutter::Gtk::Embed &m_clutterEmbed):
+VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
+                       std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
+                       Clutter::Gtk::Embed &m_clutterEmbed):
 #else
-VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater):
+VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
+                       std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater):
 #endif
   Gtk::ApplicationWindow(),
-  m_pStageUpdater(std::move(pStageUpdater))
+  m_pStageUpdater(std::move(pStageUpdater)),
+  m_pTreeViewUpdater(std::move(pTreeViewUpdater))
 {
   /*
    * Construct the widgets in this window
@@ -118,14 +123,7 @@ VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater):
 
   Gtk::TreeView *pTreeView;
   pBuilder->get_widget("treeview", pTreeView);
-  m_pTreeStore = Gtk::TreeStore::create(m_treeStoreColumns);
-  pTreeView->set_model(m_pTreeStore);
-  pTreeView->append_column("Name", m_treeStoreColumns.name);
-
-  auto parentRow = *m_pTreeStore->append();
-  parentRow[m_treeStoreColumns.name] = "parent";
-  auto childRow = *m_pTreeStore->append(parentRow.children());
-  childRow[m_treeStoreColumns.name] = "child";
+  m_pTreeViewUpdater->setTreeView(pTreeView);
 
   set_default_size(1300, 700);
 
