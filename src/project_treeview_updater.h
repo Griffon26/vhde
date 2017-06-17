@@ -34,6 +34,12 @@ public:
   void setTreeView(Gtk::TreeView *pTreeView);
 
 private:
+  void onRowActivated(const Gtk::TreeModel::Path &path, Gtk::TreeViewColumn *pColumn);
+
+public:
+  sigc::signal<void, const Glib::ustring, int> item_activated;
+
+private:
   class TreeStoreColumns: public Gtk::TreeModel::ColumnRecord
   {
   public:

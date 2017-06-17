@@ -19,6 +19,7 @@
  */
 
 #include <glib.h>
+#include <iostream>
 
 #include "architecture_stage_updater.h"
 #include "layout_architecture.h"
@@ -32,9 +33,7 @@ ArchitectureStageUpdater::ArchitectureStageUpdater():
 
 ArchitectureStageUpdater::~ArchitectureStageUpdater()
 {
-  m_pGuiSignal.reset(nullptr);
-  m_pGuiInstance.reset(nullptr);
-  //m_pGuiComponent.reset(nullptr);
+  std::cout << "ArchitectureStageUpdater()::~ArchitectureStageUpdater()\n";
 }
 
 void ArchitectureStageUpdater::setArchitecture(LayoutArchitecture *pArch)
@@ -50,7 +49,13 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   g_assert(m_pArch != nullptr);
   m_pStage = pStage;
 
-  m_pGuiSignal = std::make_unique<GuiSignal>(m_pStage, m_pArch->getSignals()[0]);
-  m_pGuiInstance = std::make_unique<GuiInstance>(m_pStage, m_pArch->getInstances()[0]);
+  auto layoutSignals = m_pArch->getSignals();
+  g_assert(layoutSignals.size() != 0);
+
+  auto layoutInstances = m_pArch->getInstances();
+  g_assert(layoutInstances.size() != 0);
+
+  m_pGuiSignal = std::make_unique<GuiSignal>(m_pStage, layoutSignals[0]);
+  m_pGuiInstance = std::make_unique<GuiInstance>(m_pStage, layoutInstances[0]);
 }
 

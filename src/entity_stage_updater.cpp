@@ -32,8 +32,8 @@ EntityStageUpdater::EntityStageUpdater():
 
 EntityStageUpdater::~EntityStageUpdater()
 {
+  std::cout << "EntityStageUpdater()::~EntityStageUpdater()\n";
   m_key_press_connection.disconnect();
-  m_pGuiComponent.reset(nullptr);
 }
 
 void EntityStageUpdater::setEntity(LayoutComponent *pEntity)

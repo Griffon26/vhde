@@ -18,11 +18,21 @@
  *
  */
 
+#include <iostream>
 #include "project_treeview_updater.h"
 
 void ProjectTreeViewUpdater::setProject(Project *pProject)
 {
   m_pProject = pProject;
+}
+
+void ProjectTreeViewUpdater::onRowActivated(const Gtk::TreeModel::Path &path, Gtk::TreeViewColumn *pColumn)
+{
+  if(path.size() == 2)
+  {
+    auto fileNames = m_pProject->getFileNames();
+    item_activated.emit(fileNames[path[0]], path[1]);
+  }
 }
 
 void ProjectTreeViewUpdater::setTreeView(Gtk::TreeView *pTreeView)
@@ -54,5 +64,7 @@ void ProjectTreeViewUpdater::setTreeView(Gtk::TreeView *pTreeView)
   }
 
   pTreeView->expand_all();
+
+  pTreeView->signal_row_activated().connect(sigc::mem_fun(*this, &ProjectTreeViewUpdater::onRowActivated));
 }
 

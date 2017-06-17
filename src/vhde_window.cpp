@@ -148,4 +148,9 @@ VHDEWindow::~VHDEWindow()
   m_pStageUpdater = nullptr;
 }
 
+void VHDEWindow::setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater)
+{
+  m_pStageUpdater = std::move(pStageUpdater);
+  m_pStageUpdater->setStage(m_stage);
+}
 

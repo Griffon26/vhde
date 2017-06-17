@@ -33,6 +33,8 @@
 LayoutSignal::LayoutSignal():
   m_pSignal(NULL)
 {
+  printf("LayoutSignal(%p)::LayoutSignal\n", this);
+
   m_corners.push_back(LayoutPosition(0,0));
   m_corners.push_back(LayoutPosition(100,200));
   m_corners.push_back(LayoutPosition(200,200));
@@ -44,6 +46,8 @@ LayoutSignal::LayoutSignal():
 
 LayoutSignal::~LayoutSignal()
 {
+  printf("LayoutSignal(%p)::~LayoutSignal\n", this);
+
   m_endPoints[BEGINNING].onInstanceMovedConnection.disconnect();
   m_endPoints[BEGINNING].onInstanceResizedConnection.disconnect();
   m_endPoints[BEGINNING].onPortMovedConnection.disconnect();

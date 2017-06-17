@@ -49,21 +49,13 @@ void VHDEApplication::on_activate()
    * absence of a .layout file
    */
 
-//#define SHOW_ARCHITECTURE
-
-#ifdef SHOW_ARCHITECTURE
   auto pStageUpdater = std::make_unique<ArchitectureStageUpdater>();
   auto pLayoutTopArch = m_project.getLayoutFile("test/top_entity.vhd")->getArchitectures()[0];
   pStageUpdater->setArchitecture(pLayoutTopArch);
-#else
-  auto pStageUpdater = std::make_unique<EntityStageUpdater>();
-  auto pLayoutUsedEntity = m_project.getLayoutFile("test/used_entity.vhd")->getComponent();
-  pStageUpdater->setEntity(pLayoutUsedEntity);
-  pStageUpdater->quit_requested.connect(sigc::mem_fun(*this, &VHDEApplication::on_quit_requested));
-#endif
 
   auto pTreeViewUpdater = std::make_unique<ProjectTreeViewUpdater>();
   pTreeViewUpdater->setProject(&m_project);
+  pTreeViewUpdater->item_activated.connect(sigc::mem_fun(*this, &VHDEApplication::on_item_activated));
 
 #ifdef CLUTTER_GTKMM_BUG
   auto pWindow = new VHDEWindow(std::move(pStageUpdater),
@@ -83,6 +75,26 @@ void VHDEApplication::on_quit_requested()
 {
   auto pWindow = get_active_window();
   pWindow->hide();
+}
+
+void VHDEApplication::on_item_activated(const Glib::ustring fileName, int itemIndex)
+{
+  auto pLayoutFile = m_project.getLayoutFile(fileName);
+  auto *pWindow = dynamic_cast<VHDEWindow *>(get_active_window());
+
+  if(itemIndex == 0)
+  {
+    auto pStageUpdater = std::make_unique<EntityStageUpdater>();
+    pStageUpdater->setEntity(pLayoutFile->getComponent());
+    pStageUpdater->quit_requested.connect(sigc::mem_fun(*this, &VHDEApplication::on_quit_requested));
+    pWindow->setStageUpdater(std::move(pStageUpdater));
+  }
+  else
+  {
+    auto pStageUpdater = std::make_unique<ArchitectureStageUpdater>();
+    pStageUpdater->setArchitecture(pLayoutFile->getArchitectures()[itemIndex - 1]);
+    pWindow->setStageUpdater(std::move(pStageUpdater));
+  }
 }
 
 void VHDEApplication::on_hide_window(Gtk::Window *pWindow)

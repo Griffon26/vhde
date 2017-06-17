@@ -82,10 +82,13 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
 
 GuiBlock::~GuiBlock()
 {
+  printf("GuiBlock    (%p)::~GuiBlock()\n", this);
   m_onBodyButtonPressConnection.disconnect();
   m_onTextButtonPressConnection.disconnect();
 
   m_onResizedConnection.disconnect();
+
+  m_pStage->remove_actor(m_pGroup);
 }
 
 bool GuiBlock::findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition)

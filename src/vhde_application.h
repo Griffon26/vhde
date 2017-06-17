@@ -46,6 +46,7 @@ protected:
 
 private:
   void on_quit_requested();
+  void on_item_activated(const Glib::ustring fileName, int itemIndex);
   void on_hide_window(Gtk::Window *pWindow);
 
   Project m_project;

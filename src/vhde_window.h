@@ -47,6 +47,8 @@ public:
 #endif
   virtual ~VHDEWindow();
 
+  void setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater);
+
 private:
 #ifndef CLUTTER_GTKMM_BUG
   Clutter::Gtk::Embed m_clutterEmbed;
