@@ -21,6 +21,11 @@
 #include <iostream>
 #include "project_treeview_updater.h"
 
+ProjectTreeViewUpdater::ProjectTreeViewUpdater():
+  m_pProject(nullptr)
+{
+}
+
 void ProjectTreeViewUpdater::setProject(Project *pProject)
 {
   m_pProject = pProject;

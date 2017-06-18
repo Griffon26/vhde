@@ -30,6 +30,7 @@
 class ProjectTreeViewUpdater: public ITreeViewUpdater
 {
 public:
+  ProjectTreeViewUpdater();
   void setProject(Project *pProject);
   void setTreeView(Gtk::TreeView *pTreeView);
 

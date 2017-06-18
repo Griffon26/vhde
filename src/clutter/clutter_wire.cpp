@@ -45,7 +45,8 @@ void ClutterWire::setCorners(int numPoints, float *pCoords)
 
 ClutterWire::ClutterWire(const Clutter::Color &color):
   m_color(color),
-  m_pCornerCoords(NULL)
+  m_pCornerCoords(NULL),
+  m_numPoints(0)
 {
 }
 

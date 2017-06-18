@@ -81,6 +81,7 @@ void VHDEApplication::on_item_activated(const Glib::ustring fileName, int itemIn
 {
   auto pLayoutFile = m_project.getLayoutFile(fileName);
   auto *pWindow = dynamic_cast<VHDEWindow *>(get_active_window());
+  g_assert(pWindow);
 
   if(itemIndex == 0)
   {

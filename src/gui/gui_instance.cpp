@@ -26,7 +26,8 @@
 #include "vhdl_port.h"
 
 GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance):
-  GuiBlock(pStage, pLayoutInstance)
+  GuiBlock(pStage, pLayoutInstance),
+  m_dragIsMove(false)
 {
   std::list<GuiPort *>::iterator it;
   VHDLComponent *pComponent;
