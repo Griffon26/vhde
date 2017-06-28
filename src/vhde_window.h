@@ -40,7 +40,7 @@ public:
 #ifdef CLUTTER_GTKMM_BUG
   VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
              std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
-             Clutter::Gtk::Embed &m_clutterEmbed);
+             Clutter::Gtk::Embed &rClutterEmbed);
 #else
   VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
              std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater);
@@ -50,14 +50,26 @@ public:
   void setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater);
 
 private:
-#ifndef CLUTTER_GTKMM_BUG
+  bool on_treeview_focus_out_event(GdkEventFocus *pEvent, Gtk::TreeView *pTreeView);
+  bool on_treeview_focus_in_event(GdkEventFocus *pEvent, Gtk::TreeView *pTreeView);
+  bool on_stage_captured_event(Clutter::Event *pEvent);
+  bool onKeyPressEvent(GdkEventKey *pEvent);
+
+  sigc::connection m_stage_captured_event_connection;
+  sigc::connection m_updater_key_press_connection;
+
+  Gtk::Box *m_pClutterEmbedBox;
+#ifdef CLUTTER_GTKMM_BUG
+  Clutter::Gtk::Embed &m_clutterEmbed;
+#else
   Clutter::Gtk::Embed m_clutterEmbed;
 #endif
   Glib::RefPtr<Clutter::Stage> m_stage;
-  sigc::connection m_capture_connection;
 
   std::unique_ptr<IStageUpdater> m_pStageUpdater;
   std::unique_ptr<ITreeViewUpdater> m_pTreeViewUpdater;
+
+  Gtk::TreeModel::Path m_previousSelection;
 };
 
 #endif

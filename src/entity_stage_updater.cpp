@@ -24,6 +24,8 @@
 #include "entity_stage_updater.h"
 #include "layout_component.h"
 
+#define FACTOR  1.2
+
 EntityStageUpdater::EntityStageUpdater():
   m_pEntity(nullptr),
   m_pGuiComponent(nullptr)
@@ -34,6 +36,7 @@ EntityStageUpdater::~EntityStageUpdater()
 {
   std::cout << "EntityStageUpdater()::~EntityStageUpdater()\n";
   m_key_press_connection.disconnect();
+  m_capture_connection.disconnect();
 }
 
 void EntityStageUpdater::setEntity(LayoutComponent *pEntity)
@@ -49,7 +52,7 @@ void EntityStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   m_pStage = pStage;
 
   m_pGuiComponent = std::make_unique<GuiComponent>(m_pStage, m_pEntity);
-  m_key_press_connection = m_pStage->signal_key_press_event().connect(sigc::bind(sigc::mem_fun(*this, &EntityStageUpdater::on_key_pressed), m_pGuiComponent.get()));
+  m_capture_connection = m_pStage->signal_captured_event().connect(sigc::bind(sigc::mem_fun(*this, &EntityStageUpdater::on_my_captured_event), m_pStage));
 }
 
 enum State
@@ -59,26 +62,73 @@ enum State
   WAITING_FOR_INDEX
 };
 
-bool EntityStageUpdater::on_idle_request_quit()
+bool EntityStageUpdater::on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::Stage> pStage)
 {
-  quit_requested.emit();
-  return false;
+  if(pEvent->type == CLUTTER_SCROLL)
+  {
+    if(pEvent->scroll.modifier_state & CLUTTER_CONTROL_MASK)
+    {
+      int scaleDirection;
+
+      switch(pEvent->scroll.direction)
+      {
+      case CLUTTER_SCROLL_UP:
+        scaleDirection = 1;
+        break;
+      case CLUTTER_SCROLL_DOWN:
+        scaleDirection = -1;
+        break;
+      case CLUTTER_SCROLL_SMOOTH:
+        printf("Support for CLUTTER_SCROLL_SMOOTH events has not yet been implemented.\n");
+        scaleDirection = 0;
+        break;
+      default:
+        scaleDirection = 0;
+        break;
+      }
+
+      if(scaleDirection != 0)
+      {
+        double scale_x, scale_y;
+        printf("scaling\n");
+
+        if(scaleDirection == 1)
+        {
+          pStage->get_scale(scale_x, scale_y);
+          pStage->set_scale(scale_x * FACTOR, scale_y * FACTOR);
+          return HANDLED;
+        }
+        else
+        {
+          pStage->get_scale(scale_x, scale_y);
+          pStage->set_scale(scale_x / FACTOR, scale_y / FACTOR);
+          return HANDLED;
+        }
+      }
+      else
+      {
+        return UNHANDLED;
+      }
+    }
+    else
+    {
+      printf("scrolling\n");
+      return UNHANDLED;
+    }
+  }
+  else
+  {
+    return UNHANDLED;
+  }
 }
 
-bool EntityStageUpdater::on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent *pGuiComponent)
+bool EntityStageUpdater::onKeyPressEvent(GdkEventKey *pEvent)
 {
   int position;
   static Edge edge;
   static State state = NORMAL;
 
-  if(m_pStage)
-  {
-    std::cout << "Stage points to something valid" << std::endl;
-  }
-  else
-  {
-    std::cout << "Stage !!DOES NOT!! point to something valid" << std::endl;
-  }
+  printf("EntityStageUpdater::onKeyPressEvent\n");
 
   /* Handle escape */
   if(pEvent->keyval == CLUTTER_KEY_Escape)
@@ -93,30 +143,22 @@ bool EntityStageUpdater::on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent 
   case NORMAL:
     if(pEvent->keyval == 'a')
     {
-      if(pGuiComponent->findFreeSlot(EDGE_BOTTOM, 2, &edge, &position))
+      if(m_pGuiComponent->findFreeSlot(EDGE_BOTTOM, 2, &edge, &position))
       {
         printf("Adding port at %s %d\n", EDGE_TO_NAME(edge), position);
-        pGuiComponent->createPort(edge, position, DIR_OUT, "port3");
+        m_pGuiComponent->createPort(edge, position, DIR_OUT, "port3");
       }
       else
       {
         printf("Can't add any more ports\n");
       }
+      return HANDLED;
     }
-    if(pEvent->keyval == 'd')
+    else if(pEvent->keyval == 'd')
     {
       state = WAITING_FOR_EDGE;
       printf("Enter edge of port to delete (L, R, T, B)\n");
-    }
-    if(pEvent->keyval == 'q')
-    {
-      printf("Exiting...\n");
-
-      /* Send this signal on idle instead of calling emit() here to avoid a
-       * deadlock with a second clutter signal (when the window is destroyed)
-       * being emitted from within this handler of the first.
-       */
-      Glib::signal_idle().connect(sigc::mem_fun(*this, &EntityStageUpdater::on_idle_request_quit));
+      return HANDLED;
     }
     break;
   case WAITING_FOR_EDGE:
@@ -143,6 +185,7 @@ bool EntityStageUpdater::on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent 
     {
       printf("edge = %s\n", EDGE_TO_NAME(edge));
       printf("Enter position of port to be deleted (0-9)\n");
+      return HANDLED;
     }
     break;
   case WAITING_FOR_INDEX:
@@ -150,14 +193,17 @@ bool EntityStageUpdater::on_key_pressed(Clutter::KeyEvent *pEvent, GuiComponent 
     {
       int position = pEvent->keyval - '0';
       printf("Destroying port at edge %s pos %d\n", EDGE_TO_NAME(edge), position);
-      pGuiComponent->destroyPort(edge, position);
+      m_pGuiComponent->destroyPort(edge, position);
       state = NORMAL;
+      return HANDLED;
     }
     break;
   default:
     g_assert_not_reached();
   }
 
-  return HANDLED;
+  printf("  key not handled\n");
+
+  return UNHANDLED;
 }
 

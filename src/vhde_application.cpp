@@ -71,12 +71,6 @@ void VHDEApplication::on_activate()
   pWindow->show_all();
 }
 
-void VHDEApplication::on_quit_requested()
-{
-  auto pWindow = get_active_window();
-  pWindow->hide();
-}
-
 void VHDEApplication::on_item_activated(const Glib::ustring fileName, int itemIndex)
 {
   auto pLayoutFile = m_project.getLayoutFile(fileName);
@@ -87,7 +81,6 @@ void VHDEApplication::on_item_activated(const Glib::ustring fileName, int itemIn
   {
     auto pStageUpdater = std::make_unique<EntityStageUpdater>();
     pStageUpdater->setEntity(pLayoutFile->getComponent());
-    pStageUpdater->quit_requested.connect(sigc::mem_fun(*this, &VHDEApplication::on_quit_requested));
     pWindow->setStageUpdater(std::move(pStageUpdater));
   }
   else

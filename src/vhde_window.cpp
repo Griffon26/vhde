@@ -33,79 +33,53 @@
 #define COMPONENT_INITIAL_Y  100
 
 
-#define FACTOR  1.2
 
-static bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::Stage> pStage)
+bool VHDEWindow::on_treeview_focus_out_event(GdkEventFocus *pEvent, Gtk::TreeView *pTreeView)
 {
-  if(pEvent->type == CLUTTER_SCROLL)
+  auto selection = pTreeView->get_selection();
+  if(selection->get_selected_rows().size() != 0)
   {
-    if(pEvent->scroll.modifier_state & CLUTTER_CONTROL_MASK)
-    {
-      int scaleDirection;
-
-      switch(pEvent->scroll.direction)
-      {
-      case CLUTTER_SCROLL_UP:
-        scaleDirection = 1;
-        break;
-      case CLUTTER_SCROLL_DOWN:
-        scaleDirection = -1;
-        break;
-      case CLUTTER_SCROLL_SMOOTH:
-        printf("Support for CLUTTER_SCROLL_SMOOTH events has not yet been implemented.\n");
-        scaleDirection = 0;
-        break;
-      default:
-        scaleDirection = 0;
-        break;
-      }
-
-      if(scaleDirection != 0)
-      {
-        double scale_x, scale_y;
-        printf("scaling\n");
-
-        if(scaleDirection == 1)
-        {
-          pStage->get_scale(scale_x, scale_y);
-          pStage->set_scale(scale_x * FACTOR, scale_y * FACTOR);
-          return HANDLED;
-        }
-        else
-        {
-          pStage->get_scale(scale_x, scale_y);
-          pStage->set_scale(scale_x / FACTOR, scale_y / FACTOR);
-          return HANDLED;
-        }
-      }
-      else
-      {
-        return UNHANDLED;
-      }
-    }
-    else
-    {
-      printf("scrolling\n");
-      return UNHANDLED;
-    }
+    m_previousSelection = selection->get_selected_rows()[0];
   }
-  else
-  {
-    return UNHANDLED;
-  }
+  pTreeView->get_selection()->unselect_all();
+  return false;
 }
+
+bool VHDEWindow::on_treeview_focus_in_event(GdkEventFocus *pEvent, Gtk::TreeView *pTreeView)
+{
+  auto selection = pTreeView->get_selection();
+  if(selection->get_selected_rows().size() == 0)
+  {
+    selection->select(m_previousSelection);
+  }
+  return false;
+}
+
+bool VHDEWindow::on_stage_captured_event(Clutter::Event *pEvent)
+{
+  if(pEvent->type == CLUTTER_BUTTON_PRESS)
+  {
+    std::cout << "Stage clicked" << std::endl;
+    m_pClutterEmbedBox->grab_focus();
+  }
+  return false;
+}
+
 
 #ifdef CLUTTER_GTKMM_BUG
 VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
                        std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
-                       Clutter::Gtk::Embed &m_clutterEmbed):
+                       Clutter::Gtk::Embed &rClutterEmbed):
+  Gtk::ApplicationWindow(),
+  m_pClutterEmbedBox(nullptr),
+  m_clutterEmbed(rClutterEmbed),
+  m_pTreeViewUpdater(std::move(pTreeViewUpdater))
 #else
 VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
                        std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater):
-#endif
   Gtk::ApplicationWindow(),
-  m_pStageUpdater(std::move(pStageUpdater)),
   m_pTreeViewUpdater(std::move(pTreeViewUpdater))
+#endif
 {
   /*
    * Construct the widgets in this window
@@ -117,12 +91,14 @@ VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
   pBuilder->get_widget("toplevelbox", pBox);
   add(*pBox);
 
-  Gtk::Box *pClutterEmbedBox;
-  pBuilder->get_widget("clutterEmbedBox", pClutterEmbedBox);
-  pClutterEmbedBox->add(m_clutterEmbed);
+  pBuilder->get_widget("clutterEmbedBox", m_pClutterEmbedBox);
+  m_pClutterEmbedBox->add(m_clutterEmbed);
 
   Gtk::TreeView *pTreeView;
   pBuilder->get_widget("treeview", pTreeView);
+  pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_in_event), pTreeView));
+  pTreeView->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_out_event), pTreeView));
+
   m_pTreeViewUpdater->setTreeView(pTreeView);
 
   set_default_size(1300, 700);
@@ -131,26 +107,47 @@ VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
   m_stage->set_color(STAGE_COLOR);
   m_stage->set_motion_events_enabled(false);
 
-  m_pStageUpdater->setStage(m_stage);
+  signal_key_press_event().connect(sigc::mem_fun(this, &VHDEWindow::onKeyPressEvent));
 
-  /*
-   * Allow the user to interact with the diagram
-   */
-  m_capture_connection = m_stage->signal_captured_event().connect(sigc::bind(&on_my_captured_event, m_stage));
+  m_stage_captured_event_connection = m_stage->signal_captured_event().connect(sigc::mem_fun(this, &VHDEWindow::on_stage_captured_event));
+
+  setStageUpdater(std::move(pStageUpdater));
 }
 
 VHDEWindow::~VHDEWindow()
 {
-  std::cout << "Disconnecting signals" << std::endl;
-  m_capture_connection.disconnect();
-
   /* Force removal of the updater and thereby registration to events, when the window is closed */
   m_pStageUpdater = nullptr;
+  m_stage_captured_event_connection.disconnect();
 }
 
 void VHDEWindow::setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater)
 {
+  m_updater_key_press_connection.disconnect();
+
   m_pStageUpdater = std::move(pStageUpdater);
+
+  /* This is a workaround that allows us to handle key events in the stage updater or in the treeview, depending on input focus.
+   * When migrating away from Clutter there will hopefully be a way for the updater to connect to key press events on the canvas.
+   */
+  m_updater_key_press_connection = m_pClutterEmbedBox->signal_key_press_event().connect(sigc::mem_fun(m_pStageUpdater.get(), &IStageUpdater::onKeyPressEvent));
+
+
   m_pStageUpdater->setStage(m_stage);
 }
+
+bool VHDEWindow::onKeyPressEvent(GdkEventKey *pEvent)
+{
+  printf("VHDEWindow::onKeyPressEvent\n");
+  if(pEvent->keyval == 'q')
+  {
+    printf("Exiting...\n");
+
+    hide();
+    return HANDLED;
+  }
+  printf("  key not handled\n");
+  return UNHANDLED;
+}
+
 

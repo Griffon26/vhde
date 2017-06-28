@@ -22,6 +22,7 @@
 #define _I_STAGE_UPDATER_H
 
 #include <cluttermm.h>
+#include <gdkmm.h>
 #include <glibmm.h>
 
 /*
@@ -34,6 +35,7 @@ class IStageUpdater
 public:
   virtual ~IStageUpdater() {};
   virtual void setStage(Glib::RefPtr<Clutter::Stage> pStage) = 0;
+  virtual bool onKeyPressEvent(GdkEventKey *pKey) = 0;
 };
 
 #endif

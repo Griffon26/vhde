@@ -26,8 +26,8 @@
  */
 
 GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock):
-  m_pLayoutBlock(pLayoutBlock),
   m_dragIsResize(false),
+  m_pLayoutBlock(pLayoutBlock),
   m_pStage(pStage),
   m_bodyHandleOffsetX(0),
   m_bodyHandleOffsetY(0),

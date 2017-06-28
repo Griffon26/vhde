@@ -37,6 +37,7 @@ public:
 
   void setArchitecture(LayoutArchitecture *pArch);
   void setStage(Glib::RefPtr<Clutter::Stage> pStage);
+  bool onKeyPressEvent(GdkEventKey *pEvent);
 
 private:
   LayoutArchitecture *m_pArch;

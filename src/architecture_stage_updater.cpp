@@ -59,3 +59,8 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   m_pGuiInstance = std::make_unique<GuiInstance>(m_pStage, layoutInstances[0]);
 }
 
+bool ArchitectureStageUpdater::onKeyPressEvent(GdkEventKey *pEvent)
+{
+  return false;
+}
+
