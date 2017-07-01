@@ -30,16 +30,16 @@ key improvements:
 
 ## Current status
 
-I recently picked back up development on this project. There is now [a backlog
-that lists items to be done in order of priority](docs/backlog.md). If you have
-any additional items you would like to see on this backlog or you have a
-comment on the chosen priorities, don't hesitate to contact me at
-griffon26@kfk4ever.com.
+There is [a backlog that lists items to be done in order of
+priority](docs/backlog.md). If you have any additional items you would like to
+see on this backlog or you have a comment on the chosen priorities, don't
+hesitate to contact me at griffon26@kfk4ever.com.
 
-Currently the application loads an example project from disk when it is
-started. You can switch between the entities and architectures in the project
-overview on the right, you can interact with the diagram and optionally save
-your changes back to disk before you close the application.
+Currently when you select Open from the File menu, the application loads the
+project defined in the test/exampleproject.vhde file.  You can switch between
+the entities and architectures in the project overview on the right, you can
+interact with the diagram and optionally save your changes back to disk before
+you close the application.
 
 ![A screenshot](/docs/images/screenshot.png?raw=true)
 
