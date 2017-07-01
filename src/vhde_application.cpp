@@ -57,6 +57,9 @@ void VHDEApplication::on_activate()
   pTreeViewUpdater->setProject(&m_project);
   pTreeViewUpdater->item_activated.connect(sigc::mem_fun(*this, &VHDEApplication::on_item_activated));
 
+  add_action("save", sigc::mem_fun(*this, &VHDEApplication::onActionFileSave));
+  add_action("quit", sigc::mem_fun(*this, &VHDEApplication::onActionFileQuit));
+
 #ifdef CLUTTER_GTKMM_BUG
   auto pWindow = new VHDEWindow(std::move(pStageUpdater),
                                 std::move(pTreeViewUpdater),
@@ -94,11 +97,17 @@ void VHDEApplication::on_item_activated(const Glib::ustring fileName, int itemIn
 void VHDEApplication::on_hide_window(Gtk::Window *pWindow)
 {
   delete pWindow;
+}
 
-  /*
-   * Write the model back out to files, suffixing each filename with a '2'
-   * (to avoid making changes in versioned example files)
-   */
+void VHDEApplication::onActionFileSave()
+{
   m_project.save();
+}
+
+void VHDEApplication::onActionFileQuit()
+{
+  auto *pWindow = dynamic_cast<VHDEWindow *>(get_active_window());
+  g_assert(pWindow);
+  pWindow->hide();
 }
 

@@ -32,8 +32,6 @@
 #define COMPONENT_INITIAL_X  100
 #define COMPONENT_INITIAL_Y  100
 
-
-
 bool VHDEWindow::on_treeview_focus_out_event(GdkEventFocus *pEvent, Gtk::TreeView *pTreeView)
 {
   auto selection = pTreeView->get_selection();
@@ -65,7 +63,6 @@ bool VHDEWindow::on_stage_captured_event(Clutter::Event *pEvent)
   return false;
 }
 
-
 #ifdef CLUTTER_GTKMM_BUG
 VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
                        std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
@@ -91,13 +88,23 @@ VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
   pBuilder->get_widget("toplevelbox", pBox);
   add(*pBox);
 
+  // For now define accelerators here in code instead of in the glade file,
+  // because I could not find a way to have glade add the accelerators to an
+  // accelgroup that I can connect to VHDEWindow.
+  add_accelerator(pBuilder, "menuFileQuit", 'q', Gdk::CONTROL_MASK);
+  add_accelerator(pBuilder, "menuFileSave", 's', Gdk::CONTROL_MASK);
+  add_accelerator(pBuilder, "menuEditCut", 'x', Gdk::CONTROL_MASK);
+  add_accelerator(pBuilder, "menuEditCopy", 'c', Gdk::CONTROL_MASK);
+  add_accelerator(pBuilder, "menuEditPaste", 'v', Gdk::CONTROL_MASK);
+  add_accelerator(pBuilder, "menuEditDelete", GDK_KEY_Delete, (Gdk::ModifierType)0);
+
   pBuilder->get_widget("clutterEmbedBox", m_pClutterEmbedBox);
   m_pClutterEmbedBox->add(m_clutterEmbed);
 
   Gtk::TreeView *pTreeView;
   pBuilder->get_widget("treeview", pTreeView);
-  pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_in_event), pTreeView));
-  pTreeView->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_out_event), pTreeView));
+  m_subscriptions.push_back(pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_in_event), pTreeView)));
+  m_subscriptions.push_back(pTreeView->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_out_event), pTreeView)));
 
   m_pTreeViewUpdater->setTreeView(pTreeView);
 
@@ -107,9 +114,9 @@ VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
   m_stage->set_color(STAGE_COLOR);
   m_stage->set_motion_events_enabled(false);
 
-  signal_key_press_event().connect(sigc::mem_fun(this, &VHDEWindow::onKeyPressEvent));
+  m_subscriptions.push_back(signal_key_press_event().connect(sigc::mem_fun(this, &VHDEWindow::onKeyPressEvent)));
 
-  m_stage_captured_event_connection = m_stage->signal_captured_event().connect(sigc::mem_fun(this, &VHDEWindow::on_stage_captured_event));
+  m_subscriptions.push_back(m_stage->signal_captured_event().connect(sigc::mem_fun(this, &VHDEWindow::on_stage_captured_event)));
 
   setStageUpdater(std::move(pStageUpdater));
 }
@@ -118,7 +125,12 @@ VHDEWindow::~VHDEWindow()
 {
   /* Force removal of the updater and thereby registration to events, when the window is closed */
   m_pStageUpdater = nullptr;
-  m_stage_captured_event_connection.disconnect();
+
+  for(auto &subscription: m_subscriptions)
+  {
+    subscription.disconnect();
+  }
+  m_updater_key_press_connection.disconnect();
 }
 
 void VHDEWindow::setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater)
@@ -136,16 +148,18 @@ void VHDEWindow::setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater)
   m_pStageUpdater->setStage(m_stage);
 }
 
+void VHDEWindow::add_accelerator(Glib::RefPtr<Gtk::Builder> pBuilder, Glib::ustring menuItemName, guint accelKey, Gdk::ModifierType accelMods)
+{
+  auto pAccelGroup = get_accel_group();
+
+  Gtk::MenuItem *pMenuItem;
+  pBuilder->get_widget(menuItemName, pMenuItem);
+  pMenuItem->add_accelerator("activate", pAccelGroup, accelKey, accelMods, Gtk::ACCEL_VISIBLE);
+}
+
 bool VHDEWindow::onKeyPressEvent(GdkEventKey *pEvent)
 {
   printf("VHDEWindow::onKeyPressEvent\n");
-  if(pEvent->keyval == 'q')
-  {
-    printf("Exiting...\n");
-
-    hide();
-    return HANDLED;
-  }
   printf("  key not handled\n");
   return UNHANDLED;
 }

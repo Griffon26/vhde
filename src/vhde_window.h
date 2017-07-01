@@ -50,12 +50,14 @@ public:
   void setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater);
 
 private:
+  void add_accelerator(Glib::RefPtr<Gtk::Builder> pBuilder, Glib::ustring menuItemName, guint accelKey, Gdk::ModifierType accelMods);
+
   bool on_treeview_focus_out_event(GdkEventFocus *pEvent, Gtk::TreeView *pTreeView);
   bool on_treeview_focus_in_event(GdkEventFocus *pEvent, Gtk::TreeView *pTreeView);
   bool on_stage_captured_event(Clutter::Event *pEvent);
   bool onKeyPressEvent(GdkEventKey *pEvent);
 
-  sigc::connection m_stage_captured_event_connection;
+  std::vector<sigc::connection> m_subscriptions;
   sigc::connection m_updater_key_press_connection;
 
   Gtk::Box *m_pClutterEmbedBox;

@@ -38,8 +38,8 @@ griffon26@kfk4ever.com.
 
 Currently the application loads an example project from disk when it is
 started. You can switch between the entities and architectures in the project
-overview on the right, you can interact with the diagram and when you close the
-application your changes are saved back to disk.
+overview on the right, you can interact with the diagram and optionally save
+your changes back to disk before you close the application.
 
 ![A screenshot](/docs/images/screenshot.png?raw=true)
 
