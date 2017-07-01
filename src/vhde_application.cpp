@@ -37,37 +37,22 @@ VHDEApplication::VHDEApplication():
 
 void VHDEApplication::on_activate()
 {
-  /*
-   * Read in some example files to create a model
-   */
-  m_project.addFile("test/top_entity.vhd", VHDLFile::GRAPHICAL);
-  m_project.addFile("test/used_entity.vhd", VHDLFile::TEXT);
-  m_project.resolveEntityReferences();
-  m_project.resolveLayoutReferences();
-
-  /* TODO: resolve the conflicts between the VHDL and the layout files, such as
-   * absence of a .layout file
-   */
-
-  auto pStageUpdater = std::make_unique<ArchitectureStageUpdater>();
-  auto pLayoutTopArch = m_project.getLayoutFile("test/top_entity.vhd")->getArchitectures()[0];
-  pStageUpdater->setArchitecture(pLayoutTopArch);
-
   auto pTreeViewUpdater = std::make_unique<ProjectTreeViewUpdater>();
   pTreeViewUpdater->setProject(&m_project);
   pTreeViewUpdater->item_activated.connect(sigc::mem_fun(*this, &VHDEApplication::on_item_activated));
 
+  add_action("new", sigc::mem_fun(*this, &VHDEApplication::onActionFileNew));
+  add_action("open", sigc::mem_fun(*this, &VHDEApplication::onActionFileOpen));
   add_action("save", sigc::mem_fun(*this, &VHDEApplication::onActionFileSave));
   add_action("quit", sigc::mem_fun(*this, &VHDEApplication::onActionFileQuit));
 
 #ifdef CLUTTER_GTKMM_BUG
-  auto pWindow = new VHDEWindow(std::move(pStageUpdater),
-                                std::move(pTreeViewUpdater),
+  auto pWindow = new VHDEWindow(std::move(pTreeViewUpdater),
                                 m_longLivedEmbed);
 #else
-  auto pWindow = new VHDEWindow(std::move(pStageUpdater),
-                                std::move(pTreeViewUpdater));
+  auto pWindow = new VHDEWindow(std::move(pTreeViewUpdater));
 #endif
+
   add_window(*pWindow);
   pWindow->signal_hide().connect(sigc::bind<Gtk::Window*>(sigc::mem_fun(*this, &VHDEApplication::on_hide_window), pWindow));
 
@@ -97,6 +82,19 @@ void VHDEApplication::on_item_activated(const Glib::ustring fileName, int itemIn
 void VHDEApplication::on_hide_window(Gtk::Window *pWindow)
 {
   delete pWindow;
+}
+
+void VHDEApplication::onActionFileNew()
+{
+  auto *pWindow = dynamic_cast<VHDEWindow *>(get_active_window());
+  pWindow->setStageUpdater(nullptr);
+  m_project.clear();
+}
+
+void VHDEApplication::onActionFileOpen()
+{
+  onActionFileNew();
+  m_project.load("test/exampleproject.vhde");
 }
 
 void VHDEApplication::onActionFileSave()

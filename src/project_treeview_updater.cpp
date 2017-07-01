@@ -22,13 +22,28 @@
 #include "project_treeview_updater.h"
 
 ProjectTreeViewUpdater::ProjectTreeViewUpdater():
-  m_pProject(nullptr)
+  m_pProject(nullptr),
+  m_pTreeView(nullptr)
 {
+  std::cout << "ProjectTreeViewUpdater::ProjectTreeViewUpdater\n";
+}
+
+ProjectTreeViewUpdater::~ProjectTreeViewUpdater()
+{
+  std::cout << "ProjectTreeViewUpdater::~ProjectTreeViewUpdater\n";
+  m_projectChangedConnection.disconnect();
+  m_treeViewRowActivatedConnection.disconnect();
+}
+
+void ProjectTreeViewUpdater::onProjectChanged()
+{
+  repopulateTreeView();
 }
 
 void ProjectTreeViewUpdater::setProject(Project *pProject)
 {
   m_pProject = pProject;
+  m_projectChangedConnection = m_pProject->changed.connect(sigc::mem_fun(*this, &ProjectTreeViewUpdater::onProjectChanged));
 }
 
 void ProjectTreeViewUpdater::onRowActivated(const Gtk::TreeModel::Path &path, Gtk::TreeViewColumn *pColumn)
@@ -44,9 +59,20 @@ void ProjectTreeViewUpdater::setTreeView(Gtk::TreeView *pTreeView)
 {
   g_assert(m_pProject);
 
+  m_pTreeView = pTreeView;
+
   m_pTreeStore = Gtk::TreeStore::create(m_treeStoreColumns);
-  pTreeView->set_model(m_pTreeStore);
-  pTreeView->append_column("Name", m_treeStoreColumns.name);
+  m_pTreeView->set_model(m_pTreeStore);
+  m_pTreeView->append_column("Name", m_treeStoreColumns.name);
+
+  m_treeViewRowActivatedConnection = m_pTreeView->signal_row_activated().connect(sigc::mem_fun(*this, &ProjectTreeViewUpdater::onRowActivated));
+
+  repopulateTreeView();
+}
+
+void ProjectTreeViewUpdater::repopulateTreeView()
+{
+  m_pTreeStore->clear();
 
   auto fileNames = m_pProject->getFileNames();
   for(auto &pFileName: fileNames)
@@ -68,8 +94,6 @@ void ProjectTreeViewUpdater::setTreeView(Gtk::TreeView *pTreeView)
     }
   }
 
-  pTreeView->expand_all();
-
-  pTreeView->signal_row_activated().connect(sigc::mem_fun(*this, &ProjectTreeViewUpdater::onRowActivated));
+  m_pTreeView->expand_all();
 }
 

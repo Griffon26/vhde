@@ -38,16 +38,15 @@ public:
  * pass an Embed with a longer life-time than the window as a parameter.
  */
 #ifdef CLUTTER_GTKMM_BUG
-  VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
-             std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
+  VHDEWindow(std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
              Clutter::Gtk::Embed &rClutterEmbed);
 #else
-  VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
-             std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater);
+  VHDEWindow(std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater);
 #endif
   virtual ~VHDEWindow();
 
   void setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater);
+  void setTreeViewUpdater();
 
 private:
   void add_accelerator(Glib::RefPtr<Gtk::Builder> pBuilder, Glib::ustring menuItemName, guint accelKey, Gdk::ModifierType accelMods);
@@ -67,6 +66,7 @@ private:
   Clutter::Gtk::Embed m_clutterEmbed;
 #endif
   Glib::RefPtr<Clutter::Stage> m_stage;
+  Gtk::TreeView *m_pTreeView;
 
   std::unique_ptr<IStageUpdater> m_pStageUpdater;
   std::unique_ptr<ITreeViewUpdater> m_pTreeViewUpdater;

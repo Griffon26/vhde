@@ -29,6 +29,7 @@ ArchitectureStageUpdater::ArchitectureStageUpdater():
   m_pGuiInstance(nullptr),
   m_pGuiSignal(nullptr)
 {
+  std::cout << "ArchitectureStageUpdater()::ArchitectureStageUpdater()\n";
 }
 
 ArchitectureStageUpdater::~ArchitectureStageUpdater()

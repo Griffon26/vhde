@@ -64,17 +64,16 @@ bool VHDEWindow::on_stage_captured_event(Clutter::Event *pEvent)
 }
 
 #ifdef CLUTTER_GTKMM_BUG
-VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
-                       std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
+VHDEWindow::VHDEWindow(std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater,
                        Clutter::Gtk::Embed &rClutterEmbed):
   Gtk::ApplicationWindow(),
   m_pClutterEmbedBox(nullptr),
   m_clutterEmbed(rClutterEmbed),
   m_pTreeViewUpdater(std::move(pTreeViewUpdater))
 #else
-VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
-                       std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater):
+VHDEWindow::VHDEWindow(std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater):
   Gtk::ApplicationWindow(),
+  m_pClutterEmbedBox(nullptr),
   m_pTreeViewUpdater(std::move(pTreeViewUpdater))
 #endif
 {
@@ -101,12 +100,13 @@ VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
   pBuilder->get_widget("clutterEmbedBox", m_pClutterEmbedBox);
   m_pClutterEmbedBox->add(m_clutterEmbed);
 
-  Gtk::TreeView *pTreeView;
-  pBuilder->get_widget("treeview", pTreeView);
-  m_subscriptions.push_back(pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_in_event), pTreeView)));
-  m_subscriptions.push_back(pTreeView->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_out_event), pTreeView)));
+  pBuilder->get_widget("treeview", m_pTreeView);
+  m_subscriptions.push_back(m_pTreeView->signal_focus_in_event().connect(
+        sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_in_event), m_pTreeView)));
+  m_subscriptions.push_back(m_pTreeView->signal_focus_out_event().connect(
+        sigc::bind(sigc::mem_fun(this, &VHDEWindow::on_treeview_focus_out_event), m_pTreeView)));
 
-  m_pTreeViewUpdater->setTreeView(pTreeView);
+  m_pTreeViewUpdater->setTreeView(m_pTreeView);
 
   set_default_size(1300, 700);
 
@@ -115,10 +115,8 @@ VHDEWindow::VHDEWindow(std::unique_ptr<IStageUpdater> pStageUpdater,
   m_stage->set_motion_events_enabled(false);
 
   m_subscriptions.push_back(signal_key_press_event().connect(sigc::mem_fun(this, &VHDEWindow::onKeyPressEvent)));
-
   m_subscriptions.push_back(m_stage->signal_captured_event().connect(sigc::mem_fun(this, &VHDEWindow::on_stage_captured_event)));
 
-  setStageUpdater(std::move(pStageUpdater));
 }
 
 VHDEWindow::~VHDEWindow()
@@ -139,13 +137,16 @@ void VHDEWindow::setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater)
 
   m_pStageUpdater = std::move(pStageUpdater);
 
-  /* This is a workaround that allows us to handle key events in the stage updater or in the treeview, depending on input focus.
-   * When migrating away from Clutter there will hopefully be a way for the updater to connect to key press events on the canvas.
-   */
-  m_updater_key_press_connection = m_pClutterEmbedBox->signal_key_press_event().connect(sigc::mem_fun(m_pStageUpdater.get(), &IStageUpdater::onKeyPressEvent));
+  if(m_pStageUpdater)
+  {
+    /* This is a workaround that allows us to handle key events in the stage updater or in the treeview, depending on input focus.
+     * When migrating away from Clutter there will hopefully be a way for the updater to connect to key press events on the canvas.
+     */
+    m_updater_key_press_connection = m_pClutterEmbedBox->signal_key_press_event().connect(sigc::mem_fun(m_pStageUpdater.get(), &IStageUpdater::onKeyPressEvent));
 
 
-  m_pStageUpdater->setStage(m_stage);
+    m_pStageUpdater->setStage(m_stage);
+  }
 }
 
 void VHDEWindow::add_accelerator(Glib::RefPtr<Gtk::Builder> pBuilder, Glib::ustring menuItemName, guint accelKey, Gdk::ModifierType accelMods)

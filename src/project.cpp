@@ -37,7 +37,7 @@
 #include "vhdl_port.h"
 #include "vhdl_signal.h"
 
-static Glib::ustring getBaseName(const Glib::ustring &fileName)
+static Glib::ustring stripExtension(const Glib::ustring &fileName)
 {
   auto dotIndex = fileName.rfind(".");
   return fileName.substr(0, dotIndex);
@@ -164,13 +164,12 @@ std::unique_ptr<LayoutFile> Project::createDefaultFileLayout(VHDLFile *pVHDLFile
 
 void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
 {
-  auto baseName = getBaseName(fileName);
+  auto baseName = stripExtension(fileName);
 
-  auto pVHDLFile = readVHDLFromFile(fileName, mode, m_entityMap);
-
-  auto layoutFileName = baseName + ".layout";
+  auto pVHDLFile = readVHDLFromFile(Glib::path_get_dirname(m_filePath) + "/" + fileName, mode, m_entityMap);
 
   std::unique_ptr<LayoutResolverActions> pResolver = std::make_unique<LayoutResolverActions>();
+  auto layoutFileName = Glib::path_get_dirname(m_filePath) + "/" + baseName + ".layout";
   auto pLayoutFile = readLayoutFromFile(layoutFileName, pResolver.get());
 
   /* If we failed to read an architecture layout from file, we'll construct a suitable one here */
@@ -247,24 +246,81 @@ std::vector<Glib::ustring> Project::getFileNames()
 
 LayoutFile *Project::getLayoutFile(const Glib::ustring &fileName)
 {
-  return m_fileToLayoutFileMap.at(getBaseName(fileName)).get();
+  return m_fileToLayoutFileMap.at(stripExtension(fileName)).get();
+}
+
+void Project::clear()
+{
+  m_filePath.clear();
+  m_entityMap.clear();
+  m_layoutResolverMap.clear();
+  m_fileToLayoutFileMap.clear();
+  m_fileToVHDLFileMap.clear();
+
+  changed.emit();
 }
 
 void Project::save()
 {
+  if(m_filePath.empty())
+  {
+    return;
+  }
+
+  // TODO: save the project file itself
+
   for(auto &kv: m_fileToVHDLFileMap)
   {
-    std::cout << "Saving file " << kv.second->getName() << " to file " << kv.first << ".*" << std::endl;
+    Glib::ustring outputFileBaseName = Glib::path_get_dirname(m_filePath) + "/" + kv.first;
+    std::cout << "Saving file " << kv.second->getName() << " to file " << outputFileBaseName << ".*" << std::endl;
 
     std::ofstream outStream;
 
-    outStream.open(kv.first + ".vhd");
+    outStream.open(outputFileBaseName + ".vhd");
     kv.second->write(outStream, 0);
     outStream.close();
 
-    outStream.open(kv.first + ".layout");
+    outStream.open(outputFileBaseName + ".layout");
     m_fileToLayoutFileMap.at(kv.first)->write(outStream, 0);
     outStream.close();
   }
+}
+
+static Glib::ustring trim(const Glib::ustring &s)
+{
+  auto begin = find_if_not(s.begin(), s.end(), [](int c){ return std::isspace(c); });
+  auto end = find_if_not(s.rbegin(), s.rend(), [](int c){ return std::isspace(c); }).base();
+  return Glib::ustring(begin, end);
+}
+
+void Project::load(const Glib::ustring &projectFileName)
+{
+  m_filePath = projectFileName;
+
+  std::ifstream inStream(m_filePath);
+  std::string line;
+
+  while (std::getline(inStream, line))
+  {
+    line = trim(line);
+
+    // Skip empty and comment lines
+    if(line[0] == '\0' || line[0] == '#') continue;
+
+    auto comma = std::find(line.begin(), line.end(), ',');
+    g_assert(comma != line.end());
+
+    auto fileName = Glib::ustring(line.begin(), comma);
+    auto mode = Glib::ustring(comma + 2, line.end());
+
+    g_assert(mode == "diagram" || mode == "text");
+
+    addFile(fileName, (mode == "text") ? VHDLFile::TEXT : VHDLFile::GRAPHICAL);
+  }
+
+  resolveEntityReferences();
+  resolveLayoutReferences();
+
+  changed.emit();
 }
 

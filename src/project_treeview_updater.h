@@ -31,11 +31,14 @@ class ProjectTreeViewUpdater: public ITreeViewUpdater
 {
 public:
   ProjectTreeViewUpdater();
+  virtual ~ProjectTreeViewUpdater();
   void setProject(Project *pProject);
   void setTreeView(Gtk::TreeView *pTreeView);
 
 private:
+  void onProjectChanged();
   void onRowActivated(const Gtk::TreeModel::Path &path, Gtk::TreeViewColumn *pColumn);
+  void repopulateTreeView();
 
 public:
   sigc::signal<void, const Glib::ustring, int> item_activated;
@@ -55,7 +58,11 @@ private:
   TreeStoreColumns m_treeStoreColumns;
 
   Project *m_pProject;
+  Gtk::TreeView *m_pTreeView;
   Glib::RefPtr<Gtk::TreeStore> m_pTreeStore;
+
+  sigc::connection m_projectChangedConnection;
+  sigc::connection m_treeViewRowActivatedConnection;
 };
 
 #endif

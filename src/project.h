@@ -51,7 +51,11 @@ private:
   std::unique_ptr<LayoutArchitecture> createDefaultArchitectureLayout(VHDLArchitecture *pArch);
   std::unique_ptr<LayoutFile> createDefaultFileLayout(VHDLFile *pVHDLFile);
 
+  Glib::ustring m_filePath;
+
 public:
+  sigc::signal<void> changed;
+
   void addFile(const Glib::ustring &fileName, VHDLFile::Mode mode);
   void resolveEntityReferences();
   void resolveLayoutReferences();
@@ -61,7 +65,9 @@ public:
   LayoutFile *getLayoutFile(const Glib::ustring &fileName);
 
   /* temporary method for testing if parsing and saving is done correctly */
+  void clear();
   void save();
+  void load(const Glib::ustring &fileName);
 };
 
 #endif

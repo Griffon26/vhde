@@ -30,6 +30,7 @@ EntityStageUpdater::EntityStageUpdater():
   m_pEntity(nullptr),
   m_pGuiComponent(nullptr)
 {
+  std::cout << "EntityStageUpdater()::EntityStageUpdater()\n";
 }
 
 EntityStageUpdater::~EntityStageUpdater()

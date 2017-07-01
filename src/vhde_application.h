@@ -47,6 +47,8 @@ protected:
 private:
   void on_item_activated(const Glib::ustring fileName, int itemIndex);
   void on_hide_window(Gtk::Window *pWindow);
+  void onActionFileNew();
+  void onActionFileOpen();
   void onActionFileSave();
   void onActionFileQuit();
 

@@ -25,6 +25,7 @@
                     <property name="label">gtk-new</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="action_name">app.new</property>
                     <property name="use_underline">True</property>
                     <property name="use_stock">True</property>
                   </object>
@@ -34,6 +35,7 @@
                     <property name="label">gtk-open</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="action_name">app.open</property>
                     <property name="use_underline">True</property>
                     <property name="use_stock">True</property>
                   </object>
@@ -53,6 +55,7 @@
                     <property name="label">gtk-save-as</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="action_name">app.saveas</property>
                     <property name="use_underline">True</property>
                     <property name="use_stock">True</property>
                   </object>
