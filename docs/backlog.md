@@ -7,7 +7,12 @@ explanation or subdivision.
 The identifiers (`VHDE-nn`) are only used to refer to other items on the list
 and do not indicate priority.
 
-1. `VHDE-04`: Create a usable GUI (based on Clutter for now)
+1. `VHDE-19`: Add saving of project file without discarding the comment header
+1. `VHDE-20`: Add an Open File dialog instead of hard-coding the project file
+1. `VHDE-21`: Also show architectures from file opened in text mode
+1. `VHDE-22`: Show difference between graphical/text archs in treeview (deps on `VHDE-21`)
+1. `VHDE-23`: Open text editor when opening a text architecture (deps on `VHDE-21`)
+1. `VHDE-24`: Monitor loaded files to allow reload on change by external editor
 1. `VHDE-02`: Complete support for the currently implemented VHDL items (remove shortcuts)
 1. `VHDE-01`: Get TravisCI builds to work
 1. `VHDE-11`: Add coverity static analysis to Travis build (deps on `VHDE-01`)
