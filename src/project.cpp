@@ -267,10 +267,13 @@ void Project::save()
     return;
   }
 
-  // TODO: save the project file itself
+  std::ofstream projectFile(m_filePath);
+  projectFile << m_header;
 
   for(auto &kv: m_fileToVHDLFileMap)
   {
+    projectFile << kv.first << ".vhd, " << ((kv.second->getMode() == VHDLFile::GRAPHICAL) ? "diagram" : "text") << "\n";
+
     Glib::ustring outputFileBaseName = Glib::path_get_dirname(m_filePath) + "/" + kv.first;
     std::cout << "Saving file " << kv.second->getName() << " to file " << outputFileBaseName << ".*" << std::endl;
 
@@ -284,6 +287,7 @@ void Project::save()
     m_fileToLayoutFileMap.at(kv.first)->write(outStream, 0);
     outStream.close();
   }
+  projectFile << "\n";
 }
 
 static Glib::ustring trim(const Glib::ustring &s)
@@ -298,14 +302,26 @@ void Project::load(const Glib::ustring &projectFileName)
   m_filePath = projectFileName;
 
   std::ifstream inStream(m_filePath);
-  std::string line;
+  std::string line, untrimmedLine;
 
-  while (std::getline(inStream, line))
+  bool inHeader = true;
+  m_header = "";
+
+  while (std::getline(inStream, untrimmedLine))
   {
-    line = trim(line);
+    line = trim(untrimmedLine);
 
     // Skip empty and comment lines
-    if(line[0] == '\0' || line[0] == '#') continue;
+    if(line[0] == '\0' || line[0] == '#')
+    {
+      if(inHeader)
+      {
+        m_header += untrimmedLine + "\n";
+      }
+      continue;
+    }
+
+    inHeader = false;
 
     auto comma = std::find(line.begin(), line.end(), ',');
     g_assert(comma != line.end());

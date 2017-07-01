@@ -7,7 +7,6 @@ explanation or subdivision.
 The identifiers (`VHDE-nn`) are only used to refer to other items on the list
 and do not indicate priority.
 
-1. `VHDE-19`: Add saving of project file without discarding the comment header
 1. `VHDE-20`: Add an Open File dialog instead of hard-coding the project file
 1. `VHDE-21`: Also show architectures from file opened in text mode
 1. `VHDE-22`: Show difference between graphical/text archs in treeview (deps on `VHDE-21`)

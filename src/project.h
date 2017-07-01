@@ -52,6 +52,7 @@ private:
   std::unique_ptr<LayoutFile> createDefaultFileLayout(VHDLFile *pVHDLFile);
 
   Glib::ustring m_filePath;
+  Glib::ustring m_header;
 
 public:
   sigc::signal<void> changed;
