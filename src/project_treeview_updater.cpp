@@ -95,5 +95,10 @@ void ProjectTreeViewUpdater::repopulateTreeView()
   }
 
   m_pTreeView->expand_all();
+
+  if(fileNames.size() != 0)
+  {
+    item_activated.emit(fileNames[0], 0);
+  }
 }
 
