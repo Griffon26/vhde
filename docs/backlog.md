@@ -11,6 +11,8 @@ and do not indicate priority.
 1. `VHDE-22`: Show difference between graphical/text archs in treeview (deps on `VHDE-21`)
 1. `VHDE-23`: Open text editor when opening a text architecture (deps on `VHDE-21`)
 1. `VHDE-24`: Monitor loaded files to allow reload on change by external editor
+1. `VHDE-25`: Implement the adding of files to an existing project
+1. `VHDE-26`: Implement saving a newly created project
 1. `VHDE-02`: Complete support for the currently implemented VHDL items (remove shortcuts)
 1. `VHDE-01`: Get TravisCI builds to work
 1. `VHDE-11`: Add coverity static analysis to Travis build (deps on `VHDE-01`)
