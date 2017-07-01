@@ -28,6 +28,8 @@
 
 #include "project.h"
 
+class VHDEWindow;
+
 /* The responsibilities of this class are:
  * - to create and manage windows
  * - to create updater objects that are the link between the data model and the
@@ -46,12 +48,13 @@ protected:
 
 private:
   void on_item_activated(const Glib::ustring fileName, int itemIndex);
-  void on_hide_window(Gtk::Window *pWindow);
+  void on_hide_window();
   void onActionFileNew();
   void onActionFileOpen();
   void onActionFileSave();
   void onActionFileQuit();
 
+  VHDEWindow *m_pWindow;
   Project m_project;
 #ifdef CLUTTER_GTKMM_BUG
   Clutter::Gtk::Embed m_longLivedEmbed;

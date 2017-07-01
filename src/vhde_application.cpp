@@ -31,7 +31,8 @@ Glib::RefPtr<VHDEApplication> VHDEApplication::create()
 }
 
 VHDEApplication::VHDEApplication():
-  Gtk::Application("com.kfk4ever.vhde")
+  Gtk::Application("com.kfk4ever.vhde"),
+  m_pWindow(nullptr)
 {
 }
 
@@ -47,54 +48,67 @@ void VHDEApplication::on_activate()
   add_action("quit", sigc::mem_fun(*this, &VHDEApplication::onActionFileQuit));
 
 #ifdef CLUTTER_GTKMM_BUG
-  auto pWindow = new VHDEWindow(std::move(pTreeViewUpdater),
+  m_pWindow = new VHDEWindow(std::move(pTreeViewUpdater),
                                 m_longLivedEmbed);
 #else
-  auto pWindow = new VHDEWindow(std::move(pTreeViewUpdater));
+  m_pWindow = new VHDEWindow(std::move(pTreeViewUpdater));
 #endif
 
-  add_window(*pWindow);
-  pWindow->signal_hide().connect(sigc::bind<Gtk::Window*>(sigc::mem_fun(*this, &VHDEApplication::on_hide_window), pWindow));
+  add_window(*m_pWindow);
+  m_pWindow->signal_hide().connect(sigc::mem_fun(*this, &VHDEApplication::on_hide_window));
 
-  pWindow->show_all();
+  m_pWindow->show_all();
 }
 
 void VHDEApplication::on_item_activated(const Glib::ustring fileName, int itemIndex)
 {
   auto pLayoutFile = m_project.getLayoutFile(fileName);
-  auto *pWindow = dynamic_cast<VHDEWindow *>(get_active_window());
-  g_assert(pWindow);
 
   if(itemIndex == 0)
   {
     auto pStageUpdater = std::make_unique<EntityStageUpdater>();
     pStageUpdater->setEntity(pLayoutFile->getComponent());
-    pWindow->setStageUpdater(std::move(pStageUpdater));
+    m_pWindow->setStageUpdater(std::move(pStageUpdater));
   }
   else
   {
     auto pStageUpdater = std::make_unique<ArchitectureStageUpdater>();
     pStageUpdater->setArchitecture(pLayoutFile->getArchitectures()[itemIndex - 1]);
-    pWindow->setStageUpdater(std::move(pStageUpdater));
+    m_pWindow->setStageUpdater(std::move(pStageUpdater));
   }
 }
 
-void VHDEApplication::on_hide_window(Gtk::Window *pWindow)
+void VHDEApplication::on_hide_window()
 {
-  delete pWindow;
+  delete m_pWindow;
+  m_pWindow = nullptr;
 }
 
 void VHDEApplication::onActionFileNew()
 {
-  auto *pWindow = dynamic_cast<VHDEWindow *>(get_active_window());
-  pWindow->setStageUpdater(nullptr);
+  m_pWindow->setStageUpdater(nullptr);
   m_project.clear();
 }
 
 void VHDEApplication::onActionFileOpen()
 {
-  onActionFileNew();
-  m_project.load("test/exampleproject.vhde");
+  Gtk::FileChooserDialog dialog(*m_pWindow, "Open VHDE Project", Gtk::FILE_CHOOSER_ACTION_OPEN);
+
+  auto pFilter = Gtk::FileFilter::create();
+  pFilter->add_pattern("*.vhde");
+  pFilter->set_name("VHDE Project Files");
+  dialog.add_filter(pFilter);
+
+  dialog.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
+  dialog.add_button("_Open", Gtk::RESPONSE_OK);
+
+  int result = dialog.run();
+
+  if(result == Gtk::RESPONSE_OK)
+  {
+    onActionFileNew();
+    m_project.load(dialog.get_filename());
+  }
 }
 
 void VHDEApplication::onActionFileSave()
@@ -104,8 +118,6 @@ void VHDEApplication::onActionFileSave()
 
 void VHDEApplication::onActionFileQuit()
 {
-  auto *pWindow = dynamic_cast<VHDEWindow *>(get_active_window());
-  g_assert(pWindow);
-  pWindow->hide();
+  m_pWindow->hide();
 }
 
