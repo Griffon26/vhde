@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 
   auto app = VHDEApplication::create();
 
-  app->run();
+  app->run(argc, argv);
 
   return 0;
 }

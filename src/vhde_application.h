@@ -34,6 +34,9 @@ class VHDEWindow;
  * - to create and manage windows
  * - to create updater objects that are the link between the data model and the
  *   widgets that display it, and pass them to the windows it creates
+ *
+ * VHDE has one window per running application, but multiple instances of the
+ * application can be running simultaneously.
  */
 class VHDEApplication: public Gtk::Application
 {
@@ -45,6 +48,7 @@ public:
 
 protected:
   void on_activate() override;
+  void on_open(const std::vector<Glib::RefPtr<Gio::File>> &, const Glib::ustring&) override;
 
 private:
   void on_item_activated(const Glib::ustring fileName, int itemIndex);

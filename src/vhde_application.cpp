@@ -31,13 +31,23 @@ Glib::RefPtr<VHDEApplication> VHDEApplication::create()
 }
 
 VHDEApplication::VHDEApplication():
-  Gtk::Application("com.kfk4ever.vhde"),
+  Gtk::Application("com.kfk4ever.vhde", Gio::APPLICATION_HANDLES_OPEN |
+                                        Gio::APPLICATION_NON_UNIQUE),
   m_pWindow(nullptr)
 {
 }
 
 void VHDEApplication::on_activate()
 {
+  on_open(std::vector<Glib::RefPtr<Gio::File>>(), "on_activate");
+}
+
+void VHDEApplication::on_open(const std::vector<Glib::RefPtr<Gio::File>> &files, const Glib::ustring& hint)
+{
+  /* As long as this is a non-unique, one-window application we don't expect
+   * activate to happen more than once */
+  g_assert(!m_pWindow);
+
   auto pTreeViewUpdater = std::make_unique<ProjectTreeViewUpdater>();
   pTreeViewUpdater->setProject(&m_project);
   pTreeViewUpdater->item_activated.connect(sigc::mem_fun(*this, &VHDEApplication::on_item_activated));
@@ -58,6 +68,15 @@ void VHDEApplication::on_activate()
   m_pWindow->signal_hide().connect(sigc::mem_fun(*this, &VHDEApplication::on_hide_window));
 
   m_pWindow->show_all();
+
+  if(files.size() != 0)
+  {
+    if(files.size() > 1)
+    {
+      std::cerr << "Warning: multiple files were specified on the command line. VHDE will only open the first one.\n";
+    }
+    m_project.load(files[0]->get_path());
+  }
 }
 
 void VHDEApplication::on_item_activated(const Glib::ustring fileName, int itemIndex)
