@@ -25,9 +25,7 @@
 #include "layout_architecture.h"
 
 ArchitectureStageUpdater::ArchitectureStageUpdater():
-  m_pArch(nullptr),
-  m_pGuiInstance(nullptr),
-  m_pGuiSignal(nullptr)
+  m_pArch(nullptr)
 {
   std::cout << "ArchitectureStageUpdater()::ArchitectureStageUpdater()\n";
 }
@@ -41,7 +39,6 @@ void ArchitectureStageUpdater::setArchitecture(LayoutArchitecture *pArch)
 {
   g_assert(m_pArch == nullptr);
   m_pArch = pArch;
-
 }
 
 void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
@@ -50,14 +47,14 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   g_assert(m_pArch != nullptr);
   m_pStage = pStage;
 
-  auto layoutSignals = m_pArch->getSignals();
-  g_assert(layoutSignals.size() != 0);
-
-  auto layoutInstances = m_pArch->getInstances();
-  g_assert(layoutInstances.size() != 0);
-
-  m_pGuiSignal = std::make_unique<GuiSignal>(m_pStage, layoutSignals[0]);
-  m_pGuiInstance = std::make_unique<GuiInstance>(m_pStage, layoutInstances[0]);
+  for(auto &layoutSignal: m_pArch->getSignals())
+  {
+    m_pGuiSignals.push_back(std::make_unique<GuiSignal>(m_pStage, layoutSignal));
+  }
+  for(auto &layoutInstance: m_pArch->getInstances())
+  {
+    m_pGuiInstances.push_back(std::make_unique<GuiInstance>(m_pStage, layoutInstance));
+  }
 }
 
 bool ArchitectureStageUpdater::onKeyPressEvent(GdkEventKey *pEvent)

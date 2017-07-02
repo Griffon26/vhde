@@ -43,8 +43,8 @@ private:
   LayoutArchitecture *m_pArch;
   Glib::RefPtr<Clutter::Stage> m_pStage;
 
-  std::unique_ptr<GuiInstance> m_pGuiInstance;
-  std::unique_ptr<GuiSignal> m_pGuiSignal;
+  std::vector<std::unique_ptr<GuiInstance>> m_pGuiInstances;
+  std::vector<std::unique_ptr<GuiSignal>> m_pGuiSignals;
 };
 
 #endif
