@@ -40,6 +40,9 @@ public:
   LayoutFile();
   virtual ~LayoutFile() {}
 
+  LayoutFile(const LayoutFile&) = delete;
+  LayoutFile& operator=(const LayoutFile&) = delete;
+
   /* These methods assume ownership of the component and architectures */
   void setComponent(std::unique_ptr<LayoutComponent> pComponent);
   LayoutComponent *getComponent() { return m_pComponent.get(); }

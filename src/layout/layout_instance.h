@@ -42,6 +42,9 @@ public:
   LayoutInstance();
   ~LayoutInstance();
 
+  LayoutInstance(const LayoutInstance&) = delete;
+  LayoutInstance& operator=(const LayoutInstance&) = delete;
+
   void setPosition(const LayoutPosition &pos);
 
   void associateLayoutComponent(LayoutComponent *pLayoutComponent);

@@ -32,10 +32,12 @@ LayoutInstance::LayoutInstance():
   m_pComponent(NULL),
   m_pVHDLInstance(NULL)
 {
+  printf("LayoutInstance(%p)::LayoutInstance()\n", this);
 }
 
 LayoutInstance::~LayoutInstance()
 {
+  printf("LayoutInstance(%p)::~LayoutInstance()\n", this);
   m_onPortAddedConnection.disconnect();
 }
 

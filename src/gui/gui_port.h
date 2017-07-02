@@ -50,6 +50,9 @@ public:
   GuiPort(Glib::RefPtr<Clutter::Group> pGroup, Edge edge, int position, LayoutBlock *pLayoutBlock, LayoutPort *pLayoutPort);
   virtual ~GuiPort();
 
+  GuiPort(const GuiPort&) = delete;
+  GuiPort& operator=(const GuiPort&) = delete;
+
   Edge        getEdge()     { return m_edge; }
   int         getPosition() { return m_position; }
   LayoutPort *getAssociatedLayoutPort() { return m_pLayoutPort; }

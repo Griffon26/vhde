@@ -31,14 +31,20 @@
 LayoutComponent::LayoutComponent():
   m_pVHDLEntity(nullptr)
 {
+  printf("LayoutComponent(%p)::LayoutComponent()\n", this);
   m_position.x = 400;
   m_position.y = 50;
+}
+
+LayoutComponent::~LayoutComponent()
+{
+  printf("LayoutComponent(%p)::~LayoutComponent()\n", this);
 }
 
 void LayoutComponent::associateEntity(INamedItem *pVHDLEntity)
 {
   g_assert(pVHDLEntity);
-  printf("LayoutComponent(%p)::associateEntity(%p)\n", this, pVHDLEntity);
+  printf("LayoutComponent(%p)::associateEntity(%p %s)\n", this, pVHDLEntity, pVHDLEntity->getName().c_str());
   m_pVHDLEntity = pVHDLEntity;
 }
 
@@ -55,7 +61,7 @@ const Glib::ustring &LayoutComponent::getName()
 
 LayoutPort *LayoutComponent::createPort(Edge edge, int position, INamedItem *pVHDLPort)
 {
-  printf("LayoutComponent::createPort\n");
+  printf("LayoutComponent(%p)::createPort(%s)\n", this, pVHDLPort->getName().c_str());
   auto pLayoutPort = std::make_unique<LayoutPort>();
   auto pRawLayoutPort = pLayoutPort.get();
   pLayoutPort->associateVHDLPort(pVHDLPort);

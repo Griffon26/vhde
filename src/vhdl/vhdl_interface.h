@@ -27,7 +27,7 @@
 
 class VHDLFragment;
 
-class VHDLInterface
+class VHDLInterface: public INamedItem
 {
 protected:
   bool                      m_init;
@@ -39,6 +39,8 @@ public:
   sigc::signal<void, VHDLPort *> port_added;
 
   VHDLInterface();
+  VHDLInterface(const VHDLInterface&) = delete;
+  VHDLInterface& operator=(const VHDLInterface&) = delete;
 
   /* These methods assume ownership of the objects passed */
   void init_addGenerics(std::unique_ptr<VHDLFragment> pFragment);

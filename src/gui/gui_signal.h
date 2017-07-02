@@ -42,6 +42,9 @@ public:
   GuiSignal(Glib::RefPtr<Clutter::Stage> pStage, LayoutSignal *pLayoutSignal);
   virtual ~GuiSignal();
 
+  GuiSignal(const GuiSignal&) = delete;
+  GuiSignal& operator=(const GuiSignal&) = delete;
+
 private:
   void onEndPointMoved(LayoutSignal::EndPointId endPointId, const LayoutPosition &newPos);
 

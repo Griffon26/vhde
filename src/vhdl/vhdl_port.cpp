@@ -26,6 +26,16 @@ VHDLPort::VHDLPort(const Glib::ustring &name):
 {
 }
 
+/* Make a custom copy constructor to avoid copying the removed signal. A signal
+ * is actually something like a refptr and a copy would not lead to a separate
+ * instance with its own registrations. */
+VHDLPort::VHDLPort(const VHDLPort &other):
+  m_name(other.m_name),
+  m_direction(other.m_direction),
+  m_type(other.m_type)
+{
+}
+
 VHDLPort::~VHDLPort()
 {
   printf("VHDLPort(%p)::~VHDLPort()\n", this);

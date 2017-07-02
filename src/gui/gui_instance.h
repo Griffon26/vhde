@@ -59,6 +59,9 @@ public:
   GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance);
   virtual ~GuiInstance();
 
+  GuiInstance(const GuiInstance&) = delete;
+  GuiInstance& operator=(const GuiInstance&) = delete;
+
 private:
   virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
   virtual bool onBodyDragged(Clutter::Event *pEvent);

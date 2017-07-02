@@ -27,7 +27,11 @@ VHDLEntity::VHDLEntity(const Glib::ustring &name):
   m_pDeclarativePart(nullptr)
 {
   printf("VHDLEntity(%p)::VHDLEntity(%s)\n", this, name.c_str());
+}
 
+VHDLEntity::~VHDLEntity()
+{
+  printf("VHDLEntity(%p)::~VHDLEntity()\n", this);
 }
 
 void VHDLEntity::init_setDeclarativePart(std::unique_ptr<VHDLFragment> pFragment)
@@ -52,7 +56,7 @@ const Glib::ustring &VHDLEntity::getName()
 
 VHDLPort *VHDLEntity::createPort(Direction dir, const Glib::ustring &name)
 {
-  printf("VHDLEntity::createPort(%s, %s)\n", DIR_TO_NAME(dir), name.c_str());
+  printf("VHDLEntity(%p)::createPort(%s, %s)\n", this, DIR_TO_NAME(dir), name.c_str());
   auto pVHDLPort = std::make_unique<VHDLPort>(name);
   auto pRawVHDLPort = pVHDLPort.get();
   pVHDLPort->setDirection(dir);

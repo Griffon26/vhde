@@ -33,6 +33,10 @@ private:
 
 public:
   LayoutComponent();
+  virtual ~LayoutComponent();
+
+  LayoutComponent(const LayoutComponent&) = delete;
+  LayoutComponent& operator=(const LayoutComponent&) = delete;
 
   void associateEntity(INamedItem *pVHDLEntity);
   INamedItem *getAssociatedVHDLEntity();

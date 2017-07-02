@@ -201,6 +201,7 @@ void Project::resolveEntityReferences()
 
 void Project::resolveLayoutReferences()
 {
+  /* Run all resolution actions for each layout file passing in the corresponding VHDLFile */
   for(auto &kv: m_layoutResolverMap)
   {
     std::cout << "Resolving layout references to VHDL objects in file " << kv.first << std::endl;
