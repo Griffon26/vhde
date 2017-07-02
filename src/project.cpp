@@ -162,6 +162,63 @@ std::unique_ptr<LayoutFile> Project::createDefaultFileLayout(VHDLFile *pVHDLFile
   return pLayoutFile;
 }
 
+void Project::PortConnector::connectIfBothPortsAdded()
+{
+  if(m_pLayoutPort && m_pVHDLPort)
+  {
+    m_pLayoutPort->associateVHDLPort(m_pVHDLPort);
+    m_pLayoutPort = nullptr;
+    m_pVHDLPort = nullptr;
+  }
+}
+
+void Project::PortConnector::onVHDLPortAdded(VHDLPort *pVHDLPort)
+{
+  g_assert(!m_pVHDLPort);
+  m_pVHDLPort = pVHDLPort;
+
+  connectIfBothPortsAdded();
+}
+
+void Project::PortConnector::onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
+{
+  g_assert(!m_pLayoutPort);
+  m_pLayoutPort = pLayoutPort;
+
+  connectIfBothPortsAdded();
+}
+
+void Project::PortConnector::registerLayoutInstance(LayoutInstance *pLayoutInstance)
+{
+  pLayoutInstance->port_added.connect(sigc::mem_fun(this, &Project::PortConnector::onLayoutPortAdded));
+}
+
+void Project::PortConnector::registerVHDLInstance(VHDLInstance *pVHDLInstance)
+{
+  pVHDLInstance->getComponent()->port_added.connect(sigc::mem_fun(this, &Project::PortConnector::onVHDLPortAdded));
+}
+
+void Project::registerInstancesAtPortConnector(LayoutFile *pLayoutFile, VHDLFile *pVHDLFile)
+{
+  if(pVHDLFile->getMode() == VHDLFile::GRAPHICAL)
+  {
+    for(auto &pLayoutArch: pLayoutFile->getArchitectures())
+    {
+      for(auto &pLayoutInstance: pLayoutArch->getInstances())
+      {
+        m_portConnector.registerLayoutInstance(pLayoutInstance);
+      }
+    }
+    for(auto &pVHDLArch: pVHDLFile->getArchitectures())
+    {
+      for(auto &pVHDLInstance: pVHDLArch->getInstances())
+      {
+        m_portConnector.registerVHDLInstance(pVHDLInstance);
+      }
+    }
+  }
+}
+
 void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
 {
   auto baseName = stripExtension(fileName);
@@ -177,6 +234,8 @@ void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
   {
     pLayoutFile = createDefaultFileLayout(pVHDLFile.get());
   }
+
+  registerInstancesAtPortConnector(pLayoutFile.get(), pVHDLFile.get());
 
   m_fileToVHDLFileMap[baseName] = std::move(pVHDLFile);
   m_fileToLayoutFileMap[baseName] = std::move(pLayoutFile);
@@ -217,6 +276,7 @@ void Project::resolveLayoutComponentReferences()
   for(auto &kv: m_fileToLayoutFileMap)
   {
     LayoutComponent *pComponent = (LayoutComponent *)kv.second->getComponent();
+    std::cout << "Adding to map: " << pComponent->getAssociatedVHDLEntity()->getName() << "\n";
     componentMap[pComponent->getAssociatedVHDLEntity()->getName()] = pComponent;
   }
 
@@ -227,8 +287,9 @@ void Project::resolveLayoutComponentReferences()
     {
       for(auto &pInstance: pArch->getInstances())
       {
-        auto instanceName = pInstance->getAssociatedVHDLInstance()->getName();
-        pInstance->associateLayoutComponent(componentMap.at(instanceName));
+        auto componentName = dynamic_cast<VHDLInstance *>(pInstance->getAssociatedVHDLInstance())->getComponent()->getName();
+        std::cout << "Getting from map: " << componentName << "\n";
+        pInstance->associateLayoutComponent(componentMap.at(componentName));
       }
     }
   }
@@ -337,6 +398,7 @@ void Project::load(const Glib::ustring &projectFileName)
 
   resolveEntityReferences();
   resolveLayoutReferences();
+  resolveLayoutComponentReferences();
 
   changed.emit();
 }

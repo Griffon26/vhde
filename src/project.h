@@ -37,6 +37,28 @@ class VHDLInterface;
 class Project
 {
 private:
+  class PortConnector
+  {
+  public:
+    PortConnector():
+      m_pVHDLPort(nullptr),
+      m_pLayoutPort(nullptr)
+    {}
+
+    void registerLayoutInstance(LayoutInstance *pLayoutInstance);
+    void registerVHDLInstance(VHDLInstance *pVHDLInstance);
+
+  private:
+    void connectIfBothPortsAdded();
+    void onVHDLPortAdded(VHDLPort *pVHDLPort);
+    void onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
+
+    VHDLPort *m_pVHDLPort;
+    LayoutPort *m_pLayoutPort;
+  };
+
+  PortConnector m_portConnector;
+
   std::map<const Glib::ustring, VHDLEntity *> m_entityMap;
 
   /* These maps use the base name of the VHDL file as key */
@@ -50,6 +72,7 @@ private:
   void createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLayoutBlock);
   std::unique_ptr<LayoutArchitecture> createDefaultArchitectureLayout(VHDLArchitecture *pArch);
   std::unique_ptr<LayoutFile> createDefaultFileLayout(VHDLFile *pVHDLFile);
+  void registerInstancesAtPortConnector(LayoutFile *pLayoutFile, VHDLFile *pVHDLFile);
 
   Glib::ustring m_filePath;
   Glib::ustring m_header;

@@ -21,23 +21,16 @@
 #include "gui_common.h"
 #include "gui_instance.h"
 #include "layout_port.h"
-#include "vhdl_component.h"
-#include "vhdl_instance.h"
-#include "vhdl_port.h"
 
 GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance):
   GuiBlock(pStage, pLayoutInstance),
   m_dragIsMove(false)
 {
   std::list<GuiPort *>::iterator it;
-  VHDLComponent *pComponent;
 
   printf("GuiInstance (%p): constructor body\n", this);
 
   m_onLayoutPortAddedConnection = pLayoutInstance->port_added.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortAdded));
-
-  pComponent = static_cast<VHDLInstance *>(pLayoutInstance->getAssociatedVHDLInstance())->getComponent();
-  m_onVHDLPortAddedConnection = pComponent->port_added.connect(sigc::mem_fun(this, &GuiInstance::onVHDLPortAdded));
 
   /* Subscribe to "removed" signal of all layoutports for which there is a guiport.
    * I would have done this in GuiBlock where the ports are first added, but GuiComponent
@@ -49,15 +42,11 @@ GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pL
     g_assert(pLayoutPort);
     m_onLayoutPortRemovedConnections[pLayoutPort] = pLayoutPort->removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
   }
-
-  m_eventData.layoutEventReceived = false;
-  m_eventData.vhdlEventReceived = false;
 }
 
 GuiInstance::~GuiInstance()
 {
   m_onLayoutPortAddedConnection.disconnect();
-  m_onVHDLPortAddedConnection.disconnect();
   for(auto &kv: m_onLayoutPortRemovedConnections)
   {
     kv.second.disconnect();
@@ -108,53 +97,22 @@ bool GuiInstance::onBodyDragged(Clutter::Event *pEvent)
   }
 }
 
-void GuiInstance::handlePortAdded()
-{
-  if(m_eventData.layoutEventReceived && m_eventData.vhdlEventReceived)
-  {
-    m_eventData.pLayoutPort->associateVHDLPort(m_eventData.pVHDLPort);
-
-    addPort(m_eventData.edge, m_eventData.position, m_eventData.pLayoutPort);
-
-    m_eventData.layoutEventReceived = false;
-    m_eventData.vhdlEventReceived = false;
-  }
-}
-
 void GuiInstance::onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
 {
   printf("GuiInstance::OnLayoutPortAdded\n");
 
   m_onLayoutPortRemovedConnections[pLayoutPort] = pLayoutPort->removed.connect(sigc::mem_fun(this, &GuiInstance::onLayoutPortRemoved));
 
-  m_eventData.layoutEventReceived = true;
-  m_eventData.edge = edge;
-  m_eventData.position = position;
-  m_eventData.pLayoutPort = pLayoutPort;
-
-  handlePortAdded();
-}
-
-void GuiInstance::onVHDLPortAdded(VHDLPort *pVHDLPort)
-{
-  printf("GuiInstance::OnVHDLPortAdded\n");
-
-  m_eventData.vhdlEventReceived = true;
-  m_eventData.pVHDLPort = pVHDLPort;
-
-  handlePortAdded();
+  addPort(edge, position, pLayoutPort);
 }
 
 void GuiInstance::onLayoutPortRemoved(Edge edge, int position, LayoutPort *pLayoutPort)
 {
   printf("GuiInstance::OnLayoutPortRemoved(%s(%p))\n", pLayoutPort->getName().c_str(), pLayoutPort);
 
-  m_eventData.edge = edge;
-  m_eventData.position = position;
-
   m_onLayoutPortRemovedConnections[pLayoutPort].disconnect();
   m_onLayoutPortRemovedConnections.erase(pLayoutPort);
 
-  removePort(m_eventData.edge, m_eventData.position);
+  removePort(edge, position);
 }
 

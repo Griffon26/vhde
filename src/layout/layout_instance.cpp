@@ -39,6 +39,10 @@ LayoutInstance::~LayoutInstance()
 {
   printf("LayoutInstance(%p)::~LayoutInstance()\n", this);
   m_onPortAddedConnection.disconnect();
+  for(auto &pConn: m_onPortRemovedConnections)
+  {
+    pConn.second.disconnect();
+  }
 }
 
 void LayoutInstance::setPosition(const LayoutPosition &pos)
@@ -67,11 +71,7 @@ void LayoutInstance::associateLayoutComponent(LayoutComponent *pComponent)
     /* Surely there's a matching port in this instance */
     g_assert(pOurPort != NULL);
 
-    /* No need to remember the connection for "removed" signals, because the
-     * only reason we would no longer want to receive them is when the
-     * corresponding port is destroyed (so it won't emit any further signals).
-     */
-    portData.pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurPort));
+    m_onPortRemovedConnections[pOurPort] = portData.pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurPort));
   }
 
   m_onPortAddedConnection = m_pComponent->port_added.connect(sigc::mem_fun(this, &LayoutInstance::onPortAdded));
@@ -173,7 +173,7 @@ void LayoutInstance::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPor
 
   auto pOurLayoutPort = std::make_unique<LayoutPort>();
 
-  pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurLayoutPort.get()));
+  m_onPortRemovedConnections[pOurLayoutPort.get()] = pLayoutPort->removed.connect(sigc::bind<LayoutPort *>(sigc::mem_fun(this, &LayoutInstance::onPortRemoved), pOurLayoutPort.get()));
 
   if(!findFreeSlot(edge, position, &freeEdge, &freePosition))
   {
@@ -194,5 +194,6 @@ void LayoutInstance::onPortAdded(Edge edge, int position, LayoutPort *pLayoutPor
 void LayoutInstance::onPortRemoved(Edge edge, int position, LayoutPort *pComponentLayoutPort, LayoutPort *pOurLayoutPort)
 {
   printf("LayoutInstance(%p)::onPortRemoved(%p)\n", this, pOurLayoutPort);
+  m_onPortRemovedConnections.erase(pOurLayoutPort);
   removePort(pOurLayoutPort);
 }
