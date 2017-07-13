@@ -22,7 +22,8 @@
 #define _VHDE_APPLICATION_H
 
 #ifdef CLUTTER_GTKMM_BUG
-#include <clutter-gtkmm.h>
+//#include <clutter-gtkmm.h>
+#include <cluttermm.h>
 #endif
 #include <gtkmm.h>
 

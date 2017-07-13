@@ -36,7 +36,7 @@ private:
 
   void drawBox(const Clutter::Color &color, bool hasBorder);
 
-  void paint_vfunc() override;
+  void paint_vfunc();
   void pick_vfunc(const Clutter::Color &color);
 };
 

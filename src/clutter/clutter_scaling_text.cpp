@@ -80,7 +80,7 @@ void ClutterScalingText::paint_vfunc()
   //printf("Setting font to %s (%f would have been ideal)\n", fontName, sx * fontSizeSmall);
   set_font_name(fontName);
 
-  Clutter::Text::paint_vfunc();
+  Clutter::Actor::paint();
 }
 
 #ifdef BROKEN

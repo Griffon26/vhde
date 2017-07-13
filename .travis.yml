@@ -1,26 +1,53 @@
 language: cpp
 dist: trusty
-sudo: false
+sudo: true
+
+env:
+  - PKG_CONFIG_PATH=${HOME}/.local/share/pkgconfig:${HOME}/.local/lib/pkgconfig/ ACLOCAL_PATH="${HOME}/.local/share/aclocal"
 
 addons:
   apt:
+    sources:
+       - george-edison55-precise-backports # cmake 3.2.3 / doxygen 1.8.3
+       - ubuntu-toolchain-r-test # gcc-5 / g++-5
     packages:
+       - gcc-5
+       - g++-5
        - libcogl-dev
        - libclutter-1.0-dev
        #- mm-common
        #- cluttermm
-       - libgtkmm-2.4-dev
+       #- libgtkmm-2.4-dev
+       - libgtkmm-3.0-dev
+       - cmake
+       - cmake-data
+
+before_install:
+  - sudo apt-get install clutter-1.0 -y
+  - sudo apt-get install pangomm-1.4 -y
+  - sudo apt-get install atkmm-1.6 -y
+  - sudo apt-get install cpanminus -y
+  - sudo apt-get install libxml-parser-perl -y
+  - sudo apt-get install mm-common -y
+  - sudo apt-get install uuid -y
+  - sudo cpanm XML::XPath
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+#  - sudo apt-get update
+#  - sudo apt-get install gcc-5 g++-5 -y
 
 compiler:
   - gcc
   - clang
 
 before_script:
+  - export CC=gcc-5
+  - export CXX=g++-5
   - ./install-mm-common.sh
   - ./install-cluttermm.sh
-  - export PKG_CONFIG_PATH="${HOME}/.local/lib/pkgconfig:${HOME}/.local/share/pkgconfig"
-  - export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/.local/lib"
+  - ./install-clutter-gtkmm.sh
+#  - export PKG_CONFIG_PATH="${HOME}/.local/lib/pkgconfig:${HOME}/.local/share/pkgconfig"
+#  - export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/.local/lib"
 
 script:
   - cmake .
-  - make
+#  - make

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.2.2)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
@@ -23,10 +23,11 @@ get_filename_component(ANTLR_RUNTIME_PREFIX ${ANTLR_RUNTIME}-prefix ABSOLUTE)
 include(ExternalProject)
 externalproject_add(${ANTLR_RUNTIME}
     PREFIX                ${ANTLR_RUNTIME_PREFIX}
-    GIT_REPOSITORY        https://github.com/Griffon26/antlr4.git
+    GIT_REPOSITORY        https://github.com/dutchedge/antlr4.git
     GIT_TAG               "4.7-unique_ptr"
     UPDATE_COMMAND        ""
-    SOURCE_SUBDIR         runtime/Cpp
+    PATCH_COMMAND         mv "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}" "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}_original" &&
+                          mv "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}_original/runtime/Cpp" "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}"
     CMAKE_ARGS            -DCMAKE_INSTALL_PREFIX=${ANTLR_RUNTIME_PREFIX}
                           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 )
@@ -34,7 +35,7 @@ externalproject_add(${ANTLR_RUNTIME}
 find_package(PkgConfig)
 
 pkg_check_modules(CLUTTERMM REQUIRED cluttermm-1.0)
-pkg_check_modules(CLUTTERGTKMM REQUIRED clutter-gtkmm-1.0)
+#pkg_check_modules(CLUTTERGTKMM REQUIRED clutter-gtkmm-1.0)
 pkg_search_module(GTKMM REQUIRED gtkmm-3.0 gtkmm-2.4)
 
 include_directories(${CLUTTERMM_INCLUDE_DIRS}
@@ -103,11 +104,11 @@ add_executable(vhde ${SRCS})
 # https://bugzilla.gnome.org/show_bug.cgi?id=783362
 add_definitions(-DCLUTTER_GTKMM_BUG)
 
-target_compile_features(vhde PRIVATE cxx_generic_lambdas
-                                     cxx_noexcept
-                                     cxx_override
-                                     cxx_range_for
-                       )
+#target_compile_features(vhde PRIVATE cxx_generic_lambdas
+#                                     cxx_noexcept
+#                                     cxx_override
+#                                     cxx_range_for
+#                       )
 
 add_dependencies(vhde ${ANTLR_RUNTIME})
 
