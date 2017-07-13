@@ -21,6 +21,8 @@ addons:
        - libgtkmm-3.0-dev
        - cmake
        - cmake-data
+       - gobject-introspection
+       - uuid-dev
 
 before_install:
   - sudo apt-get install clutter-1.0 -y

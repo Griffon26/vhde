@@ -1,13 +1,13 @@
 #!/bin/bash
 set -ex
 
-TAG="CLUTTER_GTKMM_0_91_8"
-TMPZIP="/tmp/clutter-gtkmm.zip"
-SRCDIR="clutter-gtkmm-${TAG}"
+TAG="1.5.2"
+TMPZIP="/tmp/clutter-gtk.zip"
+SRCDIR="clutter-gtk-${TAG}"
 INSTALLDIR="${HOME}/.local"
 
 if [ ! -d "${SRCDIR}" ]; then
-  wget https://github.com/GNOME/clutter-gtkmm/archive/${TAG}.zip -O "${TMPZIP}"
+  wget https://github.com/GNOME/clutter-gtk/archive/${TAG}.zip -O "${TMPZIP}"
   unzip "${TMPZIP}"
   rm -f "${TMPZIP}"
 fi
