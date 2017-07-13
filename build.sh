@@ -15,4 +15,4 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${INSTALLDIR}/lib"
 ./install-clutter-gtkmm.sh
 
 cmake .
-#make
+make

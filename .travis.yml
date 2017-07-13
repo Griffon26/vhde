@@ -50,4 +50,4 @@ before_script:
 
 script:
   - cmake .
-#  - make
+  - make
