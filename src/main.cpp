@@ -20,7 +20,7 @@
 
 #include "vhde_application.h"
 
-#include <cluttermm.h>
+#include <clutter-gtkmm.h>
 
 int main(int argc, char** argv)
 {

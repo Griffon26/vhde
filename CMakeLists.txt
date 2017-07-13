@@ -35,7 +35,7 @@ externalproject_add(${ANTLR_RUNTIME}
 find_package(PkgConfig)
 
 pkg_check_modules(CLUTTERMM REQUIRED cluttermm-1.0)
-#pkg_check_modules(CLUTTERGTKMM REQUIRED clutter-gtkmm-1.0)
+pkg_check_modules(CLUTTERGTKMM REQUIRED clutter-gtkmm-1.0)
 pkg_search_module(GTKMM REQUIRED gtkmm-3.0 gtkmm-2.4)
 
 include_directories(${CLUTTERMM_INCLUDE_DIRS}
@@ -104,11 +104,11 @@ add_executable(vhde ${SRCS})
 # https://bugzilla.gnome.org/show_bug.cgi?id=783362
 add_definitions(-DCLUTTER_GTKMM_BUG)
 
-#target_compile_features(vhde PRIVATE cxx_generic_lambdas
-#                                     cxx_noexcept
-#                                     cxx_override
-#                                     cxx_range_for
-#                       )
+target_compile_features(vhde PRIVATE cxx_generic_lambdas
+                                     cxx_noexcept
+                                     cxx_override
+                                     cxx_range_for
+                       )
 
 add_dependencies(vhde ${ANTLR_RUNTIME})
 
