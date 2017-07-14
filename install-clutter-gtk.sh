@@ -1,14 +1,29 @@
 #!/bin/bash
-set -ex
 
-TAG="1.5.2"
-TMPZIP="/tmp/clutter-gtk.zip"
-SRCDIR="clutter-gtk-${TAG}"
+PACKAGE="clutter-gtk"
+
+set -e
+
+if [ $# -eq 0 ]; then
+  TAG="master"
+elif [ $# -eq 1 ]; then
+  TAG="$1"
+else
+  echo "Usage: $0 [git_tag]"
+  echo ""
+  echo "  git_tag: the version of the package to use (must be a git tag or branch)"
+  false
+fi
+
+set -x
+
 INSTALLDIR="${HOME}/.local"
+TMPZIP="/tmp/${PACKAGE}-${TAG}.zip"
+SRCDIR="${PACKAGE}-${TAG}"
 
 if [ ! -d "${SRCDIR}" ]; then
-  wget https://github.com/GNOME/clutter-gtk/archive/${TAG}.zip -O "${TMPZIP}"
-  unzip "${TMPZIP}"
+  wget https://github.com/GNOME/${PACKAGE}/archive/${TAG}.zip -O "${TMPZIP}"
+  unzip -q "${TMPZIP}"
   rm -f "${TMPZIP}"
 fi
 

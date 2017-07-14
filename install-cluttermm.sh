@@ -1,16 +1,30 @@
 #!/bin/bash
-set -ex
 
-TMPZIP="/tmp/cluttermm.zip"
-SRCDIR="cluttermm-master"
+PACKAGE="cluttermm"
+
+set -e
+
+if [ $# -eq 0 ]; then
+  TAG="master"
+elif [ $# -eq 1 ]; then
+  TAG="$1"
+else
+  echo "Usage: $0 [git_tag]"
+  echo ""
+  echo "  git_tag: the version of the package to use (must be a git tag or branch)"
+  false
+fi
+
+set -x
+
 INSTALLDIR="${HOME}/.local"
+TMPZIP="/tmp/${PACKAGE}-${TAG}.zip"
+SRCDIR="${PACKAGE}-${TAG}"
 
 if [ ! -d "${SRCDIR}" ]; then
-  CLUTTER_DIR=1.3.2
-  wget https://github.com/GNOME/cluttermm/archive/${CLUTTER_DIR}.zip -O "${TMPZIP}"
-  unzip "${TMPZIP}"
+  wget https://github.com/GNOME/${PACKAGE}/archive/${TAG}.zip -O "${TMPZIP}"
+  unzip -q "${TMPZIP}"
   rm -f "${TMPZIP}"
-  mv cluttermm-${CLUTTER_DIR} ${SRCDIR}
 fi
 
 mkdir -p "${INSTALLDIR}"
@@ -18,11 +32,11 @@ mkdir -p "${INSTALLDIR}"
 pushd "${SRCDIR}" > /dev/null
 
 PATH="${PATH}:${INSTALLDIR}/bin" ACLOCAL_FLAGS="-I ${INSTALLDIR}/share/aclocal" ./autogen.sh --prefix="${INSTALLDIR}" --disable-documentation
-set +e
-make
-sed -i "0,/Texture_Class/s//Texture_Class1/" clutter/cluttermm/wrap_init.cc
-set -e
+#set +e
 #make
+#sed -i "0,/Texture_Class/s//Texture_Class1/" clutter/cluttermm/wrap_init.cc
+#set -e
+make
 make install
 
 popd > /dev/null
