@@ -23,6 +23,7 @@ addons:
        - cmake-data
        - gobject-introspection
        - uuid-dev
+       - gtk-doc-tools
 
 before_install:
   - sudo apt-get install clutter-1.0 -y
