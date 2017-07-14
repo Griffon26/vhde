@@ -1,0 +1,22 @@
+diff -ruN antlr4-cpp-runtime/runtime/CMakeLists.txt antlr4-cpp-runtime-fixed/runtime/CMakeLists.txt
+--- antlr4-cpp-runtime/runtime/CMakeLists.txt	2017-07-14 22:25:25.000000000 +0200
++++ antlr4-cpp-runtime-fixed/runtime/CMakeLists.txt	2017-07-14 22:26:26.000000000 +0200
+@@ -71,6 +71,7 @@
+ 
+ set_target_properties(antlr4_static
+                       PROPERTIES VERSION   ${ANTLR_VERSION}
++                                 EXCLUDE_FROM_ALL true
+                                  SOVERSION ${ANTLR_VERSION}
+                                  OUTPUT_NAME antlr4-runtime
+                                  ARCHIVE_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR}
+@@ -78,8 +79,8 @@
+ 
+ install(TARGETS antlr4_shared
+         DESTINATION lib)
+-install(TARGETS antlr4_static
+-        ARCHIVE DESTINATION lib)
++#install(TARGETS antlr4_static
++#        ARCHIVE DESTINATION lib)
+ 
+ install(DIRECTORY "${PROJECT_SOURCE_DIR}/runtime/src/" 
+         DESTINATION "include/antlr4-runtime"

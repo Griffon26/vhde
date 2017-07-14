@@ -27,7 +27,8 @@ externalproject_add(${ANTLR_RUNTIME}
     GIT_TAG               "4.7-unique_ptr"
     UPDATE_COMMAND        ""
     PATCH_COMMAND         mv "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}" "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}_original" &&
-                          mv "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}_original/runtime/Cpp" "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}"
+                          mv "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}_original/runtime/Cpp" "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}" &&
+                          cd "${ANTLR_RUNTIME_PREFIX}/src" && patch -p0 < ../../antlr4-cpp-runtime-4.7-only-build-shared.patch
     CMAKE_ARGS            -DCMAKE_INSTALL_PREFIX=${ANTLR_RUNTIME_PREFIX}
                           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                           -DWITH_LIBCXX=Off
