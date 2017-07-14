@@ -48,8 +48,8 @@ before_script:
   - ./install-cluttermm.sh
   - ./install-clutter-gtk.sh
   - ./install-clutter-gtkmm.sh
-#  - export PKG_CONFIG_PATH="${HOME}/.local/lib/pkgconfig:${HOME}/.local/share/pkgconfig"
-#  - export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/.local/lib"
+  - export PKG_CONFIG_PATH="${HOME}/.local/lib/pkgconfig:${HOME}/.local/share/pkgconfig"
+  - export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/.local/lib"
 
 script:
   - cmake .
