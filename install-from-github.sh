@@ -51,7 +51,8 @@ if [ ! -d "${SRCDIR}" ]; then
   fi
 fi
 
-mkdir -p "${INSTALLDIR}"
+# Create this directory so aclocal will not complain when we use it
+mkdir -p "${INSTALLDIR}/share/aclocal"
 
 pushd "${SRCDIR}" > /dev/null
 
