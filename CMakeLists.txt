@@ -30,6 +30,7 @@ externalproject_add(${ANTLR_RUNTIME}
                           mv "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}_original/runtime/Cpp" "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}"
     CMAKE_ARGS            -DCMAKE_INSTALL_PREFIX=${ANTLR_RUNTIME_PREFIX}
                           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                          -DWITH_LIBCXX=Off
 )
 
 find_package(PkgConfig)
