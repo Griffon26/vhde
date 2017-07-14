@@ -14,6 +14,7 @@ a higher level diagram.
 
 It is similar to [Mentor Graphics' HDL designer][1], but with the following
 key improvements:
+
 * it is Free Software
 * all project files are text files
 * the functional structure of the diagrams is stored in one set of files,
@@ -42,4 +43,16 @@ interact with the diagram and optionally save your changes back to disk before
 you close the application.
 
 ![A screenshot](/docs/images/screenshot.png?raw=true)
+
+# Dependencies
+
+VHDE requires the following packages to be installed:
+
+* cluttermm
+* clutter-gtkmm
+* gtkmm
+
+If some of these packages or packages that they depend on are not available
+through your distribution's package manager, [scripts are provided to make it
+easy to install them in your home dir](deps/INSTALL.md).
 

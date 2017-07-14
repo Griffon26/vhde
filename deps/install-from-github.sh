@@ -37,8 +37,13 @@ echo "--------------------------------------------------------------------------
 set -x
 
 INSTALLDIR="${HOME}/.local"
-TMPZIP="/tmp/${PACKAGE}-${VERSION}.zip"
+TMPZIP="${PACKAGE}-${VERSION}.zip"
 SRCDIR="${PACKAGE}-${VERSION}"
+TMPDIR="$(dirname $0)/tmp"
+
+mkdir -p "${TMPDIR}"
+pushd "${TMPDIR}" > /dev/null
+echo "Entering directory '${TMPDIR}'"
 
 if [ ! -d "${SRCDIR}" ]; then
   wget "https://github.com/${PROJECT}/${PACKAGE}/archive/${VERSION}.zip" -O "${TMPZIP}"
@@ -46,7 +51,7 @@ if [ ! -d "${SRCDIR}" ]; then
   rm -f "${TMPZIP}"
   if [ -n "${PATCH}" ]; then
     pushd "${SRCDIR}" > /dev/null
-    patch -p1 < "../${PATCH}"
+    patch -p1 < "../../${PATCH}"
     popd > /dev/null
   fi
 fi
@@ -71,4 +76,6 @@ echo "  export PKG_CONFIG_PATH=\"${INSTALLDIR}/lib/pkgconfig:${INSTALLDIR}/share
 echo "  export LD_LIBRARY_PATH=\"\${LD_LIBRARY_PATH}:${INSTALLDIR}/lib\""
 echo ""
 echo "------------------------------------------------------------------------------------------------"
+
+popd > /dev/null
 
