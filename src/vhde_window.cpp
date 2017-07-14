@@ -112,7 +112,14 @@ VHDEWindow::VHDEWindow(std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater):
 
   m_stage = m_clutterEmbed.get_stage();
   m_stage->set_color(STAGE_COLOR);
+
+/* This is a workaround for the old versions of deps used by Travis. The
+ * function is available in clutter 1.16.4, but the cluttermm version that
+ * still supports 1.16.4 does not expose it.
+ */
+#if CLUTTER_MINOR_VERSION > 16
   m_stage->set_motion_events_enabled(false);
+#endif
 
   m_subscriptions.push_back(signal_key_press_event().connect(sigc::mem_fun(this, &VHDEWindow::onKeyPressEvent)));
   m_subscriptions.push_back(m_stage->signal_captured_event().connect(sigc::mem_fun(this, &VHDEWindow::on_stage_captured_event)));
