@@ -23,7 +23,7 @@ get_filename_component(ANTLR_RUNTIME_PREFIX ${ANTLR_RUNTIME}-prefix ABSOLUTE)
 include(ExternalProject)
 externalproject_add(${ANTLR_RUNTIME}
     PREFIX                ${ANTLR_RUNTIME_PREFIX}
-    GIT_REPOSITORY        https://github.com/dutchedge/antlr4.git
+    GIT_REPOSITORY        https://github.com/Griffon26/antlr4.git
     GIT_TAG               "4.7-unique_ptr"
     UPDATE_COMMAND        ""
     PATCH_COMMAND         mv "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}" "${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}_original" &&
