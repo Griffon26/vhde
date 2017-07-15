@@ -3,11 +3,12 @@ dist: trusty
 sudo: false
 
 env:
-  - PKG_CONFIG_PATH=${HOME}/.local/share/pkgconfig:${HOME}/.local/lib/pkgconfig/
-  - ACLOCAL_PATH="${HOME}/.local/share/aclocal"
-  # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-  #   via the "travis encrypt" command using the project repo's public key
-  - secure: "d7P1GZ9wBDnNO/HuEMWwvT83iOaKt1vGvTeHBQ7hKzZerIUMMOQazStQd2vXKD3QqgRPFDXVtGNtAbFUp8EpaWX9ttsf/6UnksddVtMu62/OctI6lLWEle0f5FLlT3og85BSxydfpkYizinJd9I/xuUal/Sq2xb7qwUWp/ftmm6ffwwLMD2EqdzH8xOqY2xAe6Ex1U0TEeZJLnomgBmho0xNiXK3BPGXtSf+UUpCcn9j6VGvb/VCjgs6aF8LoJgr91wzg3ycuRrjbsP6G+WMpjy09ypFx5tLyHkjtyY7j+ES8eAcw7QEvLvMQh4IrmSajM7gSlTstiT5zidz88j6fCIpHTu+FMbjMrKEfZYlBcb9SPTXsEB57puhhs/+m2qTwa9dsPvCgmrwWRZ8lgr9UFH3QXeiqLmV22o3t3R4/VuS8zHKiROSVxlntz86EbphO8VxPcMxgdBxEME/zSchj567FPlDGiHZwjPShv7CW68pSs4YBklbMowUqJohkeDJc/NhK8edqEhkHA/Oh7qAOixPNHJuvyloOxzWrxyT4mUO6e1uvUrMZl+Q3Z4G32ZwgjH3Sv3Fl4fdSsi3x+b2Wi4VGRkW0HyXvB1Jtx1kVz3CfFr4e1+S2wQ0gG7/3NnHKKNfoZjHKzf0qEMjU+WmiECtwHHfj+WB4e+dcdgsCA4="
+  global:
+    - ACLOCAL_PATH="${HOME}/.local/share/aclocal"
+    - PKG_CONFIG_PATH=${HOME}/.local/share/pkgconfig:${HOME}/.local/lib/pkgconfig/
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "d7P1GZ9wBDnNO/HuEMWwvT83iOaKt1vGvTeHBQ7hKzZerIUMMOQazStQd2vXKD3QqgRPFDXVtGNtAbFUp8EpaWX9ttsf/6UnksddVtMu62/OctI6lLWEle0f5FLlT3og85BSxydfpkYizinJd9I/xuUal/Sq2xb7qwUWp/ftmm6ffwwLMD2EqdzH8xOqY2xAe6Ex1U0TEeZJLnomgBmho0xNiXK3BPGXtSf+UUpCcn9j6VGvb/VCjgs6aF8LoJgr91wzg3ycuRrjbsP6G+WMpjy09ypFx5tLyHkjtyY7j+ES8eAcw7QEvLvMQh4IrmSajM7gSlTstiT5zidz88j6fCIpHTu+FMbjMrKEfZYlBcb9SPTXsEB57puhhs/+m2qTwa9dsPvCgmrwWRZ8lgr9UFH3QXeiqLmV22o3t3R4/VuS8zHKiROSVxlntz86EbphO8VxPcMxgdBxEME/zSchj567FPlDGiHZwjPShv7CW68pSs4YBklbMowUqJohkeDJc/NhK8edqEhkHA/Oh7qAOixPNHJuvyloOxzWrxyT4mUO6e1uvUrMZl+Q3Z4G32ZwgjH3Sv3Fl4fdSsi3x+b2Wi4VGRkW0HyXvB1Jtx1kVz3CfFr4e1+S2wQ0gG7/3NnHKKNfoZjHKzf0qEMjU+WmiECtwHHfj+WB4e+dcdgsCA4="
 
 addons:
   apt:
