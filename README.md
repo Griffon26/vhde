@@ -1,6 +1,7 @@
 # VHDE - a VHDL Diagram Editor that doesn't suck
 
 [![Build Status](https://travis-ci.org/Griffon26/vhde.svg?branch=master)](https://travis-ci.org/Griffon26/vhde)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/12963/badge.svg)](https://scan.coverity.com/projects/griffon26-vhde)
 
 ## Introduction
 
