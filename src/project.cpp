@@ -287,7 +287,9 @@ void Project::resolveLayoutComponentReferences()
     {
       for(auto &pInstance: pArch->getInstances())
       {
-        auto componentName = dynamic_cast<VHDLInstance *>(pInstance->getAssociatedVHDLInstance())->getComponent()->getName();
+        auto pVHDLInstance = dynamic_cast<VHDLInstance *>(pInstance->getAssociatedVHDLInstance());
+        g_assert(pVHDLInstance);
+        auto componentName = pVHDLInstance->getComponent()->getName();
         std::cout << "Getting from map: " << componentName << "\n";
         pInstance->associateLayoutComponent(componentMap.at(componentName));
       }
