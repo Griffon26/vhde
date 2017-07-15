@@ -45,7 +45,7 @@ you close the application.
 
 ![A screenshot](/docs/images/screenshot.png?raw=true)
 
-# Dependencies
+## Dependencies
 
 VHDE requires the following packages to be installed:
 
