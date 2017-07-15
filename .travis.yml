@@ -4,25 +4,39 @@ sudo: false
 
 env:
   - PKG_CONFIG_PATH=${HOME}/.local/share/pkgconfig:${HOME}/.local/lib/pkgconfig/ ACLOCAL_PATH="${HOME}/.local/share/aclocal"
+  # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+  #   via the "travis encrypt" command using the project repo's public key
+  - secure: "d7P1GZ9wBDnNO/HuEMWwvT83iOaKt1vGvTeHBQ7hKzZerIUMMOQazStQd2vXKD3QqgRPFDXVtGNtAbFUp8EpaWX9ttsf/6UnksddVtMu62/OctI6lLWEle0f5FLlT3og85BSxydfpkYizinJd9I/xuUal/Sq2xb7qwUWp/ftmm6ffwwLMD2EqdzH8xOqY2xAe6Ex1U0TEeZJLnomgBmho0xNiXK3BPGXtSf+UUpCcn9j6VGvb/VCjgs6aF8LoJgr91wzg3ycuRrjbsP6G+WMpjy09ypFx5tLyHkjtyY7j+ES8eAcw7QEvLvMQh4IrmSajM7gSlTstiT5zidz88j6fCIpHTu+FMbjMrKEfZYlBcb9SPTXsEB57puhhs/+m2qTwa9dsPvCgmrwWRZ8lgr9UFH3QXeiqLmV22o3t3R4/VuS8zHKiROSVxlntz86EbphO8VxPcMxgdBxEME/zSchj567FPlDGiHZwjPShv7CW68pSs4YBklbMowUqJohkeDJc/NhK8edqEhkHA/Oh7qAOixPNHJuvyloOxzWrxyT4mUO6e1uvUrMZl+Q3Z4G32ZwgjH3Sv3Fl4fdSsi3x+b2Wi4VGRkW0HyXvB1Jtx1kVz3CfFr4e1+S2wQ0gG7/3NnHKKNfoZjHKzf0qEMjU+WmiECtwHHfj+WB4e+dcdgsCA4="
 
 addons:
   apt:
     sources:
        - ubuntu-toolchain-r-test # g++-5
     packages:
-       - clang-3.9
-       - cmake
-       - g++-5
-       - gtk-doc-tools
-       - libclutter-1.0-dev
-       - libgtkmm-3.0-dev
-       - libxml-parser-perl
-       - mm-common
-       - uuid-dev
+      - clang-3.9
+      - cmake
+      - g++-5
+      - gtk-doc-tools
+      - libclutter-1.0-dev
+      - libgtkmm-3.0-dev
+      - libxml-parser-perl
+      - mm-common
+      - uuid-dev
+  coverity_scan:
+    project:
+      name: "Griffon26/vhde"
+      description: "VHDL Diagram Editor"
+    notification_email: griffon26@kfk4ever.com
+    build_command_prepend: echo "do preprocessing"
+    build_command: make
+    branch_pattern: coverity_scan
 
 compiler:
   - gcc
   - clang
+
+before_install:
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 before_script:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
@@ -31,7 +45,8 @@ before_script:
   - ./deps/install-from-github.sh GNOME cluttermm 1.3.2 -p cluttermm-1.3.2-cairo-texture-namespace-fix.patch
   - ./deps/install-from-github.sh GNOME clutter-gtk 1.5.2
   - ./deps/install-from-github.sh GNOME clutter-gtkmm CLUTTER_GTKMM_0_91_8
+  - cmake .
 
 script:
-  - cmake .
   - make
+
