@@ -38,8 +38,14 @@ compiler:
   - clang
 
 before_install:
-  # Exit now if we're on the coverity_scan branch, but not the first job
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" && "${TRAVIS_JOB_NUMBER##*.}" != 1 ]]; then echo "Exiting because coverity should only be run in the first job for this branch."; exit 0; fi
+  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then
+      if [[ "${TRAVIS_JOB_NUMBER##*.}" != 1 ]]; then
+        echo "Exiting because coverity should only be run in the first job for this branch."; sleep 1; exit 0;
+      fi;
+      if [[ "${TRAVIS_EVENT_TYPE}" != "cron" ]]; then
+        echo "Exiting because coverity should only be run from a job triggered by cron (not by ${TRAVIS_EVENT_TYPE})."; sleep 1; exit 0;
+      fi;
+    fi
 
 before_script:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
