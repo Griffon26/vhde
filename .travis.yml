@@ -13,8 +13,9 @@ env:
     #   via the "travis encrypt" command using the project repo's public key
     - secure: "o5odTFqsf1QSxSwWwCXUvACWWSv156HcvOp4ibxb57SCJ1ZleP9xr3+NX0bw4TRf2/EIPeLYxEoFZkYUQp5ak7MKlnZyseoOGUcY7ncggLBDt54j0gtL+EN36K0C+zka5fHost1zvH3f7L02nJ8TVCkvA77StxPW7ubg0NkpqCybAzW6XR/RrJ11zZbvxliGhmRUPomCWxu1Bsg6PswMXHtm7qUtRN74pmQGzvktZ+4pOrsN1IKaKn8psM1ThJiHGy5isiH2Ifmk31b+M2OMgbV0X2AHJpcfMWYJDwlCFpxjLSQlx21pE45pzqh3xhiAzkw7uh/HFIxKS/7Ey3wVPbJgwiTlak0dar4WQhavwvbfI4mTaiuzv0cMnUXr6XeXazrhzRwcEg9H2dPVgYG+fOvrqp8gN2lLPRIhn/+MzM86ANWWk9j/8cGAHGxd5qpWPJPgwf1L27hEQqNb4k2YyxB7Xh8byWQTwf2YfRGiBvHjXPitSDczdq0dQxJNCS63JF8SToCdkEIcOTYSu8xCVnWAV8D7PR219zxnS26PzjybFRyK3yKVEyPTlGN5U964/OCR60/S1kvRe6z9INFANrTK+9HhsrDXX0VyyGVCgibjhdFzcyD/X+fyZI6vDiXXRuBR2ljbeGszKu/alwogJzY0HI08oarZmsKqalyw1jM="
 
+skip_on_coverity_branch: &skip_on_coverity_branch if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then echo "Skipping stage on coverity_scan branch"; sleep 1; exit 0; fi
 
-addons:
+addons: &apt_addons
   apt:
     sources:
        - ubuntu-toolchain-r-test # g++-5
@@ -28,28 +29,44 @@ addons:
       - libxml-parser-perl
       - mm-common
       - uuid-dev
-  coverity_scan:
-    project:
-      name: "Griffon26/vhde"
-      description: "VHDL Diagram Editor"
-    notification_email: griffon26@kfk4ever.com
-    build_command_prepend: make -j2 antlr4-cpp-runtime; cov-configure --comptype gcc --compiler g++-5 --template
-    build_command: make
-    branch_pattern: coverity_scan
 
-compiler:
-  - gcc
-  - clang
-
-before_install:
-  - if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then
-      if [[ "${TRAVIS_JOB_NUMBER##*.}" != 1 ]]; then
-        echo "Exiting because coverity should only be run in the first job for this branch."; sleep 1; exit 0;
-      fi;
-      if [[ "${TRAVIS_EVENT_TYPE}" != "cron" ]]; then
-        echo "Exiting because coverity should only be run from a job triggered by cron (not by ${TRAVIS_EVENT_TYPE})."; sleep 1; exit 0;
-      fi;
-    fi
+jobs:
+  include:
+    - stage: build
+      compiler: gcc
+      before_install: *skip_on_coverity_branch
+    - stage: build
+      compiler: clang
+      before_install: *skip_on_coverity_branch
+    - stage: merge to coverity branch
+      addons:
+        apt:
+          packages:
+      before_install: *skip_on_coverity_branch
+      before_script: skip # skip dependency installation
+      script:
+          - "curl -o /tmp/travis-automerge https://raw.githubusercontent.com/Griffon26/travis-automerge/master/travis-automerge"
+          - "chmod a+x /tmp/travis-automerge"
+          - "BRANCHES_TO_MERGE_REGEX='^master$' BRANCH_TO_MERGE_INTO=coverity_scan GITHUB_REPO=Griffon26/vhde /tmp/travis-automerge"
+    - stage: coverity
+      before_install:
+        - if [[ "${TRAVIS_BRANCH}" != "coverity_scan" ]]; then
+            echo "Exiting because coverity should only be run on the coverity_scan branch."; sleep 1; exit 0;
+          fi;
+          if [[ "${TRAVIS_EVENT_TYPE}" != "cron" ]]; then
+            echo "Exiting because coverity should only be run from a job triggered by cron (not by ${TRAVIS_EVENT_TYPE})."; sleep 1; exit 0;
+          fi
+      addons:
+        <<: *apt_addons
+        coverity_scan:
+          project:
+            name: "Griffon26/vhde"
+            description: "VHDL Diagram Editor"
+          notification_email: griffon26@kfk4ever.com
+          build_command_prepend: make -j2 antlr4-cpp-runtime; cov-configure --comptype gcc --compiler g++-5 --template
+          build_command: make
+          branch_pattern: coverity_scan
+      script: ignore # don't do a regular build
 
 before_script:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
@@ -61,10 +78,5 @@ before_script:
   - cmake .
 
 script:
-  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then make; else cat "${HOME}/build/Griffon26/vhde/cov-int/scm_log.txt"; fi
-
-after_success:
-    - "curl -o /tmp/travis-automerge https://raw.githubusercontent.com/Griffon26/travis-automerge/master/travis-automerge"
-    - "chmod a+x /tmp/travis-automerge"
-    - "BRANCHES_TO_MERGE_REGEX='^master$' BRANCH_TO_MERGE_INTO=coverity_scan GITHUB_REPO=Griffon26/vhde /tmp/travis-automerge"
+  - make
 
