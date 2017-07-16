@@ -55,6 +55,12 @@ void LayoutArchitecture::associateVHDLArchitecture(INamedItem *pVHDLArchitecture
   m_pVHDLArchitecture = pVHDLArchitecture;
 }
 
+const Glib::ustring &LayoutArchitecture::getName()
+{
+  g_assert(m_pVHDLArchitecture);
+  return m_pVHDLArchitecture->getName();
+}
+
 const std::vector<LayoutInstance *> LayoutArchitecture::getInstances()
 {
   return stripOwnership(m_instances);

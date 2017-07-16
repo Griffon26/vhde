@@ -28,7 +28,7 @@
 
 class VHDLEntity;
 
-class VHDLComponent: public VHDLInterface, public INamedItem
+class VHDLComponent: public VHDLInterface
 {
 private:
   VHDLEntity *m_pEntity;
@@ -39,6 +39,9 @@ private:
 public:
   VHDLComponent(const Glib::ustring &entityName);
   ~VHDLComponent();
+
+  VHDLComponent(const VHDLComponent &) = delete;
+  VHDLComponent& operator=(const VHDLComponent&) = delete;
 
   /* Inherited methods */
   virtual bool write(std::ostream &outStream, int indent);

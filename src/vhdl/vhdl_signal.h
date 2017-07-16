@@ -40,6 +40,9 @@ public:
   VHDLSignal(const Glib::ustring &name);
   ~VHDLSignal();
 
+  VHDLSignal(const VHDLSignal&) = delete;
+  VHDLSignal& operator=(const VHDLSignal&) = delete;
+
   void setType(const VHDLType &type);
   void setDefaultValue(const Glib::ustring &defaultValue);
 

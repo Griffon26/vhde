@@ -2,25 +2,81 @@ language: cpp
 dist: trusty
 sudo: false
 
-addons:
-  apt:
-    packages:
-       - libcogl-dev
-       - libclutter-1.0-dev
-       #- mm-common
-       #- cluttermm
-       - libgtkmm-2.4-dev
+env:
+  global:
+    - ACLOCAL_PATH="${HOME}/.local/share/aclocal"
+    - PKG_CONFIG_PATH=${HOME}/.local/share/pkgconfig:${HOME}/.local/lib/pkgconfig/
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "d7P1GZ9wBDnNO/HuEMWwvT83iOaKt1vGvTeHBQ7hKzZerIUMMOQazStQd2vXKD3QqgRPFDXVtGNtAbFUp8EpaWX9ttsf/6UnksddVtMu62/OctI6lLWEle0f5FLlT3og85BSxydfpkYizinJd9I/xuUal/Sq2xb7qwUWp/ftmm6ffwwLMD2EqdzH8xOqY2xAe6Ex1U0TEeZJLnomgBmho0xNiXK3BPGXtSf+UUpCcn9j6VGvb/VCjgs6aF8LoJgr91wzg3ycuRrjbsP6G+WMpjy09ypFx5tLyHkjtyY7j+ES8eAcw7QEvLvMQh4IrmSajM7gSlTstiT5zidz88j6fCIpHTu+FMbjMrKEfZYlBcb9SPTXsEB57puhhs/+m2qTwa9dsPvCgmrwWRZ8lgr9UFH3QXeiqLmV22o3t3R4/VuS8zHKiROSVxlntz86EbphO8VxPcMxgdBxEME/zSchj567FPlDGiHZwjPShv7CW68pSs4YBklbMowUqJohkeDJc/NhK8edqEhkHA/Oh7qAOixPNHJuvyloOxzWrxyT4mUO6e1uvUrMZl+Q3Z4G32ZwgjH3Sv3Fl4fdSsi3x+b2Wi4VGRkW0HyXvB1Jtx1kVz3CfFr4e1+S2wQ0gG7/3NnHKKNfoZjHKzf0qEMjU+WmiECtwHHfj+WB4e+dcdgsCA4="
+    # The next declaration is the encrypted GITHUB_SECRET_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "o5odTFqsf1QSxSwWwCXUvACWWSv156HcvOp4ibxb57SCJ1ZleP9xr3+NX0bw4TRf2/EIPeLYxEoFZkYUQp5ak7MKlnZyseoOGUcY7ncggLBDt54j0gtL+EN36K0C+zka5fHost1zvH3f7L02nJ8TVCkvA77StxPW7ubg0NkpqCybAzW6XR/RrJ11zZbvxliGhmRUPomCWxu1Bsg6PswMXHtm7qUtRN74pmQGzvktZ+4pOrsN1IKaKn8psM1ThJiHGy5isiH2Ifmk31b+M2OMgbV0X2AHJpcfMWYJDwlCFpxjLSQlx21pE45pzqh3xhiAzkw7uh/HFIxKS/7Ey3wVPbJgwiTlak0dar4WQhavwvbfI4mTaiuzv0cMnUXr6XeXazrhzRwcEg9H2dPVgYG+fOvrqp8gN2lLPRIhn/+MzM86ANWWk9j/8cGAHGxd5qpWPJPgwf1L27hEQqNb4k2YyxB7Xh8byWQTwf2YfRGiBvHjXPitSDczdq0dQxJNCS63JF8SToCdkEIcOTYSu8xCVnWAV8D7PR219zxnS26PzjybFRyK3yKVEyPTlGN5U964/OCR60/S1kvRe6z9INFANrTK+9HhsrDXX0VyyGVCgibjhdFzcyD/X+fyZI6vDiXXRuBR2ljbeGszKu/alwogJzY0HI08oarZmsKqalyw1jM="
 
-compiler:
-  - gcc
-  - clang
+skip_on_coverity_branch: &skip_on_coverity_branch if [[ "${TRAVIS_BRANCH}" == "coverity_scan" ]]; then echo "Skipping stage on coverity_scan branch"; sleep 1; exit 0; fi
+
+addons: &apt_addons
+  apt:
+    sources:
+       - ubuntu-toolchain-r-test # g++-5
+    packages:
+      - clang-3.9
+      - cmake
+      - g++-5
+      - gtk-doc-tools
+      - libclutter-1.0-dev
+      - libgtkmm-3.0-dev
+      - libxml-parser-perl
+      - mm-common
+      - uuid-dev
+
+jobs:
+  include:
+    - stage: build
+      compiler: gcc
+      before_install: *skip_on_coverity_branch
+    - stage: build
+      compiler: clang
+      before_install: *skip_on_coverity_branch
+    - stage: merge to coverity branch
+      addons:
+        apt:
+          packages:
+      before_install: *skip_on_coverity_branch
+      before_script: skip # skip dependency installation
+      script:
+          - "curl -o /tmp/travis-automerge https://raw.githubusercontent.com/Griffon26/travis-automerge/master/travis-automerge"
+          - "chmod a+x /tmp/travis-automerge"
+          - "BRANCHES_TO_MERGE_REGEX='^master$' BRANCH_TO_MERGE_INTO=coverity_scan GITHUB_REPO=Griffon26/vhde /tmp/travis-automerge"
+    - stage: coverity
+      before_install:
+        - if [[ "${TRAVIS_BRANCH}" != "coverity_scan" ]]; then
+            echo "Exiting because coverity should only be run on the coverity_scan branch."; sleep 1; exit 0;
+          fi;
+          if [[ "${TRAVIS_EVENT_TYPE}" != "cron" ]]; then
+            echo "Exiting because coverity should only be run from a job triggered by cron (not by ${TRAVIS_EVENT_TYPE})."; sleep 1; exit 0;
+          fi
+      addons:
+        <<: *apt_addons
+        coverity_scan:
+          project:
+            name: "Griffon26/vhde"
+            description: "VHDL Diagram Editor"
+          notification_email: griffon26@kfk4ever.com
+          build_command_prepend: make -j2 antlr4-cpp-runtime; cov-configure --comptype gcc --compiler g++-5 --template
+          build_command: make
+          branch_pattern: coverity_scan
+      script: ignore # don't do a regular build
 
 before_script:
-  - ./install-mm-common.sh
-  - ./install-cluttermm.sh
-  - export PKG_CONFIG_PATH="${HOME}/.local/lib/pkgconfig:${HOME}/.local/share/pkgconfig"
-  - export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/.local/lib"
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+  - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.9" CC="clang-3.9"; fi
+  - export CXXFLAGS="-Wno-deprecated-declarations -Wno-deprecated-register"
+  - ./deps/install-from-github.sh GNOME cluttermm 1.3.2 -p cluttermm-1.3.2-cairo-texture-namespace-fix.patch
+  - ./deps/install-from-github.sh GNOME clutter-gtk 1.5.2
+  - ./deps/install-from-github.sh GNOME clutter-gtkmm CLUTTER_GTKMM_0_91_8
+  - cmake .
 
 script:
-  - cmake .
   - make
+

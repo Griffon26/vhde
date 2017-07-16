@@ -18,10 +18,11 @@
  *
  */
 
+#ifndef _GUI_INSTANCE_H
+#define _GUI_INSTANCE_H
+
 #include "gui_block.h"
 #include "layout_instance.h"
-
-class VHDLPort;
 
 /**
  * A class that manages the GUI of a VHDL instance.
@@ -32,29 +33,17 @@ class VHDLPort;
 class GuiInstance: public GuiBlock
 {
 private:
-  typedef union {
-    struct {
-      bool        layoutEventReceived;
-      bool        vhdlEventReceived;
-
-      Edge        edge;
-      int         position;
-      LayoutPort *pLayoutPort;
-      VHDLPort   *pVHDLPort;
-    };
-  } EventData;
-
   bool                    m_dragIsMove;
-
-  EventData               m_eventData;
 
   /* Model signals */
   sigc::connection        m_onLayoutPortAddedConnection;
-  sigc::connection        m_onVHDLPortAddedConnection;
   std::map<LayoutPort *, sigc::connection> m_onLayoutPortRemovedConnections;
 public:
   GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance);
   virtual ~GuiInstance();
+
+  GuiInstance(const GuiInstance&) = delete;
+  GuiInstance& operator=(const GuiInstance&) = delete;
 
 private:
   virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
@@ -64,5 +53,7 @@ private:
 
   void onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
   void onLayoutPortRemoved(Edge edge, int position, LayoutPort *pLayoutPort);
-  void onVHDLPortAdded(VHDLPort *pVHDLPort);
 };
+
+#endif
+

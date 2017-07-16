@@ -45,6 +45,9 @@ public:
   VHDLArchitecture(const Glib::ustring &name);
   virtual ~VHDLArchitecture();
 
+  VHDLArchitecture(const VHDLArchitecture&) = delete;
+  VHDLArchitecture& operator=(const VHDLArchitecture&) = delete;
+
   void init_addComponent(std::unique_ptr<VHDLComponent> pComponent);
   void init_addSignal(std::unique_ptr<VHDLSignal> pSignal);
   void init_addInstance(std::unique_ptr<VHDLInstance> pInstance);

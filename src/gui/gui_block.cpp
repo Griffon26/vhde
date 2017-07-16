@@ -26,8 +26,13 @@
  */
 
 GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock):
+  m_dragIsResize(false),
   m_pLayoutBlock(pLayoutBlock),
-  m_pStage(pStage)
+  m_pStage(pStage),
+  m_bodyHandleOffsetX(0),
+  m_bodyHandleOffsetY(0),
+  m_initialHandleX(0.0),
+  m_initialHandleY(0.0)
 {
   LayoutPosition position;
   LayoutSize size;
@@ -67,14 +72,18 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
                                        "  pos  = 0..9");
   m_pText->set_position(10, 10);
   m_pText->set_line_alignment(Pango::ALIGN_LEFT);
+#ifdef MOVABLE_TEXT
   m_pText->set_reactive();
+#endif
   m_pGroup->add_actor(m_pText);
 
   m_pGroup->show_all();
 
   /* Connect GUI signal handlers */
   m_onBodyButtonPressConnection = m_pBody->signal_button_press_event().connect(sigc::mem_fun(this, &GuiBlock::onBodyButtonPress));
+#ifdef MOVABLE_TEXT
   m_onTextButtonPressConnection = m_pText->signal_button_press_event().connect(sigc::mem_fun(*this, &GuiBlock::onTextButtonPress));
+#endif
 
   /* Connect model signal handlers */
   m_onResizedConnection = pLayoutBlock->resized.connect(sigc::mem_fun(this, &GuiBlock::onResized));
@@ -82,10 +91,15 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
 
 GuiBlock::~GuiBlock()
 {
+  printf("GuiBlock    (%p)::~GuiBlock()\n", this);
   m_onBodyButtonPressConnection.disconnect();
+#ifdef MOVABLE_TEXT
   m_onTextButtonPressConnection.disconnect();
+#endif
 
   m_onResizedConnection.disconnect();
+
+  m_pStage->remove_actor(m_pGroup);
 }
 
 bool GuiBlock::findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition)
@@ -179,6 +193,7 @@ bool GuiBlock::onPortDragged(Clutter::Event *pEvent, GuiPort *pGuiPort)
   }
 }
 
+#ifdef MOVABLE_TEXT
 bool GuiBlock::onTextButtonPress(Clutter::ButtonEvent* pEvent)
 {
   printf("GuiBlock::onTextButtonPress\n");
@@ -213,6 +228,7 @@ bool GuiBlock::onTextDragged(Clutter::Event *pEvent)
     return UNHANDLED;
   }
 }
+#endif
 
 void GuiBlock::onResized(LayoutSize layoutSize)
 {

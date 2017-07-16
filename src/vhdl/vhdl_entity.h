@@ -29,7 +29,7 @@
 
 class VHDLPort;
 
-class VHDLEntity: public VHDLInterface, public INamedItem
+class VHDLEntity: public VHDLInterface
 {
 private:
   Glib::ustring             m_name;
@@ -40,6 +40,10 @@ public:
   sigc::signal<void, Glib::ustring> name_changed;
 
   VHDLEntity(const Glib::ustring &name);
+  virtual ~VHDLEntity();
+
+  VHDLEntity(const VHDLEntity&) = delete;
+  VHDLEntity& operator=(const VHDLEntity&) = delete;
 
   void init_setDeclarativePart(std::unique_ptr<VHDLFragment> pFragment);
 

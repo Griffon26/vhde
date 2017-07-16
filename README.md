@@ -1,6 +1,7 @@
 # VHDE - a VHDL Diagram Editor that doesn't suck
 
 [![Build Status](https://travis-ci.org/Griffon26/vhde.svg?branch=master)](https://travis-ci.org/Griffon26/vhde)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/12963/badge.svg)](https://scan.coverity.com/projects/griffon26-vhde)
 
 ## Introduction
 
@@ -14,6 +15,7 @@ a higher level diagram.
 
 It is similar to [Mentor Graphics' HDL designer][1], but with the following
 key improvements:
+
 * it is Free Software
 * all project files are text files
 * the functional structure of the diagrams is stored in one set of files,
@@ -30,9 +32,28 @@ key improvements:
 
 ## Current status
 
-I recently picked back up development on this project. There is now [a backlog
-that lists items to be done in order of priority](docs/backlog.md). If you have
-any additional items you would like to see on this backlog or you have a
-comment on the chosen priorities, don't hesitate to contact me at
-griffon26@kfk4ever.com.
+There is [a backlog that lists items to be done in order of
+priority](docs/backlog.md). If you have any additional items you would like to
+see on this backlog or you have a comment on the chosen priorities, don't
+hesitate to contact me at griffon26@kfk4ever.com.
+
+Currently when you select Open from the File menu, the application loads the
+project defined in the test/exampleproject.vhde file.  You can switch between
+the entities and architectures in the project overview on the right, you can
+interact with the diagram and optionally save your changes back to disk before
+you close the application.
+
+![A screenshot](/docs/images/screenshot.png?raw=true)
+
+## Dependencies
+
+VHDE requires the following packages to be installed:
+
+* cluttermm
+* clutter-gtkmm
+* gtkmm
+
+If some of these packages or packages that they depend on are not available
+through your distribution's package manager, [scripts are provided to make it
+easy to install them in your home dir](deps/INSTALL.md).
 

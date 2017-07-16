@@ -41,6 +41,9 @@ public:
   LayoutArchitecture();
   virtual ~LayoutArchitecture();
 
+  LayoutArchitecture(const LayoutArchitecture&) = delete;
+  LayoutArchitecture& operator=(const LayoutArchitecture&) = delete;
+
   /* These methods assume ownership of the component, instance and signal */
   void init_addInstance(std::unique_ptr<LayoutInstance> pInstance);
   void init_addSignal(std::unique_ptr<LayoutSignal> pSignal);
@@ -50,6 +53,8 @@ public:
   void associateVHDLArchitecture(INamedItem *pArch);
 
   /* Accessors */
+  const Glib::ustring &getName();
+
   const std::vector<LayoutInstance *> getInstances();
   const std::vector<LayoutSignal *> getSignals();
 

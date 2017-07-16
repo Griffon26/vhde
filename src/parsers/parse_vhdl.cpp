@@ -58,16 +58,19 @@ Direction directionFromSignalMode(const Glib::ustring &modeString)
 
 class VhdlConstructingVisitor: public vhdlBaseVisitor
 {
-public:
+private:
   VHDLFile::Mode m_mode;
   std::map<const Glib::ustring, VHDLEntity *> m_entityMap;
 
   VHDLArchitecture *m_pCurrentArchitecture;
   VHDLFile *m_pCurrentFile;
 
+public:
   VhdlConstructingVisitor(VHDLFile::Mode mode):
     vhdlBaseVisitor(),
-    m_mode(mode)
+    m_mode(mode),
+    m_pCurrentArchitecture(nullptr),
+    m_pCurrentFile(nullptr)
   {
   }
 

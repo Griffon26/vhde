@@ -36,9 +36,14 @@ private:
   Glib::RefPtr<Clutter::Text>       m_pText;
   Glib::RefPtr<ClutterWire>         m_pWire;
 
+  sigc::connection m_endpoint_moved_connection;
+
 public:
   GuiSignal(Glib::RefPtr<Clutter::Stage> pStage, LayoutSignal *pLayoutSignal);
   virtual ~GuiSignal();
+
+  GuiSignal(const GuiSignal&) = delete;
+  GuiSignal& operator=(const GuiSignal&) = delete;
 
 private:
   void onEndPointMoved(LayoutSignal::EndPointId endPointId, const LayoutPosition &newPos);

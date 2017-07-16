@@ -76,6 +76,9 @@ public:
   LayoutSignal();
   virtual ~LayoutSignal();
 
+  LayoutSignal(const LayoutSignal&) = delete;
+  LayoutSignal& operator=(const LayoutSignal&) = delete;
+
   /* This function is only used when constructing an arbitrary layout for a given signal.
    * Because I do not want to expose which endpoint is already connected, this function
    * will connect to the first free endpoint.

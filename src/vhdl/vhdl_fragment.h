@@ -32,6 +32,9 @@ public:
   VHDLFragment(const Glib::ustring &text);
   virtual ~VHDLFragment();
 
+  VHDLFragment(const VHDLFragment&) = delete;
+  VHDLFragment& operator=(const VHDLFragment&) = delete;
+
   const Glib::ustring &getText();
 
   bool write(std::ostream &outStream, int indent);

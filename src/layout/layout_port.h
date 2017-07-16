@@ -48,7 +48,10 @@ public:
   sigc::signal<void, Edge, int, LayoutPort *>  removed;
 
   LayoutPort();
-  ~LayoutPort();
+  virtual ~LayoutPort();
+
+  LayoutPort(const LayoutPort&) = delete;
+  LayoutPort& operator=(const LayoutPort&) = delete;
 
   void associateVHDLPort(INamedItem *pPort);
   INamedItem *getAssociatedVHDLPort();

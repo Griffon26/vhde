@@ -48,9 +48,11 @@ private:
 
 public:
   VHDLFile(Mode mode);
+  VHDLFile(const VHDLFile &) = delete;
+  VHDLFile& operator=(const VHDLFile&) = delete;
 
   Mode getMode() { return m_mode; }
-  
+
   void setName(const Glib::ustring &name);
   const Glib::ustring &getName() { return m_name; }
 

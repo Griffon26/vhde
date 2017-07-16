@@ -80,7 +80,13 @@ void ClutterScalingText::paint_vfunc()
   //printf("Setting font to %s (%f would have been ideal)\n", fontName, sx * fontSizeSmall);
   set_font_name(fontName);
 
+/* This is a workaround for the old versions of deps used by Travis.
+ * The cluttermm version used does not provide this. This means the
+ * built executable can't work, but at least we have a working build.
+ */
+#if CLUTTER_MINOR_VERSION > 16
   Clutter::Text::paint_vfunc();
+#endif
 }
 
 #ifdef BROKEN

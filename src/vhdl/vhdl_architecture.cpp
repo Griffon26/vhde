@@ -140,6 +140,7 @@ bool VHDLArchitecture::write(std::ostream &outStream, int indent)
   return true;
 }
 
+/* Associate each VHDL component declaration with a VHDL entity definition from another file */
 void VHDLArchitecture::resolveEntityReferences(const std::map<const Glib::ustring, VHDLEntity *> &entityMap)
 {
   for(auto &pComp: m_components)

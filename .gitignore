@@ -6,3 +6,10 @@
 *.dia~
 *.o
 vhde
+
+# Also ignore the directories created by the scripts that install some
+# dependencies from git
+/clutter-gtkmm-master
+/cluttermm-master
+/mm-common-master
+

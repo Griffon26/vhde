@@ -58,6 +58,9 @@ public:
   VHDLInstance(const Glib::ustring &name, VHDLComponent *pComponent);
   virtual ~VHDLInstance();
 
+  VHDLInstance(const VHDLInstance&) = delete;
+  VHDLInstance& operator=(const VHDLInstance&) = delete;
+
   void connectSignalToPort(VHDLSignal *pSignal, VHDLPort *pPort);
   void disconnectSignalFromPort(VHDLSignal *pSignal, VHDLPort *pPort);
   //void disconnectSignal(VHDLSignal *pSignal);

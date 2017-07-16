@@ -41,6 +41,10 @@ public:
   VHDLPort(const Glib::ustring &name);
   virtual ~VHDLPort();
 
+  /* Only allow explicit copying with the copy constructor that was implemented */
+  explicit VHDLPort(const VHDLPort &other);
+  VHDLPort& operator=(const VHDLPort&) = delete;
+
   void setDirection(Direction dir);
   void setType(const VHDLType &type);
 

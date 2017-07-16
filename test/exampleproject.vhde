@@ -1,0 +1,17 @@
+#
+# An example VHDE project file
+#
+# This file lists all VHDL files of a project along with a mode that indicates
+# if architectures contained in that file should be editable as a diagram in
+# VHDE or as text in a text editor.
+#
+# The order in the list is the order that the files will be shown in the
+# project overview.
+#
+# Layout files are not included in the project file and are assumed to have the
+# same name as the VHDL files, but with a .layout extension. 
+#
+
+top_entity.vhd, diagram
+used_entity.vhd, text
+

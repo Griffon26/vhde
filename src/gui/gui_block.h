@@ -73,6 +73,9 @@ public:
   GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock);
   virtual ~GuiBlock();
 
+  GuiBlock(const GuiBlock&) = delete;
+  GuiBlock& operator=(const GuiBlock&) = delete;
+
   bool findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition);
 
 private:

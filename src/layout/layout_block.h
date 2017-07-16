@@ -84,6 +84,8 @@ public:
 
 protected:
   LayoutBlock();
+  LayoutBlock(const LayoutBlock&) = delete;
+  LayoutBlock& operator=(const LayoutBlock&) = delete;
 
   void addPort(Edge edge, int position, std::unique_ptr<LayoutPort> pPort);
   void removePort(LayoutPort *pPort);

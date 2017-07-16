@@ -1,5 +1,5 @@
 component {
-  size 150 400
+  size 230 400
   ports {
   }
 }

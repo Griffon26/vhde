@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.2.2)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
@@ -26,17 +26,20 @@ externalproject_add(${ANTLR_RUNTIME}
     GIT_REPOSITORY        https://github.com/Griffon26/antlr4.git
     GIT_TAG               "4.7-unique_ptr"
     UPDATE_COMMAND        ""
-    SOURCE_SUBDIR         runtime/Cpp
+    PATCH_COMMAND         ../../../deps/patch_antlr.sh ${ANTLR_RUNTIME_PREFIX}/src/${ANTLR_RUNTIME}
     CMAKE_ARGS            -DCMAKE_INSTALL_PREFIX=${ANTLR_RUNTIME_PREFIX}
                           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                          -DWITH_LIBCXX=Off
 )
 
 find_package(PkgConfig)
 
 pkg_check_modules(CLUTTERMM REQUIRED cluttermm-1.0)
+pkg_check_modules(CLUTTERGTKMM REQUIRED clutter-gtkmm-1.0)
 pkg_search_module(GTKMM REQUIRED gtkmm-3.0 gtkmm-2.4)
 
 include_directories(${CLUTTERMM_INCLUDE_DIRS}
+                    ${CLUTTERGTKMM_INCLUDE_DIRS}
                     ${GTKMM_INCLUDE_DIRS}
                     ${ANTLR_RUNTIME_PREFIX}/include/antlr4-runtime
                     src/clutter
@@ -47,14 +50,19 @@ include_directories(${CLUTTERMM_INCLUDE_DIRS}
                     src/parsers/generated
                     src/vhdl)
 link_directories(${CLUTTERMM_LIBRARY_DIRS}
+                 ${CLUTTERGTKMM_LIBRARY_DIRS}
                  ${GTKMM_LIBRARY_DIRS}
                  ${ANTLR_RUNTIME_PREFIX}/lib)
 link_libraries(${CLUTTERMM_LIBRARIES}
+               ${CLUTTERGTKMM_LIBRARIES}
                ${GTKMM_LIBRARIES}
                ${ANTLR_RUNTIME_PREFIX}/lib/libantlr4-runtime.so)
 
 set(SRCS src/main.cpp
+         src/architecture_stage_updater.cpp
+         src/entity_stage_updater.cpp
          src/project.cpp
+         src/project_treeview_updater.cpp
          src/clutter/clutter_block.cpp
          src/clutter/clutter_port.cpp
          src/clutter/clutter_scaling_text.cpp
@@ -77,6 +85,8 @@ set(SRCS src/main.cpp
          src/parsers/generated/vhdlVisitor.cpp
          src/parsers/parse_layout.cpp
          src/parsers/parse_vhdl.cpp
+         src/vhde_application.cpp
+         src/vhde_window.cpp
          src/vhdl/vhdl_architecture.cpp
          src/vhdl/vhdl_component.cpp
          src/vhdl/vhdl_entity.cpp
@@ -89,6 +99,10 @@ set(SRCS src/main.cpp
          src/vhdl/vhdl_type.cpp)
 
 add_executable(vhde ${SRCS})
+
+# This definition enables a work-around for
+# https://bugzilla.gnome.org/show_bug.cgi?id=783362
+add_definitions(-DCLUTTER_GTKMM_BUG)
 
 target_compile_features(vhde PRIVATE cxx_generic_lambdas
                                      cxx_noexcept

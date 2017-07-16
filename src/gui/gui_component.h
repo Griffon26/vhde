@@ -37,6 +37,8 @@ class GuiComponent: public GuiBlock
 {
 public:
   GuiComponent(Glib::RefPtr<Clutter::Stage> pStage, LayoutComponent *pComponent);
+  GuiComponent(const GuiComponent&) = delete;
+  GuiComponent& operator=(const GuiComponent&) = delete;
 
   void createPort(Edge edge, int position, Direction dir, const Glib::ustring &name);
   void destroyPort(Edge edge, int position);

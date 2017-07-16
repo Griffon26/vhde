@@ -37,7 +37,7 @@
 #include "vhdl_port.h"
 #include "vhdl_signal.h"
 
-static Glib::ustring getBaseName(const Glib::ustring &fileName)
+static Glib::ustring stripExtension(const Glib::ustring &fileName)
 {
   auto dotIndex = fileName.rfind(".");
   return fileName.substr(0, dotIndex);
@@ -93,7 +93,7 @@ void Project::createDefaultPorts(VHDLInterface *pVHDLInterface, LayoutBlock *pLa
   }
   LayoutSize size;
   pLayoutBlock->getMinimumSize(&size);
-  if(size.width < 200) size.width = 200;
+  if(size.width < 230) size.width = 230;
   if(size.height < 250) size.height = 250;
   pLayoutBlock->setSize(size);
 }
@@ -146,6 +146,7 @@ std::unique_ptr<LayoutFile> Project::createDefaultFileLayout(VHDLFile *pVHDLFile
   auto pLayoutFile = std::make_unique<LayoutFile>();
 
   auto pLayoutComponent = std::make_unique<LayoutComponent>();
+  pLayoutComponent->associateEntity(pVHDLFile->getEntity());
   createDefaultPorts(pVHDLFile->getEntity(), pLayoutComponent.get());
 
   pLayoutFile->setComponent(std::move(pLayoutComponent));
@@ -161,15 +162,71 @@ std::unique_ptr<LayoutFile> Project::createDefaultFileLayout(VHDLFile *pVHDLFile
   return pLayoutFile;
 }
 
+void Project::PortConnector::connectIfBothPortsAdded()
+{
+  if(m_pLayoutPort && m_pVHDLPort)
+  {
+    m_pLayoutPort->associateVHDLPort(m_pVHDLPort);
+    m_pLayoutPort = nullptr;
+    m_pVHDLPort = nullptr;
+  }
+}
+
+void Project::PortConnector::onVHDLPortAdded(VHDLPort *pVHDLPort)
+{
+  g_assert(!m_pVHDLPort);
+  m_pVHDLPort = pVHDLPort;
+
+  connectIfBothPortsAdded();
+}
+
+void Project::PortConnector::onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
+{
+  g_assert(!m_pLayoutPort);
+  m_pLayoutPort = pLayoutPort;
+
+  connectIfBothPortsAdded();
+}
+
+void Project::PortConnector::registerLayoutInstance(LayoutInstance *pLayoutInstance)
+{
+  pLayoutInstance->port_added.connect(sigc::mem_fun(this, &Project::PortConnector::onLayoutPortAdded));
+}
+
+void Project::PortConnector::registerVHDLInstance(VHDLInstance *pVHDLInstance)
+{
+  pVHDLInstance->getComponent()->port_added.connect(sigc::mem_fun(this, &Project::PortConnector::onVHDLPortAdded));
+}
+
+void Project::registerInstancesAtPortConnector(LayoutFile *pLayoutFile, VHDLFile *pVHDLFile)
+{
+  if(pVHDLFile->getMode() == VHDLFile::GRAPHICAL)
+  {
+    for(auto &pLayoutArch: pLayoutFile->getArchitectures())
+    {
+      for(auto &pLayoutInstance: pLayoutArch->getInstances())
+      {
+        m_portConnector.registerLayoutInstance(pLayoutInstance);
+      }
+    }
+    for(auto &pVHDLArch: pVHDLFile->getArchitectures())
+    {
+      for(auto &pVHDLInstance: pVHDLArch->getInstances())
+      {
+        m_portConnector.registerVHDLInstance(pVHDLInstance);
+      }
+    }
+  }
+}
+
 void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
 {
-  auto baseName = getBaseName(fileName);
+  auto baseName = stripExtension(fileName);
 
-  auto pVHDLFile = readVHDLFromFile(fileName, mode, m_entityMap);
-
-  auto layoutFileName = baseName + ".layout";
+  auto pVHDLFile = readVHDLFromFile(Glib::path_get_dirname(m_filePath) + "/" + fileName, mode, m_entityMap);
 
   std::unique_ptr<LayoutResolverActions> pResolver = std::make_unique<LayoutResolverActions>();
+  auto layoutFileName = Glib::path_get_dirname(m_filePath) + "/" + baseName + ".layout";
   auto pLayoutFile = readLayoutFromFile(layoutFileName, pResolver.get());
 
   /* If we failed to read an architecture layout from file, we'll construct a suitable one here */
@@ -177,6 +234,8 @@ void Project::addFile(const Glib::ustring &fileName, VHDLFile::Mode mode)
   {
     pLayoutFile = createDefaultFileLayout(pVHDLFile.get());
   }
+
+  registerInstancesAtPortConnector(pLayoutFile.get(), pVHDLFile.get());
 
   m_fileToVHDLFileMap[baseName] = std::move(pVHDLFile);
   m_fileToLayoutFileMap[baseName] = std::move(pLayoutFile);
@@ -201,6 +260,7 @@ void Project::resolveEntityReferences()
 
 void Project::resolveLayoutReferences()
 {
+  /* Run all resolution actions for each layout file passing in the corresponding VHDLFile */
   for(auto &kv: m_layoutResolverMap)
   {
     std::cout << "Resolving layout references to VHDL objects in file " << kv.first << std::endl;
@@ -216,6 +276,7 @@ void Project::resolveLayoutComponentReferences()
   for(auto &kv: m_fileToLayoutFileMap)
   {
     LayoutComponent *pComponent = (LayoutComponent *)kv.second->getComponent();
+    std::cout << "Adding to map: " << pComponent->getAssociatedVHDLEntity()->getName() << "\n";
     componentMap[pComponent->getAssociatedVHDLEntity()->getName()] = pComponent;
   }
 
@@ -226,33 +287,121 @@ void Project::resolveLayoutComponentReferences()
     {
       for(auto &pInstance: pArch->getInstances())
       {
-        auto instanceName = pInstance->getAssociatedVHDLInstance()->getName();
-        pInstance->associateLayoutComponent(componentMap.at(instanceName));
+        auto pVHDLInstance = dynamic_cast<VHDLInstance *>(pInstance->getAssociatedVHDLInstance());
+        g_assert(pVHDLInstance);
+        auto componentName = pVHDLInstance->getComponent()->getName();
+        std::cout << "Getting from map: " << componentName << "\n";
+        pInstance->associateLayoutComponent(componentMap.at(componentName));
       }
     }
   }
 }
 
+std::vector<Glib::ustring> Project::getFileNames()
+{
+  std::vector<Glib::ustring> keys;
+
+  for(auto &kv: m_fileToVHDLFileMap)
+  {
+    keys.push_back(kv.first);
+  }
+  return keys;
+}
+
 LayoutFile *Project::getLayoutFile(const Glib::ustring &fileName)
 {
-  return m_fileToLayoutFileMap.at(getBaseName(fileName)).get();
+  return m_fileToLayoutFileMap.at(stripExtension(fileName)).get();
+}
+
+void Project::clear()
+{
+  m_filePath.clear();
+  m_entityMap.clear();
+  m_layoutResolverMap.clear();
+  m_fileToLayoutFileMap.clear();
+  m_fileToVHDLFileMap.clear();
+
+  changed.emit();
 }
 
 void Project::save()
 {
+  if(m_filePath.empty())
+  {
+    return;
+  }
+
+  std::ofstream projectFile(m_filePath);
+  projectFile << m_header;
+
   for(auto &kv: m_fileToVHDLFileMap)
   {
-    std::cout << "Saving file " << kv.second->getName() << " to file " << kv.first << ".*" << std::endl;
+    projectFile << kv.first << ".vhd, " << ((kv.second->getMode() == VHDLFile::GRAPHICAL) ? "diagram" : "text") << "\n";
+
+    Glib::ustring outputFileBaseName = Glib::path_get_dirname(m_filePath) + "/" + kv.first;
+    std::cout << "Saving file " << kv.second->getName() << " to file " << outputFileBaseName << ".*" << std::endl;
 
     std::ofstream outStream;
-    
-    outStream.open(kv.first + ".vhd");
+
+    outStream.open(outputFileBaseName + ".vhd");
     kv.second->write(outStream, 0);
     outStream.close();
 
-    outStream.open(kv.first + ".layout");
+    outStream.open(outputFileBaseName + ".layout");
     m_fileToLayoutFileMap.at(kv.first)->write(outStream, 0);
     outStream.close();
   }
+  projectFile << "\n";
+}
+
+static Glib::ustring trim(const Glib::ustring &s)
+{
+  auto begin = find_if_not(s.begin(), s.end(), [](int c){ return std::isspace(c); });
+  auto end = find_if_not(s.rbegin(), s.rend(), [](int c){ return std::isspace(c); }).base();
+  return Glib::ustring(begin, end);
+}
+
+void Project::load(const Glib::ustring &projectFileName)
+{
+  m_filePath = projectFileName;
+
+  std::ifstream inStream(m_filePath);
+  std::string line, untrimmedLine;
+
+  bool inHeader = true;
+  m_header = "";
+
+  while (std::getline(inStream, untrimmedLine))
+  {
+    line = trim(untrimmedLine);
+
+    // Skip empty and comment lines
+    if(line[0] == '\0' || line[0] == '#')
+    {
+      if(inHeader)
+      {
+        m_header += untrimmedLine + "\n";
+      }
+      continue;
+    }
+
+    inHeader = false;
+
+    auto comma = std::find(line.begin(), line.end(), ',');
+    g_assert(comma != line.end());
+
+    auto fileName = Glib::ustring(line.begin(), comma);
+    auto mode = Glib::ustring(comma + 2, line.end());
+
+    g_assert(mode == "diagram" || mode == "text");
+
+    addFile(fileName, (mode == "text") ? VHDLFile::TEXT : VHDLFile::GRAPHICAL);
+  }
+
+  resolveEntityReferences();
+  resolveLayoutReferences();
+  resolveLayoutComponentReferences();
+
+  changed.emit();
 }
 

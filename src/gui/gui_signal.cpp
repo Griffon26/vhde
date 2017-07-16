@@ -28,17 +28,23 @@ GuiSignal::GuiSignal(Glib::RefPtr<Clutter::Stage> pStage, LayoutSignal *pLayoutS
   m_pLayoutSignal(pLayoutSignal),
   m_pStage(pStage)
 {
+  printf("GuiSignal(%p)::GuiSignal()\n", this);
+
   m_pWire = ClutterWire::create(Clutter::Color(0x00, 0x00, 0x00, 0xFF));
 
   updateCorners(m_pLayoutSignal->getCorners());
 
   m_pStage->add_actor(m_pWire);
 
-  m_pLayoutSignal->endpoint_moved.connect(sigc::mem_fun(this, &GuiSignal::onEndPointMoved));
+
+  m_endpoint_moved_connection = m_pLayoutSignal->endpoint_moved.connect(sigc::mem_fun(this, &GuiSignal::onEndPointMoved));
 }
 
 GuiSignal::~GuiSignal()
 {
+  printf("GuiSignal(%p)::~GuiSignal\n", this);
+  m_endpoint_moved_connection.disconnect();
+  m_pStage->remove_actor(m_pWire);
 }
 
 void GuiSignal::onEndPointMoved(LayoutSignal::EndPointId endPointId, const LayoutPosition &newPos)
@@ -54,6 +60,8 @@ void GuiSignal::updateCorners(const std::list<LayoutPosition> *pCornerList)
 {
   float *pCornerCoords, *pCurrentCoord;
   std::list<LayoutPosition>::const_iterator it;
+
+  g_assert(pCornerList->size() != 0);
 
   pCornerCoords = (float *)g_malloc(pCornerList->size() * 2 * sizeof(float));
 

@@ -141,6 +141,7 @@ void VHDLComponent::onPortAdded(VHDLPort *pEntityPort)
 void VHDLComponent::onPortRemoved(VHDLPort *pEntityPort, VHDLPort *pOurPort)
 {
   printf("VHDLComponent(%p)::onPortRemoved(%s(%p))\n", this, pOurPort->getName().c_str(), pOurPort);
+  m_onPortRemovedConnections[pOurPort].disconnect();
   m_onPortRemovedConnections.erase(pOurPort);
   removePort(pOurPort);
 }
