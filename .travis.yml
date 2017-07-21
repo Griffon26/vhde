@@ -66,7 +66,7 @@ jobs:
           build_command_prepend: make -j2 antlr4-cpp-runtime; cov-configure --comptype gcc --compiler g++-5 --template
           build_command: make
           branch_pattern: coverity_scan
-      script: ignore # don't do a regular build
+      script: echo "Dummy script step to make coverity do its thing"
 
 before_script:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
