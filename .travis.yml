@@ -63,7 +63,7 @@ jobs:
             name: "Griffon26/vhde"
             description: "VHDL Diagram Editor"
           notification_email: griffon26@kfk4ever.com
-          build_command_prepend: make -j2 antlr4-cpp-runtime; cov-configure --comptype gcc --compiler g++-5 --template
+          build_command_prepend: make antlr4-cpp-runtime; cov-configure --comptype gcc --compiler g++-5 --template
           build_command: make
           branch_pattern: coverity_scan
       script: echo "Dummy script step to make coverity do its thing"
