@@ -7,12 +7,14 @@ explanation or subdivision.
 The identifiers (`VHDE-nn`) are only used to refer to other items on the list
 and do not indicate priority.
 
+1. `VHDE-27`: Make objects selectable and send keyboard input to the selection
+1. `VHDE-26`: Implement saving a newly created project
+1. `VHDE-25`: Implement the adding of files to an existing project
 1. `VHDE-21`: Also show architectures from file opened in text mode
 1. `VHDE-22`: Show difference between graphical/text archs in treeview (deps on `VHDE-21`)
 1. `VHDE-23`: Open text editor when opening a text architecture (deps on `VHDE-21`)
 1. `VHDE-24`: Monitor loaded files to allow reload on change by external editor
-1. `VHDE-25`: Implement the adding of files to an existing project
-1. `VHDE-26`: Implement saving a newly created project
+1. `VHDE-28`: Implement routing of signals according to the 'ordered wire routing' algorithm
 1. `VHDE-02`: Complete support for the currently implemented VHDL items (remove shortcuts)
 1. `VHDE-13`: Resolve conflicts between .layout and .vhd files
 1. `VHDE-12`: Remove restriction of 1 architecture per file
