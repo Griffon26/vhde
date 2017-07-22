@@ -25,6 +25,7 @@
 #include "clutter_port.h"
 #include "clutter_scaling_text.h"
 #include "gui_port.h"
+#include "gui_selectable.h"
 #include "layout_block.h"
 
 /**
@@ -35,7 +36,7 @@
  * to change its position on the canvas.  Use GuiInstance instead if you need
  * component instance specific operations like that.
  */
-class GuiBlock
+class GuiBlock: public GuiSelectable
 {
 private:
   bool  m_dragIsResize;
@@ -75,6 +76,8 @@ public:
 
   GuiBlock(const GuiBlock&) = delete;
   GuiBlock& operator=(const GuiBlock&) = delete;
+
+  void queueRedraw();
 
   bool findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition);
 

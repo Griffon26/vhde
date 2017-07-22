@@ -27,14 +27,15 @@ class ClutterBlock: public Clutter::Actor
 {
 private:
   Clutter::Color  m_color;
+  bool           &m_rSelectionState;
 
 public:
-  static Glib::RefPtr<ClutterBlock> create(const Clutter::Color &color);
+  static Glib::RefPtr<ClutterBlock> create(const Clutter::Color &color, bool &selectionState);
 
 private:
-  explicit ClutterBlock(const Clutter::Color &color);
+  explicit ClutterBlock(const Clutter::Color &color, bool &selectionState);
 
-  void drawBox(const Clutter::Color &color, bool hasBorder);
+  void drawBox(const Clutter::Color &color, bool hasBorder, bool selected);
 
   void paint_vfunc();
   void pick_vfunc(const Clutter::Color &color);

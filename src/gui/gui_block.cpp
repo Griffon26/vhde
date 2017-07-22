@@ -47,7 +47,7 @@ GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBloc
   m_pStage->add_actor(m_pGroup);
 
   /* Add the body */
-  m_pBody = ClutterBlock::create(Clutter::Color(0xAE, 0xFF, 0x7F, 0xFF));
+  m_pBody = ClutterBlock::create(Clutter::Color(0xAE, 0xFF, 0x7F, 0xFF), m_selected);
   m_pBody->set_size(size.width, size.height);
   m_pBody->set_position(0, 0);
   m_pBody->set_reactive();
@@ -100,6 +100,11 @@ GuiBlock::~GuiBlock()
   m_onResizedConnection.disconnect();
 
   m_pStage->remove_actor(m_pGroup);
+}
+
+void GuiBlock::queueRedraw()
+{
+  m_pBody->queue_redraw();
 }
 
 bool GuiBlock::findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition)
@@ -334,7 +339,7 @@ bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
     {
       m_pLayoutBlock->setPortPositions((Edge)edge, m_initialPortPositions[edge]);
     }
- 
+
     return HANDLED;
   }
   else if(pEvent->type == CLUTTER_BUTTON_RELEASE)

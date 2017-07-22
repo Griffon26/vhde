@@ -24,21 +24,22 @@
  * Public methods
  */
 
-Glib::RefPtr<ClutterBlock> ClutterBlock::create(const Clutter::Color &color)
+Glib::RefPtr<ClutterBlock> ClutterBlock::create(const Clutter::Color &color, bool &selectionState)
 {
-  return Glib::RefPtr<ClutterBlock>(new ClutterBlock(color));
+  return Glib::RefPtr<ClutterBlock>(new ClutterBlock(color, selectionState));
 }
 
 /*
  * Private methods
  */
 
-ClutterBlock::ClutterBlock(const Clutter::Color &color):
-  m_color(color)
+ClutterBlock::ClutterBlock(const Clutter::Color &color, bool &selectionState):
+  m_color(color),
+  m_rSelectionState(selectionState)
 {
 }
 
-void ClutterBlock::drawBox(const Clutter::Color &color, bool hasBorder)
+void ClutterBlock::drawBox(const Clutter::Color &color, bool hasBorder, bool selected)
 {
   float width, height;
 
@@ -49,7 +50,20 @@ void ClutterBlock::drawBox(const Clutter::Color &color, bool hasBorder)
 
   if(hasBorder)
   {
+    const int cornerRadius = 3;
+
     cogl_set_source_color4ub(0x00, 0x00, 0x00, get_opacity());
+
+    std::vector<std::pair<float, float>> handles = { {0,0}, {width / 2, 0}, {width, 0},
+                                                     {0, height / 2}, {width, height / 2},
+                                                     {0, height}, {width / 2, height}, {width, height} };
+
+    for(auto &point: handles)
+    {
+      cogl_rectangle(point.first - cornerRadius, point.second - cornerRadius,
+                     point.first + cornerRadius, point.second + cornerRadius);
+    }
+
     cogl_path_rectangle(0, 0, width, height);
     cogl_path_stroke();
   }
@@ -57,10 +71,10 @@ void ClutterBlock::drawBox(const Clutter::Color &color, bool hasBorder)
 
 void ClutterBlock::paint_vfunc()
 {
-  drawBox(m_color, true);
+  drawBox(m_color, true, m_rSelectionState);
 }
 
 void ClutterBlock::pick_vfunc(const Clutter::Color &color)
 {
-  drawBox(color, false);
+  drawBox(color, false, false);
 }
