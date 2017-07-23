@@ -299,7 +299,10 @@ bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
   m_pLayoutBlock->getMinimumSize(&m_minimumSize);
 
   /* Register for motion and button release events from the stage */
-  m_draggedSinceButtonPress = false;
+  if(pEvent->button == 1)
+  {
+    m_draggedSinceButtonPress = false;
+  }
   m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiBlock::onBodyDragged));
 
   m_dragIsResize = (pEvent->button == 3) &&
@@ -352,7 +355,7 @@ bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
   else if(pEvent->type == CLUTTER_BUTTON_RELEASE)
   {
     m_onDragConnection.disconnect();
-    if(!m_draggedSinceButtonPress)
+    if(pEvent->button.button == 1 && !m_draggedSinceButtonPress)
     {
       clicked.emit(pEvent->button.modifier_state & ALL_MODIFIERS_MASK, this);
     }

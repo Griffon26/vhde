@@ -47,6 +47,8 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   g_assert(m_pArch != nullptr);
   m_pStage = pStage;
 
+  m_pStage->signal_button_release_event().connect(sigc::mem_fun(*this, &ArchitectureStageUpdater::onStageClicked));
+
   for(auto &layoutSignal: m_pArch->getSignals())
   {
     m_pGuiSignals.push_back(std::make_unique<GuiSignal>(m_pStage, layoutSignal));
@@ -78,5 +80,17 @@ void ArchitectureStageUpdater::onInstanceClicked(unsigned int modifiers, GuiBloc
       m_pGuiSelection->set(pInstance);
       break;
   }
+}
+
+bool ArchitectureStageUpdater::onStageClicked(Clutter::ButtonEvent *pButtonEvent)
+{
+  if( pButtonEvent->button == 1 &&
+      (pButtonEvent->modifier_state & ALL_MODIFIERS_MASK) != CLUTTER_CONTROL_MASK)
+  {
+    m_pGuiSelection->clear();
+    return true;
+  }
+
+  return false;
 }
 

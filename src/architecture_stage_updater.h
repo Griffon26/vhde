@@ -40,6 +40,7 @@ public:
   void setStage(Glib::RefPtr<Clutter::Stage> pStage);
   bool onKeyPressEvent(GdkEventKey *pEvent);
   void onInstanceClicked(unsigned int modifiers, GuiBlock *pInstance);
+  bool onStageClicked(Clutter::ButtonEvent *pButtonEvent);
 
 private:
   LayoutArchitecture *m_pArch;
