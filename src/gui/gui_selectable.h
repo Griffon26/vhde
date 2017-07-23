@@ -44,6 +44,13 @@ public:
     queueRedraw();
   }
 
+  /* This function will be called when the selection is deleted. The object can
+   * choose to ignore this if deleting is not allowed (e.g. deleting an instance
+   * port in an architecture diagram is not allowed; modifications of an entity
+   * must be performed in the entity diagram)
+   */
+  virtual void discard() = 0;
+
 protected:
   /* Method to be implemented by all selectable Gui classes. This should queue
    * a redraw for all clutter actors that are drawn differently based on

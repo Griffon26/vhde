@@ -27,6 +27,7 @@
 #include "i_named_item.h"
 
 class VHDLComponent;
+class VHDLPort;
 class VHDLSignal;
 
 class VHDLInstance: public INamedItem
@@ -54,6 +55,7 @@ private:
 public:
   /* signals */
   //sigc::signal<void, VHDLSignal *, VHDLPort *> signal_disassociated;
+  sigc::signal<void, VHDLInstance *> deleteRequested;
 
   VHDLInstance(const Glib::ustring &name, VHDLComponent *pComponent);
   virtual ~VHDLInstance();
@@ -71,6 +73,8 @@ public:
   VHDLComponent *getComponent() { return m_pComponent; }
 
   std::vector<std::pair<VHDLPort *, VHDLSignal *>> getPortsAndSignals();
+
+  void discard();
 
 private:
   void onPortRemoved(VHDLPort *pPort);

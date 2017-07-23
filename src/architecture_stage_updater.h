@@ -42,13 +42,15 @@ public:
   void onInstanceClicked(unsigned int modifiers, GuiBlock *pInstance);
   bool onStageClicked(Clutter::ButtonEvent *pButtonEvent);
 
+  void deleteSelection();
+
 private:
   LayoutArchitecture *m_pArch;
   Glib::RefPtr<Clutter::Stage> m_pStage;
 
   std::vector<std::unique_ptr<GuiInstance>> m_pGuiInstances;
   std::vector<std::unique_ptr<GuiSignal>> m_pGuiSignals;
-  std::unique_ptr<GuiSelection> m_pGuiSelection;
+  GuiSelection m_guiSelection;
 };
 
 #endif

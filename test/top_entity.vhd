@@ -19,5 +19,10 @@ begin
     myport1 => mysignal1,
     myport2 => open
   );
+  myinstance2: used_entity
+  port map (
+    myport1 => open,
+    myport2 => open
+  );
 end;
 

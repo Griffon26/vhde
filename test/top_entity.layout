@@ -6,7 +6,16 @@ component {
 
 architecture "top_arch" {
   instance "myinstance1" {
-    position 300 200
+    position 275 244
+    size 200 300
+    ports {
+      "myport1" LEFT 0
+      "myport2" RIGHT 8
+    }
+  }
+
+  instance "myinstance2" {
+    position 626 110
     size 200 300
     ports {
       "myport1" LEFT 0
@@ -21,7 +30,7 @@ architecture "top_arch" {
       0 0
       100 200
       200 200
-      290 220
+      265 264
     }
   }
 }

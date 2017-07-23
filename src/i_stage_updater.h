@@ -36,6 +36,7 @@ public:
   virtual ~IStageUpdater() {};
   virtual void setStage(Glib::RefPtr<Clutter::Stage> pStage) = 0;
   virtual bool onKeyPressEvent(GdkEventKey *pKey) = 0;
+  virtual void deleteSelection() = 0;
 };
 
 #endif

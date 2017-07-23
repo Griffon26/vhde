@@ -53,6 +53,8 @@ public:
   void init_addInstance(std::unique_ptr<VHDLInstance> pInstance);
   void init_done() { m_init = false; }
 
+  void removeInstance(VHDLInstance *pInstance);
+
   /* Accessors */
   const std::vector<VHDLInstance *> getInstances();
   const std::vector<VHDLSignal *> getSignals();

@@ -50,6 +50,8 @@ public:
 
   void init_done() { m_init = false; }
 
+  void removeInstance(LayoutInstance *pInstance);
+
   void associateVHDLArchitecture(INamedItem *pArch);
 
   /* Accessors */

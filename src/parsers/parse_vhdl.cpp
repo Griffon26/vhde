@@ -234,6 +234,9 @@ private:
     m_pCurrentArchitecture = pArch.get();
     visit(ctx->architecture_declarative_part());
     visit(ctx->architecture_statement_part());
+
+    m_pCurrentArchitecture->init_done();
+    m_pCurrentArchitecture = nullptr;
     return std::move(pArch);
   }
 

@@ -60,3 +60,8 @@ void GuiSelection::set(GuiSelectable *pGuiSelectable)
   add(pGuiSelectable);
 }
 
+std::unordered_set<GuiSelectable *> GuiSelection::get()
+{
+  return m_selectedObjects;
+}
+

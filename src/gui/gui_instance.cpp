@@ -21,6 +21,7 @@
 #include "gui_common.h"
 #include "gui_instance.h"
 #include "layout_port.h"
+#include "vhdl_instance.h"
 
 GuiInstance::GuiInstance(Glib::RefPtr<Clutter::Stage> pStage, LayoutInstance *pLayoutInstance):
   GuiBlock(pStage, pLayoutInstance),
@@ -51,6 +52,16 @@ GuiInstance::~GuiInstance()
   {
     kv.second.disconnect();
   }
+}
+
+void GuiInstance::discard()
+{
+  LayoutInstance *pLayoutInstance = static_cast<LayoutInstance *>(m_pLayoutBlock);
+  VHDLInstance *pVHDLInstance = static_cast<VHDLInstance *>(pLayoutInstance->getAssociatedVHDLInstance());
+
+  /* This will cause the architectures that own the objects to delete it */
+  pLayoutInstance->discard();
+  pVHDLInstance->discard();
 }
 
 bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)

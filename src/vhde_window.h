@@ -55,6 +55,7 @@ private:
   bool on_treeview_focus_in_event(GdkEventFocus *pEvent, Gtk::TreeView *pTreeView);
   bool on_stage_captured_event(Clutter::Event *pEvent);
   bool onKeyPressEvent(GdkEventKey *pEvent);
+  void onActionEditDelete();
 
   std::vector<sigc::connection> m_subscriptions;
   sigc::connection m_updater_key_press_connection;

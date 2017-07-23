@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <set>
 
 #include "vhdl_architecture.h"
 #include "vhdl_component.h"
@@ -58,7 +59,17 @@ void VHDLArchitecture::init_addSignal(std::unique_ptr<VHDLSignal> pSignal)
 void VHDLArchitecture::init_addInstance(std::unique_ptr<VHDLInstance> pInstance)
 {
   g_assert(m_init);
+  pInstance->deleteRequested.connect(sigc::mem_fun(*this, &VHDLArchitecture::removeInstance));
   m_instances.push_back(std::move(pInstance));
+}
+
+void VHDLArchitecture::removeInstance(VHDLInstance *pInstance)
+{
+  g_assert(!m_init);
+  m_instances.erase(std::remove_if(m_instances.begin(),
+                                   m_instances.end(),
+                                   [&](std::unique_ptr<VHDLInstance> &p) { return p.get() == pInstance; }),
+                    m_instances.end());
 }
 
 const std::vector<VHDLInstance *> VHDLArchitecture::getInstances()
@@ -119,9 +130,14 @@ bool VHDLArchitecture::write(std::ostream &outStream, int indent)
 
   outStream << indentString << "architecture " << m_name << " of " << m_pEntity->getName() << " is\n\n";
 
+  std::set<VHDLComponent *> components;
   for(auto iit = m_instances.begin(); iit != m_instances.end(); iit++)
   {
-    (*iit)->getComponent()->write(outStream, indent + 2);
+    components.insert((*iit)->getComponent());
+  }
+  for(auto &pComp: components)
+  {
+    pComp->write(outStream, indent + 2);
   }
 
   for(auto sit = m_signals.begin(); sit != m_signals.end(); sit++)

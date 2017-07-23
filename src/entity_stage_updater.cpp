@@ -208,3 +208,8 @@ bool EntityStageUpdater::onKeyPressEvent(GdkEventKey *pEvent)
   return UNHANDLED;
 }
 
+void EntityStageUpdater::deleteSelection()
+{
+  // TODO: delete ports when selected
+}
+

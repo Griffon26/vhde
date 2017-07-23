@@ -39,6 +39,7 @@ LayoutArchitecture::~LayoutArchitecture()
 void LayoutArchitecture::init_addInstance(std::unique_ptr<LayoutInstance> pInstance)
 {
   g_assert(m_init);
+  pInstance->deleteRequested.connect(sigc::mem_fun(*this, &LayoutArchitecture::removeInstance));
   m_instances.push_back(std::move(pInstance));
 }
 
@@ -46,6 +47,15 @@ void LayoutArchitecture::init_addSignal(std::unique_ptr<LayoutSignal> pSignal)
 {
   g_assert(m_init);
   m_signals.push_back(std::move(pSignal));
+}
+
+void LayoutArchitecture::removeInstance(LayoutInstance *pInstance)
+{
+  g_assert(!m_init);
+  m_instances.erase(std::remove_if(m_instances.begin(),
+                                   m_instances.end(),
+                                   [&](std::unique_ptr<LayoutInstance> &p) { return p.get() == pInstance; }),
+                    m_instances.end());
 }
 
 void LayoutArchitecture::associateVHDLArchitecture(INamedItem *pVHDLArchitecture)

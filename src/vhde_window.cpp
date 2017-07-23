@@ -87,6 +87,8 @@ VHDEWindow::VHDEWindow(std::unique_ptr<ITreeViewUpdater> pTreeViewUpdater):
   pBuilder->get_widget("toplevelbox", pBox);
   add(*pBox);
 
+  add_action("delete", sigc::mem_fun(*this, &VHDEWindow::onActionEditDelete));
+
   // For now define accelerators here in code instead of in the glade file,
   // because I could not find a way to have glade add the accelerators to an
   // accelgroup that I can connect to VHDEWindow.
@@ -151,7 +153,6 @@ void VHDEWindow::setStageUpdater(std::unique_ptr<IStageUpdater> pStageUpdater)
      */
     m_updater_key_press_connection = m_pClutterEmbedBox->signal_key_press_event().connect(sigc::mem_fun(m_pStageUpdater.get(), &IStageUpdater::onKeyPressEvent));
 
-
     m_pStageUpdater->setStage(m_stage);
   }
 }
@@ -167,9 +168,14 @@ void VHDEWindow::add_accelerator(Glib::RefPtr<Gtk::Builder> pBuilder, Glib::ustr
 
 bool VHDEWindow::onKeyPressEvent(GdkEventKey *pEvent)
 {
-  printf("VHDEWindow::onKeyPressEvent\n");
-  printf("  key not handled\n");
   return UNHANDLED;
 }
 
+void VHDEWindow::onActionEditDelete()
+{
+  if(m_pStageUpdater)
+  {
+    m_pStageUpdater->deleteSelection();
+  }
+}
 

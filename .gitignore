@@ -5,6 +5,7 @@
 /Makefile
 *.dia~
 *.o
+*.orig
 vhde
 
 # Also ignore the directories created by the scripts that install some

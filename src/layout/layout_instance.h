@@ -39,6 +39,7 @@ private:
 public:
   /* Signals */
   sigc::signal<void, const LayoutPosition &>  moved;
+  sigc::signal<void, LayoutInstance *> deleteRequested;
 
   LayoutInstance();
   ~LayoutInstance();
@@ -53,6 +54,8 @@ public:
   INamedItem *getAssociatedVHDLInstance();
 
   void write(std::ostream &stream, int indent);
+
+  void discard();
 
 private:
 #if 0

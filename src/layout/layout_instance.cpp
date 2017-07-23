@@ -122,6 +122,11 @@ void LayoutInstance::write(std::ostream &stream, int indent)
          << "\n";
 }
 
+void LayoutInstance::discard()
+{
+  deleteRequested.emit(this);
+}
+
 /*
  * Private methods
  */

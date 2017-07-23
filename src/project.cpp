@@ -136,6 +136,8 @@ std::unique_ptr<LayoutArchitecture> Project::createDefaultArchitectureLayout(VHD
     pLayoutArch->init_addInstance(std::move(pLayoutInstance));
   }
 
+  pLayoutArch->init_done();
+
   return pLayoutArch;
 }
 

@@ -43,6 +43,9 @@ public:
   void createPort(Edge edge, int position, Direction dir, const Glib::ustring &name);
   void destroyPort(Edge edge, int position);
 
+  /* Inherited from GuiSelectable */
+  void discard();
+
 private:
   LayoutComponent *thisLayoutComponent();
 };

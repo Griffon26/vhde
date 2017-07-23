@@ -40,6 +40,7 @@ public:
 private:
   bool on_my_captured_event(Clutter::Event* pEvent, Glib::RefPtr<Clutter::Stage> pStage);
   bool onKeyPressEvent(GdkEventKey *pEvent);
+  void deleteSelection();
 
   sigc::connection m_key_press_connection;
   sigc::connection m_capture_connection;

@@ -66,6 +66,11 @@ void GuiComponent::destroyPort(Edge edge, int position)
   removePort(edge, position);
 }
 
+void GuiComponent::discard()
+{
+  /* Ignore because a component cannot be deleted */
+}
+
 /*
  * Private methods
  */

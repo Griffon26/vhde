@@ -95,6 +95,7 @@
                     <property name="label">gtk-cut</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="action_name">win.cut</property>
                     <property name="use_underline">True</property>
                     <property name="use_stock">True</property>
                   </object>
@@ -104,6 +105,7 @@
                     <property name="label">gtk-copy</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="action_name">win.copy</property>
                     <property name="use_underline">True</property>
                     <property name="use_stock">True</property>
                   </object>
@@ -113,6 +115,7 @@
                     <property name="label">gtk-paste</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="action_name">win.paste</property>
                     <property name="use_underline">True</property>
                     <property name="use_stock">True</property>
                   </object>
@@ -122,6 +125,7 @@
                     <property name="label">gtk-delete</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="action_name">win.delete</property>
                     <property name="use_underline">True</property>
                     <property name="use_stock">True</property>
                   </object>

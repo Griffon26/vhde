@@ -45,6 +45,9 @@ public:
   GuiInstance(const GuiInstance&) = delete;
   GuiInstance& operator=(const GuiInstance&) = delete;
 
+  /* Inherited from GuiSelectable */
+  void discard();
+
 private:
   virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
   virtual bool onBodyDragged(Clutter::Event *pEvent);

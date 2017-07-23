@@ -123,6 +123,11 @@ std::vector<std::pair<VHDLPort *, VHDLSignal *>> VHDLInstance::getPortsAndSignal
   return portsAndSignals;
 }
 
+void VHDLInstance::discard()
+{
+  deleteRequested.emit(this);
+}
+
 /*
  * Private methods
  */

@@ -59,8 +59,6 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
     pGuiInstance->clicked.connect(sigc::mem_fun(*this, &ArchitectureStageUpdater::onInstanceClicked));
     m_pGuiInstances.push_back(std::move(pGuiInstance));
   }
-
-  m_pGuiSelection = std::make_unique<GuiSelection>();
 }
 
 bool ArchitectureStageUpdater::onKeyPressEvent(GdkEventKey *pEvent)
@@ -74,10 +72,10 @@ void ArchitectureStageUpdater::onInstanceClicked(unsigned int modifiers, GuiBloc
   {
     case CLUTTER_SHIFT_MASK:
     case CLUTTER_CONTROL_MASK:
-      m_pGuiSelection->toggle(pInstance);
+      m_guiSelection.toggle(pInstance);
       break;
     default:
-      m_pGuiSelection->set(pInstance);
+      m_guiSelection.set(pInstance);
       break;
   }
 }
@@ -87,10 +85,30 @@ bool ArchitectureStageUpdater::onStageClicked(Clutter::ButtonEvent *pButtonEvent
   if( pButtonEvent->button == 1 &&
       (pButtonEvent->modifier_state & ALL_MODIFIERS_MASK) != CLUTTER_CONTROL_MASK)
   {
-    m_pGuiSelection->clear();
+    m_guiSelection.clear();
     return true;
   }
 
   return false;
+}
+
+void ArchitectureStageUpdater::deleteSelection()
+{
+  auto selectedObjects = m_guiSelection.get();
+  m_guiSelection.clear();
+  for(auto &obj: selectedObjects)
+  {
+    auto pGuiInstance = static_cast<GuiInstance *>(obj);
+    pGuiInstance->discard();
+  }
+  std::cout << "Number of items in selectedObjects: " << selectedObjects.size() << "\n";
+  m_pGuiInstances.erase(std::remove_if(m_pGuiInstances.begin(),
+                                       m_pGuiInstances.end(),
+                                       [&] (std::unique_ptr<GuiInstance> const &p)
+                                       {
+                                         std::cout << "uniqp = " << p.get() << " and in selectedObjects is " << selectedObjects.count(p.get()) << "\n";
+                                         return selectedObjects.count(p.get()) == 1;
+                                       }),
+                        m_pGuiInstances.end());
 }
 

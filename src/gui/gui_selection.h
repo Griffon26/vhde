@@ -57,6 +57,7 @@ public:
   void add(GuiSelectable *);
   void remove(GuiSelectable *);
   void clear();
+  std::unordered_set<GuiSelectable *> get();
 
   /* Convenience functions */
   void toggle(GuiSelectable *);
