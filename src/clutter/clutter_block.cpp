@@ -54,14 +54,18 @@ void ClutterBlock::drawBox(const Clutter::Color &color, bool hasBorder, bool sel
 
     cogl_set_source_color4ub(0x00, 0x00, 0x00, get_opacity());
 
-    std::vector<std::pair<float, float>> handles = { {0,0}, {width / 2, 0}, {width, 0},
-                                                     {0, height / 2}, {width, height / 2},
-                                                     {0, height}, {width / 2, height}, {width, height} };
-
-    for(auto &point: handles)
+    if(selected)
     {
-      cogl_rectangle(point.first - cornerRadius, point.second - cornerRadius,
-                     point.first + cornerRadius, point.second + cornerRadius);
+      std::vector<std::pair<float, float>> handles = { {0,0}, {width / 2, 0}, {width, 0},
+                                                       {0, height / 2}, {width, height / 2},
+                                                       {0, height}, {width / 2, height}, {width, height} };
+
+      for(auto &point: handles)
+      {
+        cogl_rectangle(point.first - cornerRadius, point.second - cornerRadius,
+                       point.first + cornerRadius, point.second + cornerRadius);
+      }
+      cogl_path_rectangle(1, 1, width - 1, height - 1);
     }
 
     cogl_path_rectangle(0, 0, width, height);
