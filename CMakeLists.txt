@@ -71,6 +71,7 @@ set(SRCS src/main.cpp
          src/gui/gui_component.cpp
          src/gui/gui_instance.cpp
          src/gui/gui_port.cpp
+         src/gui/gui_selection.cpp
          src/gui/gui_signal.cpp
          src/layout/layout_architecture.cpp
          src/layout/layout_block.cpp

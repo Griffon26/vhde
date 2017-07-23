@@ -27,6 +27,7 @@
 
 GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock):
   m_dragIsResize(false),
+  m_draggedSinceButtonPress(false),
   m_pLayoutBlock(pLayoutBlock),
   m_pStage(pStage),
   m_bodyHandleOffsetX(0),
@@ -283,7 +284,7 @@ void GuiBlock::removePort(Edge edge, int position)
 
 bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 {
-  printf("GuiBlock::onBodyButtonPress\n");
+  //printf("GuiBlock::onBodyButtonPress\n");
 
   /* Remember the point within the object where it was picked up */
   float actorX, actorY;
@@ -298,6 +299,7 @@ bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
   m_pLayoutBlock->getMinimumSize(&m_minimumSize);
 
   /* Register for motion and button release events from the stage */
+  m_draggedSinceButtonPress = false;
   m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiBlock::onBodyDragged));
 
   m_dragIsResize = (pEvent->button == 3) &&
@@ -323,6 +325,11 @@ bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
 {
   float handleX, handleY;
 
+  if(pEvent->type == CLUTTER_MOTION)
+  {
+    m_draggedSinceButtonPress = true;
+  }
+
   if(pEvent->type == CLUTTER_MOTION && m_dragIsResize)
   {
     LayoutSize size;
@@ -345,6 +352,10 @@ bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
   else if(pEvent->type == CLUTTER_BUTTON_RELEASE)
   {
     m_onDragConnection.disconnect();
+    if(!m_draggedSinceButtonPress)
+    {
+      clicked.emit(pEvent->button.modifier_state & ALL_MODIFIERS_MASK, this);
+    }
     return HANDLED;
   }
   else

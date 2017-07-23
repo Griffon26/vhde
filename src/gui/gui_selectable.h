@@ -41,7 +41,6 @@ public:
   virtual void select(bool selectionState)
   {
     m_selected = selectionState;
-    std::cout << "Selected state changed to: " << m_selected << "\n";
     queueRedraw();
   }
 

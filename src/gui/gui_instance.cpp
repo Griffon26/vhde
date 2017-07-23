@@ -58,7 +58,7 @@ bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
   bool ret;
   unsigned int modifiers = pEvent->modifier_state & ALL_MODIFIERS_MASK;
 
-  printf("GuiInstance::onBodyButtonPress\n");
+  //printf("GuiInstance::onBodyButtonPress\n");
 
   ret = GuiBlock::onBodyButtonPress(pEvent);
   g_assert(ret == HANDLED);
@@ -77,6 +77,10 @@ bool GuiInstance::onBodyDragged(Clutter::Event *pEvent)
   float handleX, handleY;
 
   //printf("GuiInstance::onBodyDragged\n");
+  if(pEvent->type == CLUTTER_MOTION)
+  {
+    m_draggedSinceButtonPress = true;
+  }
 
   if((pEvent->type == CLUTTER_MOTION) && m_dragIsMove)
   {

@@ -38,6 +38,9 @@
  */
 class GuiBlock: public GuiSelectable
 {
+public:
+  sigc::signal<void, unsigned int, GuiBlock *> clicked;
+
 private:
   bool  m_dragIsResize;
 
@@ -50,6 +53,8 @@ private:
   sigc::connection        m_onResizedConnection;
 
 protected:
+  bool  m_draggedSinceButtonPress;
+
   std::vector<std::unique_ptr<GuiPort>> m_ports;
 
   LayoutBlock            *m_pLayoutBlock;
@@ -68,7 +73,6 @@ protected:
   LayoutSize                    m_initialSize;
   LayoutSize                    m_minimumSize;
   std::vector<int>              m_initialPortPositions[NR_OF_EDGES];
-
 
 public:
   GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock);

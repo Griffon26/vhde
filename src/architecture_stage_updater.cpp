@@ -53,12 +53,30 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   }
   for(auto &layoutInstance: m_pArch->getInstances())
   {
-    m_pGuiInstances.push_back(std::make_unique<GuiInstance>(m_pStage, layoutInstance));
+    auto pGuiInstance = std::make_unique<GuiInstance>(m_pStage, layoutInstance);
+    pGuiInstance->clicked.connect(sigc::mem_fun(*this, &ArchitectureStageUpdater::onInstanceClicked));
+    m_pGuiInstances.push_back(std::move(pGuiInstance));
   }
+
+  m_pGuiSelection = std::make_unique<GuiSelection>();
 }
 
 bool ArchitectureStageUpdater::onKeyPressEvent(GdkEventKey *pEvent)
 {
   return false;
+}
+
+void ArchitectureStageUpdater::onInstanceClicked(unsigned int modifiers, GuiBlock *pInstance)
+{
+  switch(modifiers)
+  {
+    case CLUTTER_SHIFT_MASK:
+    case CLUTTER_CONTROL_MASK:
+      m_pGuiSelection->toggle(pInstance);
+      break;
+    default:
+      m_pGuiSelection->set(pInstance);
+      break;
+  }
 }
 

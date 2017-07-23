@@ -18,37 +18,45 @@
  *
  */
 
-#ifndef _ARCHITECTURE_STAGE_UPDATER_H
-#define _ARCHITECTURE_STAGE_UPDATER_H
-
-#include <memory>
-
-#include "gui_instance.h"
 #include "gui_selection.h"
-#include "gui_signal.h"
-#include "i_stage_updater.h"
+#include "gui_selectable.h"
 
-class LayoutArchitecture;
-
-class ArchitectureStageUpdater: public IStageUpdater
+void GuiSelection::add(GuiSelectable *pGuiSelectable)
 {
-public:
-  ArchitectureStageUpdater();
-  virtual ~ArchitectureStageUpdater();
+  pGuiSelectable->select(true);
+  m_selectedObjects.insert(pGuiSelectable);
+}
 
-  void setArchitecture(LayoutArchitecture *pArch);
-  void setStage(Glib::RefPtr<Clutter::Stage> pStage);
-  bool onKeyPressEvent(GdkEventKey *pEvent);
-  void onInstanceClicked(unsigned int modifiers, GuiBlock *pInstance);
+void GuiSelection::remove(GuiSelectable *pGuiSelectable)
+{
+  pGuiSelectable->select(false);
+  m_selectedObjects.erase(pGuiSelectable);
+}
 
-private:
-  LayoutArchitecture *m_pArch;
-  Glib::RefPtr<Clutter::Stage> m_pStage;
+void GuiSelection::clear()
+{
+  for(auto pGuiSelectable: m_selectedObjects)
+  {
+    pGuiSelectable->select(false);
+  }
+  m_selectedObjects.clear();
+}
 
-  std::vector<std::unique_ptr<GuiInstance>> m_pGuiInstances;
-  std::vector<std::unique_ptr<GuiSignal>> m_pGuiSignals;
-  std::unique_ptr<GuiSelection> m_pGuiSelection;
-};
+void GuiSelection::toggle(GuiSelectable *pGuiSelectable)
+{
+  if(m_selectedObjects.count(pGuiSelectable))
+  {
+    remove(pGuiSelectable);
+  }
+  else
+  {
+    add(pGuiSelectable);
+  }
+}
 
-#endif
+void GuiSelection::set(GuiSelectable *pGuiSelectable)
+{
+  clear();
+  add(pGuiSelectable);
+}
 
