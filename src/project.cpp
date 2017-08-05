@@ -164,30 +164,31 @@ std::unique_ptr<LayoutFile> Project::createDefaultFileLayout(VHDLFile *pVHDLFile
   return pLayoutFile;
 }
 
-void Project::PortConnector::connectIfBothPortsAdded()
+void Project::PortConnector::pairwiseConnectPorts()
 {
-  if(m_pLayoutPort && m_pVHDLPort)
+  while( (m_VHDLPortsToConnect.size() > 0) &&
+         (m_layoutPortsToConnect.size() > 0) )
   {
-    m_pLayoutPort->associateVHDLPort(m_pVHDLPort);
-    m_pLayoutPort = nullptr;
-    m_pVHDLPort = nullptr;
+    m_layoutPortsToConnect.back()->associateVHDLPort(m_VHDLPortsToConnect.back());
+    m_layoutPortsToConnect.pop_back();
+    m_VHDLPortsToConnect.pop_back();
   }
 }
 
 void Project::PortConnector::onVHDLPortAdded(VHDLPort *pVHDLPort)
 {
-  g_assert(!m_pVHDLPort);
-  m_pVHDLPort = pVHDLPort;
+  g_assert(pVHDLPort);
+  m_VHDLPortsToConnect.insert(m_VHDLPortsToConnect.begin(), pVHDLPort);
 
-  connectIfBothPortsAdded();
+  pairwiseConnectPorts();
 }
 
 void Project::PortConnector::onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)
 {
-  g_assert(!m_pLayoutPort);
-  m_pLayoutPort = pLayoutPort;
+  g_assert(pLayoutPort);
+  m_layoutPortsToConnect.insert(m_layoutPortsToConnect.begin(), pLayoutPort);
 
-  connectIfBothPortsAdded();
+  pairwiseConnectPorts();
 }
 
 void Project::PortConnector::registerLayoutInstance(LayoutInstance *pLayoutInstance)

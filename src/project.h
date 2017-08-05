@@ -40,21 +40,19 @@ private:
   class PortConnector
   {
   public:
-    PortConnector():
-      m_pVHDLPort(nullptr),
-      m_pLayoutPort(nullptr)
+    PortConnector()
     {}
 
     void registerLayoutInstance(LayoutInstance *pLayoutInstance);
     void registerVHDLInstance(VHDLInstance *pVHDLInstance);
 
   private:
-    void connectIfBothPortsAdded();
+    void pairwiseConnectPorts();
     void onVHDLPortAdded(VHDLPort *pVHDLPort);
     void onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);
 
-    VHDLPort *m_pVHDLPort;
-    LayoutPort *m_pLayoutPort;
+    std::vector<VHDLPort *> m_VHDLPortsToConnect;
+    std::vector<LayoutPort *> m_layoutPortsToConnect;
   };
 
   PortConnector m_portConnector;
