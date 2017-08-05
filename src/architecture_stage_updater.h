@@ -45,6 +45,8 @@ public:
   void deleteSelection();
 
 private:
+  sigc::connection m_stage_clicked_connection;
+
   LayoutArchitecture *m_pArch;
   Glib::RefPtr<Clutter::Stage> m_pStage;
 

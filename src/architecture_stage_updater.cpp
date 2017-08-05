@@ -32,6 +32,7 @@ ArchitectureStageUpdater::ArchitectureStageUpdater():
 
 ArchitectureStageUpdater::~ArchitectureStageUpdater()
 {
+  m_stage_clicked_connection.disconnect();
   std::cout << "ArchitectureStageUpdater()::~ArchitectureStageUpdater()\n";
 }
 
@@ -47,7 +48,7 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   g_assert(m_pArch != nullptr);
   m_pStage = pStage;
 
-  m_pStage->signal_button_release_event().connect(sigc::mem_fun(*this, &ArchitectureStageUpdater::onStageClicked));
+  m_stage_clicked_connection = m_pStage->signal_button_release_event().connect(sigc::mem_fun(*this, &ArchitectureStageUpdater::onStageClicked));
 
   for(auto &layoutSignal: m_pArch->getSignals())
   {
