@@ -52,10 +52,7 @@ void LayoutArchitecture::init_addSignal(std::unique_ptr<LayoutSignal> pSignal)
 void LayoutArchitecture::removeInstance(LayoutInstance *pInstance)
 {
   g_assert(!m_init);
-  m_instances.erase(std::remove_if(m_instances.begin(),
-                                   m_instances.end(),
-                                   [&](std::unique_ptr<LayoutInstance> &p) { return p.get() == pInstance; }),
-                    m_instances.end());
+  remove_unique_ptr(m_instances, pInstance);
 }
 
 void LayoutArchitecture::associateVHDLArchitecture(INamedItem *pVHDLArchitecture)

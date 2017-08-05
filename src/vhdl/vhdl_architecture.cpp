@@ -66,10 +66,14 @@ void VHDLArchitecture::init_addInstance(std::unique_ptr<VHDLInstance> pInstance)
 void VHDLArchitecture::removeInstance(VHDLInstance *pInstance)
 {
   g_assert(!m_init);
-  m_instances.erase(std::remove_if(m_instances.begin(),
-                                   m_instances.end(),
-                                   [&](std::unique_ptr<VHDLInstance> &p) { return p.get() == pInstance; }),
-                    m_instances.end());
+  VHDLComponent *pComponent = pInstance->getComponent();
+
+  remove_unique_ptr(m_instances, pInstance);
+
+  if(pComponent->getReferenceCount() == 0)
+  {
+    remove_unique_ptr(m_components, pComponent);
+  }
 }
 
 const std::vector<VHDLInstance *> VHDLArchitecture::getInstances()
@@ -130,12 +134,7 @@ bool VHDLArchitecture::write(std::ostream &outStream, int indent)
 
   outStream << indentString << "architecture " << m_name << " of " << m_pEntity->getName() << " is\n\n";
 
-  std::set<VHDLComponent *> components;
-  for(auto iit = m_instances.begin(); iit != m_instances.end(); iit++)
-  {
-    components.insert((*iit)->getComponent());
-  }
-  for(auto &pComp: components)
+  for(auto &pComp: m_components)
   {
     pComp->write(outStream, indent + 2);
   }

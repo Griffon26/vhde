@@ -28,6 +28,7 @@
  */
 
 VHDLComponent::VHDLComponent(const Glib::ustring &entityName):
+  m_refCount(0),
   m_pEntity(NULL),
   m_unresolvedName(entityName)
 {
@@ -45,6 +46,22 @@ VHDLComponent::~VHDLComponent()
   {
     kv.second.disconnect();
   }
+}
+
+void VHDLComponent::addReference()
+{
+  m_refCount++;
+}
+
+void VHDLComponent::removeReference()
+{
+  g_assert(m_refCount > 0);
+  m_refCount--;
+}
+
+int VHDLComponent::getReferenceCount()
+{
+  return m_refCount;
 }
 
 /*

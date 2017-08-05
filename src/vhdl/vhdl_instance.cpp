@@ -31,10 +31,12 @@ VHDLInstance::VHDLInstance(const Glib::ustring &name, VHDLComponent *pComponent)
   m_name(name),
   m_pComponent(pComponent)
 {
+  m_pComponent->addReference();
 }
 
 VHDLInstance::~VHDLInstance()
 {
+  m_pComponent->removeReference();
 }
 
 void VHDLInstance::connectSignalToPort(VHDLSignal *pSignal, VHDLPort *pPort)

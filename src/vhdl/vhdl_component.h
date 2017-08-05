@@ -31,6 +31,7 @@ class VHDLEntity;
 class VHDLComponent: public VHDLInterface
 {
 private:
+  int m_refCount;
   VHDLEntity *m_pEntity;
   sigc::connection m_onPortAddedConnection;
   std::map<VHDLPort *, sigc::connection> m_onPortRemovedConnections;
@@ -39,6 +40,14 @@ private:
 public:
   VHDLComponent(const Glib::ustring &entityName);
   ~VHDLComponent();
+
+  /* VHDLInstances should call the add/removeReference functions when they are
+   * created/destroyed. The VHDLArchitecture uses this refcount to control the
+   * lifetime of the VHDLComponent
+   */
+  void addReference();
+  void removeReference();
+  int getReferenceCount();
 
   VHDLComponent(const VHDLComponent &) = delete;
   VHDLComponent& operator=(const VHDLComponent&) = delete;

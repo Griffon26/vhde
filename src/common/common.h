@@ -59,4 +59,13 @@ template<typename T> std::vector<T *> stripOwnership(const std::vector<std::uniq
   return borrowingVector;
 }
 
+template<typename C, typename T> void remove_unique_ptr(C &container, T *ptr)
+{
+  container.erase(std::remove_if(container.begin(),
+                                 container.end(),
+                                 [&](std::unique_ptr<T> &p) { return p.get() == ptr; }),
+                  container.end());
+}
+
+
 #endif /* _COMMON_H */
