@@ -33,6 +33,7 @@
 class GuiInstance: public GuiBlock
 {
 private:
+  LayoutPosition          m_initialPosition;
   bool                    m_dragIsMove;
 
   /* Model signals */
@@ -48,10 +49,12 @@ public:
   /* Inherited from GuiSelectable */
   void discard();
 
-private:
-  virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
-  virtual bool onBodyDragged(Clutter::Event *pEvent);
+  /* Inherited from GuiDraggable */
+  virtual void startMove() override;
+  virtual void updateMove(int offsetx, int offsety) override;
+  virtual void finishMove() override;
 
+private:
   void handlePortAdded();
 
   void onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort);

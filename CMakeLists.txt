@@ -61,6 +61,7 @@ link_libraries(${CLUTTERMM_LIBRARIES}
 set(SRCS src/main.cpp
          src/architecture_stage_updater.cpp
          src/entity_stage_updater.cpp
+         src/move_and_resize_handler.cpp
          src/project.cpp
          src/project_treeview_updater.cpp
          src/clutter/clutter_block.cpp

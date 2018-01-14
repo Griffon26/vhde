@@ -64,52 +64,24 @@ void GuiInstance::discard()
   pVHDLInstance->discard();
 }
 
-bool GuiInstance::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
+void GuiInstance::startMove()
 {
-  bool ret;
-  unsigned int modifiers = pEvent->modifier_state & ALL_MODIFIERS_MASK;
-
-  //printf("GuiInstance::onBodyButtonPress\n");
-
-  ret = GuiBlock::onBodyButtonPress(pEvent);
-  g_assert(ret == HANDLED);
-
-  /* Determine if this button press is the start of a move operation */
-  //printf("instance onBodyButtonPress button = %d modstate = %d\n", pEvent->button, pEvent->modifier_state);
-  m_dragIsMove = (pEvent->button == 1) &&
-                 ( (modifiers == CLUTTER_CONTROL_MASK) ||
-                   (modifiers == 0) );
-
-  return HANDLED;
+  printf("GuiInstance::startMove\n");
+  static_cast<LayoutInstance *>(m_pLayoutBlock)->getPosition(&m_initialPosition);
 }
 
-bool GuiInstance::onBodyDragged(Clutter::Event *pEvent)
+void GuiInstance::updateMove(int offsetX, int offsetY)
 {
-  float handleX, handleY;
+  printf("GuiInstance::updateMove\n");
+  LayoutPosition newPosition(m_initialPosition.x + offsetX,
+                             m_initialPosition.y + offsetY);
+  static_cast<LayoutInstance *>(m_pLayoutBlock)->setPosition(newPosition);
+  m_pGroup->set_position(newPosition.x, newPosition.y);
+}
 
-  //printf("GuiInstance::onBodyDragged\n");
-  if(pEvent->type == CLUTTER_MOTION)
-  {
-    m_draggedSinceButtonPress = true;
-  }
-
-  if((pEvent->type == CLUTTER_MOTION) && m_dragIsMove)
-  {
-    LayoutPosition pos;
-
-    m_pStage->transform_stage_point(pEvent->motion.x, pEvent->motion.y, handleX, handleY);
-
-    pos.x = handleX - m_bodyHandleOffsetX;
-    pos.y = handleY - m_bodyHandleOffsetY;
-
-    m_pGroup->set_position(pos.x, pos.y);
-    static_cast<LayoutInstance *>(m_pLayoutBlock)->setPosition(pos);
-    return HANDLED;
-  }
-  else
-  {
-    return GuiBlock::onBodyDragged(pEvent);
-  }
+void GuiInstance::finishMove()
+{
+  printf("GuiInstance::finishMove\n");
 }
 
 void GuiInstance::onLayoutPortAdded(Edge edge, int position, LayoutPort *pLayoutPort)

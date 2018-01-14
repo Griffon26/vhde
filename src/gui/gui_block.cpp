@@ -26,6 +26,7 @@
  */
 
 GuiBlock::GuiBlock(Glib::RefPtr<Clutter::Stage> pStage, LayoutBlock *pLayoutBlock):
+  GuiDraggable(GuiSelectable::BLOCK),
   m_dragIsResize(false),
   m_draggedSinceButtonPress(false),
   m_pLayoutBlock(pLayoutBlock),
@@ -281,88 +282,58 @@ void GuiBlock::removePort(Edge edge, int position)
   }
 }
 
-
 bool GuiBlock::onBodyButtonPress(Clutter::ButtonEvent *pEvent)
 {
-  //printf("GuiBlock::onBodyButtonPress\n");
+  printf("GuiBlock::onBodyButtonPress\n");
 
-  /* Remember the point within the object where it was picked up */
-  float actorX, actorY;
-  m_pGroup->get_position(actorX, actorY);
+  dragStarted.emit(pEvent, this);
+  return HANDLED;
+}
 
-  m_pStage->transform_stage_point(pEvent->x, pEvent->y, m_initialHandleX, m_initialHandleY);
+void GuiBlock::click(int modifiers)
+{
+  clicked.emit(modifiers, this);
+}
 
-  m_bodyHandleOffsetX = m_initialHandleX - actorX;
-  m_bodyHandleOffsetY = m_initialHandleY - actorY;
+void GuiBlock::startResize()
+{
+  printf("GuiBlock::startResize\n");
 
   m_pLayoutBlock->getSize(&m_initialSize);
   m_pLayoutBlock->getMinimumSize(&m_minimumSize);
 
-  /* Register for motion and button release events from the stage */
-  if(pEvent->button == 1)
+  /* Make a copy of the initial port position maps, because as we resize the
+   * component we always want to keep the ports as close as possible to their
+   * original position. So if we resize down first shifting ports closer
+   * together, resizing back up should spread them out again.
+   */
+  for(int edge = 0; edge < NR_OF_EDGES; edge++)
   {
-    m_draggedSinceButtonPress = false;
+    m_initialPortPositions[edge] = m_pLayoutBlock->getPortPositions((Edge)edge);
   }
-  m_onDragConnection = m_pStage->signal_captured_event().connect(sigc::mem_fun(this, &GuiBlock::onBodyDragged));
-
-  m_dragIsResize = (pEvent->button == 3) &&
-                   ((pEvent->modifier_state & ALL_MODIFIERS_MASK) == CLUTTER_CONTROL_MASK);
-
-  if(m_dragIsResize)
-  {
-    /* Make a copy of the initial port position maps, because as we resize the
-     * component we always want to keep the ports as close as possible to their
-     * original position. So if we resize down first shifting ports closer
-     * together, resizing back up should spread them out again.
-     */
-    for(int edge = 0; edge < NR_OF_EDGES; edge++)
-    {
-      m_initialPortPositions[edge] = m_pLayoutBlock->getPortPositions((Edge)edge);
-    }
-  }
-
-  return HANDLED;
 }
 
-bool GuiBlock::onBodyDragged(Clutter::Event *pEvent)
+void GuiBlock::updateResize(int offsetX, int offsetY)
 {
-  float handleX, handleY;
+  printf("GuiBlock::updateResize\n");
+  m_draggedSinceButtonPress = true;
 
-  if(pEvent->type == CLUTTER_MOTION)
+  LayoutSize size;
+  m_pLayoutBlock->getSize(&size);
+
+  size.width  = MAX(m_minimumSize.width, m_initialSize.width  + offsetX);
+  size.height = MAX(m_minimumSize.height, m_initialSize.height + offsetY);
+
+  m_pLayoutBlock->setSize(size);
+
+  for(int edge = 0; edge < NR_OF_EDGES; edge++)
   {
-    m_draggedSinceButtonPress = true;
-  }
-
-  if(pEvent->type == CLUTTER_MOTION && m_dragIsResize)
-  {
-    LayoutSize size;
-    m_pLayoutBlock->getSize(&size);
-
-    m_pStage->transform_stage_point(pEvent->motion.x, pEvent->motion.y, handleX, handleY);
-
-    size.width  = MAX(m_minimumSize.width, m_initialSize.width  + (handleX - m_initialHandleX));
-    size.height = MAX(m_minimumSize.height, m_initialSize.height + (handleY - m_initialHandleY));
-
-    m_pLayoutBlock->setSize(size);
-
-    for(int edge = 0; edge < NR_OF_EDGES; edge++)
-    {
-      m_pLayoutBlock->setPortPositions((Edge)edge, m_initialPortPositions[edge]);
-    }
-
-    return HANDLED;
-  }
-  else if(pEvent->type == CLUTTER_BUTTON_RELEASE)
-  {
-    m_onDragConnection.disconnect();
-    if(pEvent->button.button == 1 && !m_draggedSinceButtonPress)
-    {
-      clicked.emit(pEvent->button.modifier_state & ALL_MODIFIERS_MASK, this);
-    }
-    return HANDLED;
-  }
-  else
-  {
-    return UNHANDLED;
+    m_pLayoutBlock->setPortPositions((Edge)edge, m_initialPortPositions[edge]);
   }
 }
+
+void GuiBlock::finishResize()
+{
+  printf("GuiBlock::finishResize\n");
+}
+

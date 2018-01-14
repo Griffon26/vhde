@@ -25,7 +25,7 @@
 #include "clutter_port.h"
 #include "clutter_scaling_text.h"
 #include "gui_port.h"
-#include "gui_selectable.h"
+#include "gui_draggable.h"
 #include "layout_block.h"
 
 /**
@@ -36,11 +36,8 @@
  * to change its position on the canvas.  Use GuiInstance instead if you need
  * component instance specific operations like that.
  */
-class GuiBlock: public GuiSelectable
+class GuiBlock: public GuiDraggable
 {
-public:
-  sigc::signal<void, unsigned int, GuiBlock *> clicked;
-
 private:
   bool  m_dragIsResize;
 
@@ -85,6 +82,12 @@ public:
 
   bool findFreeSlot(Edge preferredEdge, int preferredPosition, Edge *pFreeEdge, int *pFreePosition);
 
+  virtual void startResize() override;
+  virtual void updateResize(int offsetx, int offsety) override;
+  virtual void finishResize() override;
+
+  virtual void click(int modifiers) override;
+
 private:
   bool getClosestSlot(bool unusedOnly, int x, int y, Edge *pEdge, int *pPosition,
                       bool considerAdditionalSlot = false, Edge additionalSlotEdge = EDGE_LEFT, int additionalSlotPosition = 0);
@@ -101,7 +104,7 @@ protected:
   void removePort(Edge edge, int position);
 
   virtual bool onBodyButtonPress(Clutter::ButtonEvent *pEvent);
-  virtual bool onBodyDragged(Clutter::Event *pEvent);
+  //virtual bool onBodyDragged(Clutter::Event *pEvent);
 
 };
 

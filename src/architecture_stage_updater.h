@@ -27,6 +27,7 @@
 #include "gui_selection.h"
 #include "gui_signal.h"
 #include "i_stage_updater.h"
+#include "move_and_resize_handler.h"
 
 class LayoutArchitecture;
 
@@ -39,7 +40,7 @@ public:
   void setArchitecture(LayoutArchitecture *pArch);
   void setStage(Glib::RefPtr<Clutter::Stage> pStage);
   bool onKeyPressEvent(GdkEventKey *pEvent);
-  void onInstanceClicked(unsigned int modifiers, GuiBlock *pInstance);
+  void onInstanceClicked(unsigned int modifiers, GuiSelectable *pInstance);
   bool onStageClicked(Clutter::ButtonEvent *pButtonEvent);
 
   void deleteSelection();
@@ -49,6 +50,8 @@ private:
 
   LayoutArchitecture *m_pArch;
   Glib::RefPtr<Clutter::Stage> m_pStage;
+
+  std::unique_ptr<MoveAndResizeHandler> m_pMoveAndResizeHandler;
 
   std::vector<std::unique_ptr<GuiInstance>> m_pGuiInstances;
   std::vector<std::unique_ptr<GuiSignal>> m_pGuiSignals;

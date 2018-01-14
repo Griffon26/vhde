@@ -21,6 +21,7 @@
 #ifndef _GUI_SELECTABLE_H
 #define _GUI_SELECTABLE_H
 
+#include <glibmm.h>
 #include <iostream>
 
 /**
@@ -29,7 +30,14 @@
 class GuiSelectable
 {
 public:
-  GuiSelectable():
+  enum Type
+  {
+    BLOCK,
+    PORT
+  };
+
+  GuiSelectable(Type type):
+    m_type(type),
     m_selected(false)
   {
   }
@@ -42,6 +50,11 @@ public:
   {
     m_selected = selectionState;
     queueRedraw();
+  }
+
+  Type getSelectableType()
+  {
+    return m_type;
   }
 
   /* This function will be called when the selection is deleted. The object can
@@ -59,9 +72,15 @@ protected:
    */
   virtual void queueRedraw() = 0;
 
+private:
+  Type m_type;
+
 protected:
   /* A boolean that indicates whether the current object is part of the selection */
   bool m_selected;
+
+public:
+  sigc::signal<void, unsigned int, GuiSelectable *> clicked;
 };
 
 #endif /* _GUI_SELECTABLE_H */

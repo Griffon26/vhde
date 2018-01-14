@@ -48,6 +48,8 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   g_assert(m_pArch != nullptr);
   m_pStage = pStage;
 
+  m_pMoveAndResizeHandler = std::make_unique<MoveAndResizeHandler>(&m_guiSelection, m_pStage);
+
   m_stage_clicked_connection = m_pStage->signal_button_release_event().connect(sigc::mem_fun(*this, &ArchitectureStageUpdater::onStageClicked));
 
   for(auto &layoutSignal: m_pArch->getSignals())
@@ -58,6 +60,7 @@ void ArchitectureStageUpdater::setStage(Glib::RefPtr<Clutter::Stage> pStage)
   {
     auto pGuiInstance = std::make_unique<GuiInstance>(m_pStage, layoutInstance);
     pGuiInstance->clicked.connect(sigc::mem_fun(*this, &ArchitectureStageUpdater::onInstanceClicked));
+    m_pMoveAndResizeHandler->addDraggable(pGuiInstance.get());
     m_pGuiInstances.push_back(std::move(pGuiInstance));
   }
 }
@@ -67,7 +70,7 @@ bool ArchitectureStageUpdater::onKeyPressEvent(GdkEventKey *pEvent)
   return false;
 }
 
-void ArchitectureStageUpdater::onInstanceClicked(unsigned int modifiers, GuiBlock *pInstance)
+void ArchitectureStageUpdater::onInstanceClicked(unsigned int modifiers, GuiSelectable *pInstance)
 {
   switch(modifiers)
   {
