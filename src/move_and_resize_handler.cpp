@@ -25,7 +25,10 @@
 MoveAndResizeHandler::MoveAndResizeHandler(GuiSelection *pGuiSelection, Glib::RefPtr<Clutter::Stage> pStage):
   m_pGuiSelection(pGuiSelection),
   m_pStage(pStage),
-  m_currentOperation(Operation::NONE)
+  m_currentOperation(Operation::NONE),
+  m_initialHandleX(0.0),
+  m_initialHandleY(0.0),
+  m_draggedSinceButtonPress(false)
 {
 }
 
