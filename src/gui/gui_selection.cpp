@@ -65,3 +65,13 @@ std::unordered_set<GuiSelectable *> GuiSelection::get()
   return m_selectedObjects;
 }
 
+bool GuiSelection::contains(GuiSelectable *pGuiSelectable)
+{
+  return m_selectedObjects.count(pGuiSelectable) > 0;
+}
+
+bool GuiSelection::isEmpty()
+{
+  return m_selectedObjects.empty();
+}
+

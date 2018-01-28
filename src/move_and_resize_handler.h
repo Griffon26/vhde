@@ -21,6 +21,8 @@
 #ifndef _MOVE_AND_RESIZE_HANDLER_H
 #define _MOVE_AND_RESIZE_HANDLER_H
 
+#include <set>
+
 #include "gui_draggable.h"
 #include "gui_selection.h"
 
@@ -42,9 +44,28 @@ private:
     RESIZE
   };
 
+  class GuiDraggables
+  {
+  public:
+    virtual void startMove() { for(auto pElem: m_elements) { pElem->startMove(); } }
+    virtual void updateMove(int offsetx, int offsety)  { for(auto pElem: m_elements) { pElem->updateMove(offsetx, offsety); } }
+    virtual void finishMove() { for(auto pElem: m_elements) { pElem->finishMove(); } }
+
+    virtual void startResize() { for(auto pElem: m_elements) { pElem->startResize(); } }
+    virtual void updateResize(int offsetx, int offsety) { for(auto pElem: m_elements) { pElem->updateResize(offsetx, offsety); } }
+    virtual void finishResize() { for(auto pElem: m_elements) { pElem->finishResize(); } }
+
+    virtual void clear() { m_elements.clear(); }
+    virtual void insert(GuiDraggable *pGuiDraggable) { m_elements.insert(pGuiDraggable); }
+
+  private:
+    std::set<GuiDraggable *> m_elements;
+  };
+
   GuiSelection *m_pGuiSelection;
   Glib::RefPtr<Clutter::Stage> m_pStage;
   Operation m_currentOperation;
+  GuiDraggables m_currentDraggables;
 
   float m_initialHandleX;
   float m_initialHandleY;

@@ -63,6 +63,9 @@ public:
   void toggle(GuiSelectable *);
   void set(GuiSelectable *); // sets selection to this one object
 
+  bool contains(GuiSelectable *);
+  bool isEmpty();
+
 private:
   std::unordered_set<GuiSelectable *> m_selectedObjects;
 };

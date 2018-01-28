@@ -38,6 +38,8 @@ void MoveAndResizeHandler::onDragStarted(Clutter::ButtonEvent *pButtonEvent, Gui
 
   std::cout << "MoveAndResizeHandler::onDragStarted\n";
 
+  m_draggedSinceButtonPress = false;
+
   if(m_currentOperation == Operation::NONE)
   {
     if((pButtonEvent->button == 3) && (modifiers == CLUTTER_CONTROL_MASK))
@@ -51,13 +53,37 @@ void MoveAndResizeHandler::onDragStarted(Clutter::ButtonEvent *pButtonEvent, Gui
 
     m_pStage->transform_stage_point(pButtonEvent->x, pButtonEvent->y, m_initialHandleX, m_initialHandleY);
 
+    m_currentDraggables.clear();
+    if(m_pGuiSelection->isEmpty())
+    {
+      m_currentDraggables.insert(pGuiDraggable);
+    }
+    else
+    {
+      if(m_pGuiSelection->contains(pGuiDraggable))
+      {
+        for(auto pGuiSelectable: m_pGuiSelection->get())
+        {
+          GuiDraggable *pSelectedDraggable = dynamic_cast<GuiDraggable *>(pGuiSelectable);
+          if(pSelectedDraggable)
+          {
+            m_currentDraggables.insert(pSelectedDraggable);
+          }
+        }
+      }
+      else
+      {
+        m_currentDraggables.insert(pGuiDraggable);
+      }
+    }
+
     switch(m_currentOperation)
     {
     case Operation::RESIZE:
-      pGuiDraggable->startResize();
+      m_currentDraggables.startResize();
       break;
     case Operation::MOVE:
-      pGuiDraggable->startMove();
+      m_currentDraggables.startMove();
       break;
     default:
       break;
@@ -79,6 +105,11 @@ bool MoveAndResizeHandler::onStageEvent(Clutter::Event *pEvent, GuiDraggable *pG
   {
     m_draggedSinceButtonPress = true;
 
+    if(!m_pGuiSelection->contains(pGuiDraggable))
+    {
+      m_pGuiSelection->set(pGuiDraggable);
+    }
+
     float newX, newY;
     m_pStage->transform_stage_point(pEvent->motion.x, pEvent->motion.y, newX, newY);
     int offsetX = static_cast<int>(newX - m_initialHandleX);
@@ -87,10 +118,10 @@ bool MoveAndResizeHandler::onStageEvent(Clutter::Event *pEvent, GuiDraggable *pG
     switch(m_currentOperation)
     {
     case Operation::RESIZE:
-      pGuiDraggable->updateResize(offsetX, offsetY);
+      m_currentDraggables.updateResize(offsetX, offsetY);
       break;
     case Operation::MOVE:
-      pGuiDraggable->updateMove(offsetX, offsetY);
+      m_currentDraggables.updateMove(offsetX, offsetY);
       break;
     default:
       g_assert(false);
@@ -103,15 +134,16 @@ bool MoveAndResizeHandler::onStageEvent(Clutter::Event *pEvent, GuiDraggable *pG
     switch(m_currentOperation)
     {
     case Operation::RESIZE:
-      pGuiDraggable->finishResize();
+      m_currentDraggables.finishResize();
       break;
     case Operation::MOVE:
-      pGuiDraggable->finishMove();
+      m_currentDraggables.finishMove();
       break;
     default:
       g_assert(false);
     }
     m_currentOperation = Operation::NONE;
+    m_currentDraggables.clear();
 
     if(pEvent->button.button == 1 && !m_draggedSinceButtonPress)
     {
@@ -128,7 +160,5 @@ bool MoveAndResizeHandler::onStageEvent(Clutter::Event *pEvent, GuiDraggable *pG
 void MoveAndResizeHandler::addDraggable(GuiDraggable *pGuiDraggable)
 {
   pGuiDraggable->dragStarted.connect(sigc::mem_fun(*this, &MoveAndResizeHandler::onDragStarted));
-  //pGuiDraggable->dragFinished.connect(sigc::mem_fun(*this, &MoveAndResizeHandler::onDragFinished));
-  //pGuiDraggable->dragMotion.connect(sigc::mem_fun(*this, &MoveAndResizeHandler::onDragMotion));
 }
 
